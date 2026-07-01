@@ -10,11 +10,12 @@ final class NotificationManager {
     private init() {}
 
     func requestAuthorization() {
+        let logger = self.logger
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { granted, error in
             if let error = error {
-                self.logger.error("Failed to request notification authorization: \(error.localizedDescription)")
+                logger.error("Failed to request notification authorization: \(error.localizedDescription)")
             } else {
-                self.logger.info("Notification authorization granted: \(granted)")
+                logger.info("Notification authorization granted: \(granted)")
             }
         }
     }
@@ -31,9 +32,10 @@ final class NotificationManager {
             trigger: nil // Deliver immediately
         )
 
+        let logger = self.logger
         UNUserNotificationCenter.current().add(request) { error in
             if let error = error {
-                self.logger.error("Failed to deliver notification: \(error.localizedDescription)")
+                logger.error("Failed to deliver notification: \(error.localizedDescription)")
             }
         }
     }

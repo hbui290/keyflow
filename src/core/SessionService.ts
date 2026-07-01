@@ -350,6 +350,11 @@ export class SessionService {
       let stdout = ''
       let stderr = ''
 
+      const timeout = setTimeout(() => {
+        proc.kill('SIGKILL')
+        reject(new Error('Codex CLI priming request timed out after 20 seconds.'))
+      }, 20000)
+
       proc.stdout.on('data', (data) => {
         stdout += data.toString()
       })
@@ -359,6 +364,7 @@ export class SessionService {
       })
 
       proc.on('close', (code) => {
+        clearTimeout(timeout)
         if (code !== 0) {
           const errMsg = (stderr || stdout).trim()
           reject(new Error(`Codex CLI priming failed (exit code ${code}): ${errMsg.slice(0, 200)}`))
@@ -371,6 +377,7 @@ export class SessionService {
       })
 
       proc.on('error', (err) => {
+        clearTimeout(timeout)
         reject(new Error(`Failed to launch Codex CLI: ${err.message}`))
       })
     })

@@ -34,6 +34,7 @@ final class KeyFlowAppModel: ObservableObject {
 
     let bridge: KeyFlowBridgeClient?
     private var refreshTimer: AnyCancellable?
+    private var accountsBeingPrimed: Set<String> = []
 
     init() {
         do {
@@ -156,6 +157,11 @@ final class KeyFlowAppModel: ObservableObject {
         do {
             let result = try await bridge.refreshActive()
             applyStatus(result.state)
+            
+            if let activeAcc = result.state.activeAccount {
+                await checkAndAutoPrime(account: activeAcc)
+            }
+
             if let warning = result.warning {
                 banner = BannerState(kind: .warning, message: warning)
             } else if showSuccessBanner {
@@ -179,6 +185,13 @@ final class KeyFlowAppModel: ObservableObject {
         do {
             let result = try await bridge.refreshAll()
             applyStatus(result.state)
+            
+            for acc in result.state.accounts {
+                if acc.isActive {
+                    await checkAndAutoPrime(account: acc)
+                }
+            }
+
             if let warning = result.warning {
                 banner = BannerState(kind: .warning, message: warning)
             } else {
@@ -192,6 +205,10 @@ final class KeyFlowAppModel: ObservableObject {
     func primeAccount(id: String) async {
         guard let bridge else { return }
         guard currentOperation == nil else { return }
+        guard !accountsBeingPrimed.contains(id) else { return }
+
+        accountsBeingPrimed.insert(id)
+        defer { accountsBeingPrimed.remove(id) }
 
         let accountName = accounts.first(where: { $0.id == id })?.displayName
         currentOperation = AppOperation(title: "Priming account", subtitle: accountName)
@@ -199,6 +216,7 @@ final class KeyFlowAppModel: ObservableObject {
 
         do {
             let result = try await bridge.primeAccount(id: id)
+            UserDefaults.standard.set(Date().timeIntervalSince1970, forKey: "lastPrimed_\(id)")
             applyStatus(result.state)
             if let warning = result.warning {
                 banner = BannerState(kind: .warning, message: warning)
@@ -357,6 +375,48 @@ final class KeyFlowAppModel: ObservableObject {
         }
 
         selectedAccountID = status?.activeAccountId ?? accounts.first?.id
+    }
+
+    private func checkAndAutoPrime(account: BridgeAccountSummary) async {
+        let isAutoPrimeEnabled = UserDefaults.standard.object(forKey: "autoPrime_\(account.id)") as? Bool ?? true
+        guard isAutoPrimeEnabled else { return }
+        guard account.usage.status != .reloginRequired && account.usage.status != .error else { return }
+        guard !accountsBeingPrimed.contains(account.id) else { return }
+
+        let remaining = account.usage.last5Hours.remainingPercent ?? 0.0
+        if remaining <= 0.01 {
+            let now = Date().timeIntervalSince1970
+            let lastPrimed = UserDefaults.standard.double(forKey: "lastPrimed_\(account.id)")
+            
+            // Only auto-prime if last primed was > 4.5 hours ago to avoid API hammering/throttling
+            if now - lastPrimed > 16200 {
+                accountsBeingPrimed.insert(account.id)
+                defer { accountsBeingPrimed.remove(account.id) }
+                
+                UserDefaults.standard.set(now, forKey: "lastPrimed_\(account.id)")
+                
+                NotificationManager.shared.sendNotification(
+                    title: "KeyFlow Auto-Priming", 
+                    body: "Priming session for \(account.email ?? account.displayName) automatically."
+                )
+                
+                do {
+                    if let result = try await bridge?.primeAccount(id: account.id) {
+                        applyStatus(result.state)
+                        NotificationManager.shared.sendNotification(
+                            title: "KeyFlow Auto-Primed", 
+                            body: result.message
+                        )
+                    }
+                } catch {
+                    UserDefaults.standard.set(0.0, forKey: "lastPrimed_\(account.id)")
+                    NotificationManager.shared.sendNotification(
+                        title: "KeyFlow Auto-Priming Failed", 
+                        body: error.localizedDescription
+                    )
+                }
+            }
+        }
     }
 
     private func clearNonSuccessBanner() {
