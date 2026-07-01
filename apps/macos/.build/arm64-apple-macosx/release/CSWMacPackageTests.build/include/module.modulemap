@@ -1,0 +1,3 @@
+module CSWMacPackageTests {
+    header "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CSWMacPackageTests.build/include/CSWMacPackageTests-Swift.h"
+}

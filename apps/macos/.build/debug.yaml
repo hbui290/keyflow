@@ -1,0 +1,157 @@
+client:
+  name: basic
+  file-system: device-agnostic
+tools: {}
+targets:
+  "KeyFlowMac-arm64-apple-macosx-debug.exe": ["<KeyFlowMac-arm64-apple-macosx-debug.exe>"]
+  "KeyFlowMac-arm64-apple-macosx-debug.module": ["<KeyFlowMac-arm64-apple-macosx-debug.module>"]
+  "KeyFlowMacPackageTests-arm64-apple-macosx-debug.module": ["<KeyFlowMacPackageTests-arm64-apple-macosx-debug.module>"]
+  "KeyFlowMacPackageTests-arm64-apple-macosx-debug.test": ["<KeyFlowMacPackageTests-arm64-apple-macosx-debug.test>"]
+  "KeyFlowMacTests-arm64-apple-macosx-debug.module": ["<KeyFlowMacTests-arm64-apple-macosx-debug.module>"]
+  "PackageStructure": ["<PackageStructure>"]
+  "main": ["<KeyFlowMac-arm64-apple-macosx-debug.exe>","<KeyFlowMac-arm64-apple-macosx-debug.module>"]
+  "test": ["<KeyFlowMac-arm64-apple-macosx-debug.exe>","<KeyFlowMac-arm64-apple-macosx-debug.module>","<KeyFlowMacPackageTests-arm64-apple-macosx-debug.test>","<KeyFlowMacTests-arm64-apple-macosx-debug.module>"]
+default: "main"
+nodes:
+  "/Users/winston/Desktop/csw/apps/macos/Sources/KeyFlowMac/":
+    is-directory-structure: true
+    content-exclusion-patterns: [".git",".build"]
+  "/Users/winston/Desktop/csw/apps/macos/Tests/KeyFlowMacTests/":
+    is-directory-structure: true
+    content-exclusion-patterns: [".git",".build"]
+  "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac":
+    is-mutated: true
+commands:
+  "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac-entitlement.plist":
+    tool: write-auxiliary-file
+    inputs: ["<entitlement-plist>","<com.apple.security.get-task-allow>"]
+    outputs: ["/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac-entitlement.plist"]
+    description: "Write auxiliary file /Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac-entitlement.plist"
+
+  "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.build/sources":
+    tool: write-auxiliary-file
+    inputs: ["<sources-file-list>","/Users/winston/Desktop/csw/apps/macos/Sources/KeyFlowMac/BridgeModels.swift","/Users/winston/Desktop/csw/apps/macos/Sources/KeyFlowMac/KeyFlowAppModel.swift","/Users/winston/Desktop/csw/apps/macos/Sources/KeyFlowMac/KeyFlowBridgeClient.swift","/Users/winston/Desktop/csw/apps/macos/Sources/KeyFlowMac/KeyFlowMacApp.swift","/Users/winston/Desktop/csw/apps/macos/Sources/KeyFlowMac/MenuPerformanceMonitor.swift","/Users/winston/Desktop/csw/apps/macos/Sources/KeyFlowMac/StatusBarController.swift","/Users/winston/Desktop/csw/apps/macos/Sources/KeyFlowMac/Views.swift","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.build/DerivedSources/resource_bundle_accessor.swift"]
+    outputs: ["/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.build/sources"]
+    description: "Write auxiliary file /Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.build/sources"
+
+  "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.product/Objects.LinkFileList":
+    tool: write-auxiliary-file
+    inputs: ["<link-file-list>","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.build/BridgeModels.swift.o","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.build/KeyFlowAppModel.swift.o","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.build/KeyFlowBridgeClient.swift.o","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.build/KeyFlowMacApp.swift.o","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.build/MenuPerformanceMonitor.swift.o","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.build/StatusBarController.swift.o","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.build/Views.swift.o","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.build/resource_bundle_accessor.swift.o"]
+    outputs: ["/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.product/Objects.LinkFileList"]
+    description: "Write auxiliary file /Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.product/Objects.LinkFileList"
+
+  "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMacPackageTests.build/sources":
+    tool: write-auxiliary-file
+    inputs: ["<sources-file-list>","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMacPackageTests.derived/runner.swift"]
+    outputs: ["/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMacPackageTests.build/sources"]
+    description: "Write auxiliary file /Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMacPackageTests.build/sources"
+
+  "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMacPackageTests.derived/runner.swift":
+    tool: test-entry-point-tool
+    inputs: []
+    outputs: ["/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMacPackageTests.derived/runner.swift"]
+
+  "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMacPackageTests.product/Objects.LinkFileList":
+    tool: write-auxiliary-file
+    inputs: ["<link-file-list>","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.build/BridgeModels.swift.o","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.build/KeyFlowAppModel.swift.o","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.build/KeyFlowBridgeClient.swift.o","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.build/KeyFlowMacApp.swift.o","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.build/MenuPerformanceMonitor.swift.o","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.build/StatusBarController.swift.o","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.build/Views.swift.o","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.build/resource_bundle_accessor.swift.o","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMacPackageTests.build/runner.swift.o","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMacTests.build/KeyFlowMacTests.swift.o"]
+    outputs: ["/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMacPackageTests.product/Objects.LinkFileList"]
+    description: "Write auxiliary file /Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMacPackageTests.product/Objects.LinkFileList"
+
+  "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMacTests.build/sources":
+    tool: write-auxiliary-file
+    inputs: ["<sources-file-list>","/Users/winston/Desktop/csw/apps/macos/Tests/KeyFlowMacTests/KeyFlowMacTests.swift"]
+    outputs: ["/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMacTests.build/sources"]
+    description: "Write auxiliary file /Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMacTests.build/sources"
+
+  "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac_KeyFlowMac.bundle/Resources":
+    tool: copy-tool
+    inputs: ["/Users/winston/Desktop/csw/apps/macos/Sources/KeyFlowMac/Resources/"]
+    outputs: ["/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac_KeyFlowMac.bundle/Resources/"]
+    description: "Copying /Users/winston/Desktop/csw/apps/macos/Sources/KeyFlowMac/Resources"
+
+  "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/swift-version--1AB21518FC5DEDBE.txt":
+    tool: write-auxiliary-file
+    inputs: ["<swift-get-version>","/Library/Developer/CommandLineTools/usr/bin/swiftc"]
+    outputs: ["/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/swift-version--1AB21518FC5DEDBE.txt"]
+    always-out-of-date: "true"
+    description: "Write auxiliary file /Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/swift-version--1AB21518FC5DEDBE.txt"
+
+  "<KeyFlowMac-arm64-apple-macosx-debug.exe>":
+    tool: phony
+    inputs: ["<KeyFlowMac-arm64-apple-macosx-debug.exe-CodeSigning>"]
+    outputs: ["<KeyFlowMac-arm64-apple-macosx-debug.exe>"]
+
+  "<KeyFlowMac-arm64-apple-macosx-debug.module>":
+    tool: phony
+    inputs: ["/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.build/BridgeModels.swift.o","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.build/KeyFlowAppModel.swift.o","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.build/KeyFlowBridgeClient.swift.o","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.build/KeyFlowMacApp.swift.o","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.build/MenuPerformanceMonitor.swift.o","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.build/StatusBarController.swift.o","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.build/Views.swift.o","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.build/resource_bundle_accessor.swift.o","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/Modules/KeyFlowMac.swiftmodule"]
+    outputs: ["<KeyFlowMac-arm64-apple-macosx-debug.module>"]
+
+  "<KeyFlowMacPackageTests-arm64-apple-macosx-debug.module>":
+    tool: phony
+    inputs: ["/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMacPackageTests.build/runner.swift.o","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/Modules/KeyFlowMacPackageTests.swiftmodule"]
+    outputs: ["<KeyFlowMacPackageTests-arm64-apple-macosx-debug.module>"]
+
+  "<KeyFlowMacPackageTests-arm64-apple-macosx-debug.test>":
+    tool: phony
+    inputs: ["/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMacPackageTests.xctest/Contents/MacOS/KeyFlowMacPackageTests"]
+    outputs: ["<KeyFlowMacPackageTests-arm64-apple-macosx-debug.test>"]
+
+  "<KeyFlowMacTests-arm64-apple-macosx-debug.module>":
+    tool: phony
+    inputs: ["/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMacTests.build/KeyFlowMacTests.swift.o","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/Modules/KeyFlowMacTests.swiftmodule"]
+    outputs: ["<KeyFlowMacTests-arm64-apple-macosx-debug.module>"]
+
+  "C.KeyFlowMac-arm64-apple-macosx-debug.exe":
+    tool: shell
+    inputs: ["/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.build/BridgeModels.swift.o","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.build/KeyFlowAppModel.swift.o","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.build/KeyFlowBridgeClient.swift.o","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.build/KeyFlowMacApp.swift.o","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.build/MenuPerformanceMonitor.swift.o","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.build/StatusBarController.swift.o","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.build/Views.swift.o","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.build/resource_bundle_accessor.swift.o","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.product/Objects.LinkFileList"]
+    outputs: ["/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac"]
+    description: "Linking ./.build/arm64-apple-macosx/debug/KeyFlowMac"
+    args: ["/Library/Developer/CommandLineTools/usr/bin/swiftc","-L","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug","-o","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac","-module-name","KeyFlowMac","-Xlinker","-no_warn_duplicate_libraries","-emit-executable","-Xlinker","-alias","-Xlinker","_KeyFlowMac_main","-Xlinker","_main","-Xlinker","-rpath","-Xlinker","@loader_path","@/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.product/Objects.LinkFileList","-Xlinker","-rpath","-Xlinker","/Library/Developer/CommandLineTools/usr/lib/swift-6.2/macosx","-target","arm64-apple-macosx13.0","-Xlinker","-add_ast_path","-Xlinker","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/Modules/KeyFlowMac.swiftmodule","-I","/Library/Developer/CommandLineTools/Library/Developer/Frameworks","-L","/Library/Developer/CommandLineTools/Library/Developer/Frameworks","-plugin-path","/Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/testing","-sdk","/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk","-g"]
+
+  "C.KeyFlowMac-arm64-apple-macosx-debug.exe-entitlements":
+    tool: shell
+    inputs: ["/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac-entitlement.plist"]
+    outputs: ["<KeyFlowMac-arm64-apple-macosx-debug.exe-CodeSigning>"]
+    description: "Applying debug entitlements to ./.build/arm64-apple-macosx/debug/KeyFlowMac"
+    args: ["codesign","--force","--sign","-","--entitlements","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac-entitlement.plist","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac"]
+
+  "C.KeyFlowMac-arm64-apple-macosx-debug.module":
+    tool: shell
+    inputs: ["/Users/winston/Desktop/csw/apps/macos/Sources/KeyFlowMac/BridgeModels.swift","/Users/winston/Desktop/csw/apps/macos/Sources/KeyFlowMac/KeyFlowAppModel.swift","/Users/winston/Desktop/csw/apps/macos/Sources/KeyFlowMac/KeyFlowBridgeClient.swift","/Users/winston/Desktop/csw/apps/macos/Sources/KeyFlowMac/KeyFlowMacApp.swift","/Users/winston/Desktop/csw/apps/macos/Sources/KeyFlowMac/MenuPerformanceMonitor.swift","/Users/winston/Desktop/csw/apps/macos/Sources/KeyFlowMac/StatusBarController.swift","/Users/winston/Desktop/csw/apps/macos/Sources/KeyFlowMac/Views.swift","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.build/DerivedSources/resource_bundle_accessor.swift","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/swift-version--1AB21518FC5DEDBE.txt","<KeyFlowMac-arm64-apple-macosx-debug.module-resources>","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.build/sources"]
+    outputs: ["/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.build/BridgeModels.swift.o","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.build/KeyFlowAppModel.swift.o","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.build/KeyFlowBridgeClient.swift.o","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.build/KeyFlowMacApp.swift.o","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.build/MenuPerformanceMonitor.swift.o","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.build/StatusBarController.swift.o","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.build/Views.swift.o","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.build/resource_bundle_accessor.swift.o","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/Modules/KeyFlowMac.swiftmodule"]
+    description: "Compiling Swift Module 'KeyFlowMac' (8 sources)"
+    args: ["/Library/Developer/CommandLineTools/usr/bin/swiftc","-module-name","KeyFlowMac","-emit-dependencies","-emit-module","-emit-module-path","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/Modules/KeyFlowMac.swiftmodule","-output-file-map","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.build/output-file-map.json","-incremental","-c","@/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.build/sources","-I","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/Modules","-target","arm64-apple-macosx13.0","-incremental","-enable-batch-mode","-serialize-diagnostics","-index-store-path","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/index/store","-Onone","-enable-testing","-j11","-DSWIFT_PACKAGE","-DDEBUG","-DSWIFT_MODULE_RESOURCE_BUNDLE_AVAILABLE","-module-cache-path","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/ModuleCache","-parseable-output","-Xfrontend","-entry-point-function-name","-Xfrontend","KeyFlowMac_main","-swift-version","6","-I","/Library/Developer/CommandLineTools/Library/Developer/Frameworks","-L","/Library/Developer/CommandLineTools/Library/Developer/Frameworks","-plugin-path","/Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/testing","-sdk","/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk","-g","-Xcc","-isysroot","-Xcc","/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk","-Xcc","-fPIC","-Xcc","-g","-package-name","macos"]
+
+  "C.KeyFlowMacPackageTests-arm64-apple-macosx-debug.module":
+    tool: shell
+    inputs: ["/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMacPackageTests.derived/runner.swift","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/swift-version--1AB21518FC5DEDBE.txt","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/Modules/KeyFlowMacTests.swiftmodule","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMacPackageTests.build/sources"]
+    outputs: ["/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMacPackageTests.build/runner.swift.o","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/Modules/KeyFlowMacPackageTests.swiftmodule"]
+    description: "Compiling Swift Module 'KeyFlowMacPackageTests' (1 sources)"
+    args: ["/Library/Developer/CommandLineTools/usr/bin/swiftc","-module-name","KeyFlowMacPackageTests","-emit-dependencies","-emit-module","-emit-module-path","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/Modules/KeyFlowMacPackageTests.swiftmodule","-output-file-map","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMacPackageTests.build/output-file-map.json","-parse-as-library","-incremental","-c","@/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMacPackageTests.build/sources","-I","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/Modules","-target","arm64-apple-macosx13.0","-incremental","-enable-batch-mode","-serialize-diagnostics","-index-store-path","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/index/store","-Onone","-enable-testing","-Xfrontend","-enable-cross-import-overlays","-j11","-DSWIFT_PACKAGE","-DDEBUG","-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE","-module-cache-path","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/ModuleCache","-parseable-output","-parse-as-library","-emit-objc-header","-emit-objc-header-path","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMacPackageTests.build/include/KeyFlowMacPackageTests-Swift.h","-I","/Library/Developer/CommandLineTools/Library/Developer/Frameworks","-L","/Library/Developer/CommandLineTools/Library/Developer/Frameworks","-plugin-path","/Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/testing","-sdk","/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk","-g","-Xcc","-isysroot","-Xcc","/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk","-Xcc","-fPIC","-Xcc","-g","-package-name","macos"]
+
+  "C.KeyFlowMacPackageTests-arm64-apple-macosx-debug.test":
+    tool: shell
+    inputs: ["/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.build/BridgeModels.swift.o","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.build/KeyFlowAppModel.swift.o","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.build/KeyFlowBridgeClient.swift.o","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.build/KeyFlowMacApp.swift.o","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.build/MenuPerformanceMonitor.swift.o","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.build/StatusBarController.swift.o","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.build/Views.swift.o","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac.build/resource_bundle_accessor.swift.o","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMacPackageTests.build/runner.swift.o","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMacTests.build/KeyFlowMacTests.swift.o","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMacPackageTests.product/Objects.LinkFileList"]
+    outputs: ["/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMacPackageTests.xctest/Contents/MacOS/KeyFlowMacPackageTests"]
+    description: "Linking ./.build/arm64-apple-macosx/debug/KeyFlowMacPackageTests.xctest/Contents/MacOS/KeyFlowMacPackageTests"
+    args: ["/Library/Developer/CommandLineTools/usr/bin/swiftc","-L","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug","-o","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMacPackageTests.xctest/Contents/MacOS/KeyFlowMacPackageTests","-module-name","KeyFlowMacPackageTests","-Xlinker","-no_warn_duplicate_libraries","-Xlinker","-bundle","-Xlinker","-rpath","-Xlinker","@loader_path/../../../","@/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMacPackageTests.product/Objects.LinkFileList","-Xlinker","-rpath","-Xlinker","/Library/Developer/CommandLineTools/usr/lib/swift-6.2/macosx","-target","arm64-apple-macosx13.0","-Xlinker","-add_ast_path","-Xlinker","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/Modules/KeyFlowMac.swiftmodule","-Xlinker","-add_ast_path","-Xlinker","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/Modules/KeyFlowMacPackageTests.swiftmodule","-Xlinker","-add_ast_path","-Xlinker","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/Modules/KeyFlowMacTests.swiftmodule","-I","/Library/Developer/CommandLineTools/Library/Developer/Frameworks","-L","/Library/Developer/CommandLineTools/Library/Developer/Frameworks","-plugin-path","/Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/testing","-sdk","/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk","-g"]
+
+  "C.KeyFlowMacTests-arm64-apple-macosx-debug.module":
+    tool: shell
+    inputs: ["/Users/winston/Desktop/csw/apps/macos/Tests/KeyFlowMacTests/KeyFlowMacTests.swift","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/swift-version--1AB21518FC5DEDBE.txt","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMacTests.build/sources"]
+    outputs: ["/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMacTests.build/KeyFlowMacTests.swift.o","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/Modules/KeyFlowMacTests.swiftmodule"]
+    description: "Compiling Swift Module 'KeyFlowMacTests' (1 sources)"
+    args: ["/Library/Developer/CommandLineTools/usr/bin/swiftc","-module-name","KeyFlowMacTests","-emit-dependencies","-emit-module","-emit-module-path","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/Modules/KeyFlowMacTests.swiftmodule","-output-file-map","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMacTests.build/output-file-map.json","-parse-as-library","-incremental","-c","@/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMacTests.build/sources","-I","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/Modules","-target","arm64-apple-macosx13.0","-incremental","-enable-batch-mode","-serialize-diagnostics","-index-store-path","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/index/store","-Onone","-enable-testing","-Xfrontend","-enable-cross-import-overlays","-j11","-DSWIFT_PACKAGE","-DDEBUG","-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE","-module-cache-path","/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/ModuleCache","-parseable-output","-parse-as-library","-swift-version","6","-I","/Library/Developer/CommandLineTools/Library/Developer/Frameworks","-L","/Library/Developer/CommandLineTools/Library/Developer/Frameworks","-plugin-path","/Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/testing","-sdk","/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk","-g","-Xcc","-isysroot","-Xcc","/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk","-Xcc","-fPIC","-Xcc","-g","-package-name","macos"]
+
+  "KeyFlowMac-arm64-apple-macosx-debug.module-resources":
+    tool: phony
+    inputs: ["/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMac_KeyFlowMac.bundle/Resources/"]
+    outputs: ["<KeyFlowMac-arm64-apple-macosx-debug.module-resources>"]
+
+  "PackageStructure":
+    tool: package-structure-tool
+    inputs: ["/Users/winston/Desktop/csw/apps/macos/Sources/KeyFlowMac/","/Users/winston/Desktop/csw/apps/macos/Tests/KeyFlowMacTests/","/Users/winston/Desktop/csw/apps/macos/Package.swift","/Users/winston/Desktop/csw/apps/macos/Package.resolved"]
+    outputs: ["<PackageStructure>"]
+    description: "Planning build"
+    allow-missing-inputs: true
+

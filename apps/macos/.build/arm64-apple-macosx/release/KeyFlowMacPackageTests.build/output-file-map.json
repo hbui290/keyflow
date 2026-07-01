@@ -1,0 +1,13 @@
+{
+  "": {
+    "dependencies": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/KeyFlowMacPackageTests.build/KeyFlowMacPackageTests.d",
+    "object": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/KeyFlowMacPackageTests.build/KeyFlowMacPackageTests.o",
+    "swift-dependencies": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/KeyFlowMacPackageTests.build/primary.swiftdeps"
+  },
+  "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/KeyFlowMacPackageTests.derived/runner.swift": {
+    "object": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/KeyFlowMacPackageTests.build/runner.swift.o",
+    "swiftmodule": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/KeyFlowMacPackageTests.build/runner~partial.swiftmodule",
+    "swift-dependencies": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/KeyFlowMacPackageTests.build/runner.swiftdeps",
+    "diagnostics": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/KeyFlowMacPackageTests.build/runner.dia"
+  }
+}

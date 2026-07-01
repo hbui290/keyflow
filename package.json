@@ -1,0 +1,27 @@
+{
+  "name": "keyflow",
+  "version": "1.0.0",
+  "description": "KeyFlow CLI - Credential & Session Manager for AI Dev Tools",
+  "type": "module",
+  "bin": {
+    "kfl": "./dist/kfl"
+  },
+  "engines": {
+    "bun": ">=1.2.0"
+  },
+  "scripts": {
+    "dev": "bun run src/cli.ts",
+    "typecheck": "tsc --noEmit",
+    "compile:cli": "bun build ./src/cli.ts --compile --outfile ./dist/kfl",
+    "compile:bridge": "bun build ./src/kfl-bridge-cli.ts --compile --outfile ./dist/kfl-bridge",
+    "compile": "rm -rf dist && bun run compile:cli && bun run compile:bridge"
+  },
+  "dependencies": {
+    "commander": "14.0.2"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.3.14",
+    "@types/node": "24.3.0",
+    "typescript": "5.9.2"
+  }
+}

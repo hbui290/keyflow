@@ -1,0 +1,3 @@
+module KeyFlowMacPackageTests {
+    header "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/KeyFlowMacPackageTests.build/include/KeyFlowMacPackageTests-Swift.h"
+}

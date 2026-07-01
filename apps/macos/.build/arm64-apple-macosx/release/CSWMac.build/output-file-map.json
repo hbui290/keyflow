@@ -1,0 +1,55 @@
+{
+  "": {
+    "dependencies": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CSWMac.build/CSWMac.d",
+    "object": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CSWMac.build/CSWMac.o",
+    "swift-dependencies": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CSWMac.build/primary.swiftdeps"
+  },
+  "/Users/winston/Desktop/csw/apps/macos/Sources/CSWMac/BridgeModels.swift": {
+    "object": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CSWMac.build/BridgeModels.swift.o",
+    "swiftmodule": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CSWMac.build/BridgeModels~partial.swiftmodule",
+    "swift-dependencies": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CSWMac.build/BridgeModels.swiftdeps",
+    "diagnostics": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CSWMac.build/BridgeModels.dia"
+  },
+  "/Users/winston/Desktop/csw/apps/macos/Sources/CSWMac/CSWAppModel.swift": {
+    "object": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CSWMac.build/CSWAppModel.swift.o",
+    "swiftmodule": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CSWMac.build/CSWAppModel~partial.swiftmodule",
+    "swift-dependencies": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CSWMac.build/CSWAppModel.swiftdeps",
+    "diagnostics": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CSWMac.build/CSWAppModel.dia"
+  },
+  "/Users/winston/Desktop/csw/apps/macos/Sources/CSWMac/CSWMacApp.swift": {
+    "object": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CSWMac.build/CSWMacApp.swift.o",
+    "swiftmodule": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CSWMac.build/CSWMacApp~partial.swiftmodule",
+    "swift-dependencies": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CSWMac.build/CSWMacApp.swiftdeps",
+    "diagnostics": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CSWMac.build/CSWMacApp.dia"
+  },
+  "/Users/winston/Desktop/csw/apps/macos/Sources/CSWMac/CodexBridgeClient.swift": {
+    "object": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CSWMac.build/CodexBridgeClient.swift.o",
+    "swiftmodule": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CSWMac.build/CodexBridgeClient~partial.swiftmodule",
+    "swift-dependencies": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CSWMac.build/CodexBridgeClient.swiftdeps",
+    "diagnostics": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CSWMac.build/CodexBridgeClient.dia"
+  },
+  "/Users/winston/Desktop/csw/apps/macos/Sources/CSWMac/MenuPerformanceMonitor.swift": {
+    "object": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CSWMac.build/MenuPerformanceMonitor.swift.o",
+    "swiftmodule": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CSWMac.build/MenuPerformanceMonitor~partial.swiftmodule",
+    "swift-dependencies": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CSWMac.build/MenuPerformanceMonitor.swiftdeps",
+    "diagnostics": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CSWMac.build/MenuPerformanceMonitor.dia"
+  },
+  "/Users/winston/Desktop/csw/apps/macos/Sources/CSWMac/StatusBarController.swift": {
+    "object": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CSWMac.build/StatusBarController.swift.o",
+    "swiftmodule": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CSWMac.build/StatusBarController~partial.swiftmodule",
+    "swift-dependencies": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CSWMac.build/StatusBarController.swiftdeps",
+    "diagnostics": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CSWMac.build/StatusBarController.dia"
+  },
+  "/Users/winston/Desktop/csw/apps/macos/Sources/CSWMac/Views.swift": {
+    "object": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CSWMac.build/Views.swift.o",
+    "swiftmodule": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CSWMac.build/Views~partial.swiftmodule",
+    "swift-dependencies": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CSWMac.build/Views.swiftdeps",
+    "diagnostics": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CSWMac.build/Views.dia"
+  },
+  "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CSWMac.build/DerivedSources/resource_bundle_accessor.swift": {
+    "object": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CSWMac.build/resource_bundle_accessor.swift.o",
+    "swiftmodule": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CSWMac.build/resource_bundle_accessor~partial.swiftmodule",
+    "swift-dependencies": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CSWMac.build/resource_bundle_accessor.swiftdeps",
+    "diagnostics": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CSWMac.build/resource_bundle_accessor.dia"
+  }
+}

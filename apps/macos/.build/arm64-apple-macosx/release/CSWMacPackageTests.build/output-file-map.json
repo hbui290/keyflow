@@ -1,0 +1,13 @@
+{
+  "": {
+    "dependencies": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CSWMacPackageTests.build/CSWMacPackageTests.d",
+    "object": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CSWMacPackageTests.build/CSWMacPackageTests.o",
+    "swift-dependencies": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CSWMacPackageTests.build/primary.swiftdeps"
+  },
+  "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CSWMacPackageTests.derived/runner.swift": {
+    "object": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CSWMacPackageTests.build/runner.swift.o",
+    "swiftmodule": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CSWMacPackageTests.build/runner~partial.swiftmodule",
+    "swift-dependencies": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CSWMacPackageTests.build/runner.swiftdeps",
+    "diagnostics": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CSWMacPackageTests.build/runner.dia"
+  }
+}

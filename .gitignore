@@ -1,0 +1,15 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+
+# Local agents and config
+.agents
+.agents/
+.env
+.env.*
+
+# Logs and OS files
+*.log
+.DS_Store

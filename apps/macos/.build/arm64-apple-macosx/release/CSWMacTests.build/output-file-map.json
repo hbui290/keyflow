@@ -1,0 +1,13 @@
+{
+  "": {
+    "dependencies": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CSWMacTests.build/CSWMacTests.d",
+    "object": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CSWMacTests.build/CSWMacTests.o",
+    "swift-dependencies": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CSWMacTests.build/primary.swiftdeps"
+  },
+  "/Users/winston/Desktop/csw/apps/macos/Tests/CSWMacTests/CSWMacTests.swift": {
+    "object": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CSWMacTests.build/CSWMacTests.swift.o",
+    "swiftmodule": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CSWMacTests.build/CSWMacTests~partial.swiftmodule",
+    "swift-dependencies": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CSWMacTests.build/CSWMacTests.swiftdeps",
+    "diagnostics": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CSWMacTests.build/CSWMacTests.dia"
+  }
+}

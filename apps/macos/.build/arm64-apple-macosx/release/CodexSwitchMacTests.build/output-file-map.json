@@ -1,0 +1,13 @@
+{
+  "": {
+    "dependencies": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CodexSwitchMacTests.build/CodexSwitchMacTests.d",
+    "object": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CodexSwitchMacTests.build/CodexSwitchMacTests.o",
+    "swift-dependencies": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CodexSwitchMacTests.build/primary.swiftdeps"
+  },
+  "/Users/winston/Desktop/csw/apps/macos/Tests/CodexSwitchMacTests/CodexSwitchMacTests.swift": {
+    "object": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CodexSwitchMacTests.build/CodexSwitchMacTests.swift.o",
+    "swiftmodule": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CodexSwitchMacTests.build/CodexSwitchMacTests~partial.swiftmodule",
+    "swift-dependencies": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CodexSwitchMacTests.build/CodexSwitchMacTests.swiftdeps",
+    "diagnostics": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/release/CodexSwitchMacTests.build/CodexSwitchMacTests.dia"
+  }
+}

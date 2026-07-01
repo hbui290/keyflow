@@ -1,0 +1,12 @@
+{
+  "": {
+    "swift-dependencies": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMacTests.build/primary.swiftdeps"
+  },
+  "/Users/winston/Desktop/csw/apps/macos/Tests/KeyFlowMacTests/KeyFlowMacTests.swift": {
+    "dependencies": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMacTests.build/KeyFlowMacTests.d",
+    "object": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMacTests.build/KeyFlowMacTests.swift.o",
+    "swiftmodule": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMacTests.build/KeyFlowMacTests~partial.swiftmodule",
+    "swift-dependencies": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMacTests.build/KeyFlowMacTests.swiftdeps",
+    "diagnostics": "/Users/winston/Desktop/csw/apps/macos/.build/arm64-apple-macosx/debug/KeyFlowMacTests.build/KeyFlowMacTests.dia"
+  }
+}
