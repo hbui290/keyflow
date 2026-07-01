@@ -225,6 +225,31 @@ export async function bridgeRemoveAccount(options: {
   })
 }
 
+export async function bridgePrime(accountId?: string): Promise<BridgeActionPayload> {
+  const { SessionService } = await import('./core/SessionService.js')
+  const state = await ProfileService.readState()
+  let targetAccount = state.accounts.find((a) => a.id === state.activeAccountId)
+  if (accountId) {
+    try {
+      targetAccount = ProfileService.resolveAccountByIdentifier(state, accountId)
+    } catch (err: any) {
+      throw new Error(`Account "${accountId}" not found.`)
+    }
+  }
+  if (!targetAccount) {
+    throw new Error('No active account configured.')
+  }
+
+  const result = await SessionService.primeAccount(targetAccount)
+  const nextState = await ProfileService.readState()
+
+  return buildActionPayload(nextState, {
+    message: result.message,
+    affectedAccountId: targetAccount.id,
+    updatedAccountIds: [targetAccount.id],
+  })
+}
+
 export async function bridgeDoctor(): Promise<BridgeDoctorPayload> {
   const report = await runDoctor()
   return {

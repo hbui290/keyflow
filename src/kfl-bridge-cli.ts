@@ -8,6 +8,7 @@ import {
   bridgeRemoveAccount,
   bridgeStatus,
   bridgeUse,
+  bridgePrime,
   runBridgeCommand,
 } from './kfl-bridge.js'
 
@@ -20,6 +21,7 @@ type ParsedCommand =
   | { kind: 'relogin'; accountId: string; deviceAuth: boolean }
   | { kind: 'remove'; accountId: string; purge: boolean }
   | { kind: 'doctor' }
+  | { kind: 'prime'; accountId?: string }
 
 function usage(): string {
   return [
@@ -34,6 +36,7 @@ function usage(): string {
     '  relogin --account <id> [--device-auth]',
     '  remove --account <id> [--purge]',
     '  doctor',
+    '  prime [--account <id>]',
   ].join('\n')
 }
 
@@ -176,6 +179,23 @@ function parseCommand(argv: string[]): ParsedCommand {
 
       return { kind: 'remove', accountId, purge }
     }
+    case 'prime': {
+      let accountId: string | undefined
+
+      for (let index = 0; index < rest.length; index += 1) {
+        const token = rest[index]
+        switch (token) {
+          case '--account':
+            accountId = shiftValue(rest, index, token)
+            index += 1
+            break
+          default:
+            throw new Error(`Unknown option for prime: ${token}`)
+        }
+      }
+
+      return { kind: 'prime', accountId }
+    }
     case undefined:
       throw new Error(usage())
     default:
@@ -237,6 +257,10 @@ async function main() {
       return
     case 'doctor':
       await runBridgeCommand(() => bridgeDoctor())
+      return
+    case 'prime':
+      await runBridgeCommand(() => bridgePrime(command.accountId))
+      return
   }
 }
 

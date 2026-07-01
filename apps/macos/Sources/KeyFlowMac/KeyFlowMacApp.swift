@@ -24,6 +24,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         configureMainMenu()
+        NotificationManager.shared.requestAuthorization()
         NSApplication.shared.setActivationPolicy(appLaunchActivationPolicy())
         if let icon = makeRuntimeAppIcon() {
             NSApplication.shared.applicationIconImage = icon
@@ -49,7 +50,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     .environmentObject(model)
             )
             let window = NSWindow(contentViewController: hostingController)
-            window.title = "CSW Manager"
+            window.title = "KeyFlow Manager"
             window.styleMask = [.titled, .closable, .miniaturizable, .resizable]
             window.setContentSize(NSSize(width: 920, height: 580))
             window.isReleasedWhenClosed = false
@@ -73,7 +74,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let appMenu = NSMenu()
         appMenu.addItem(
             NSMenuItem(
-                title: "Quit CSW",
+                title: "Quit KeyFlow",
                 action: #selector(NSApplication.terminate(_:)),
                 keyEquivalent: "q"
             )

@@ -336,4 +336,87 @@ export class SessionService {
       return null
     }
   }
+
+  static async primeAccount(account: Account): Promise<{ success: boolean; message: string }> {
+    const { json, authPath } = await this.readAuthFile(account.profileDir)
+    let tokens = this.extractAuthTokens(authPath, json)
+
+    try {
+      tokens = await this.refreshTokens(tokens)
+    } catch (err: any) {
+      throw new Error(`Token refresh failed: ${err.message}`)
+    }
+
+    let baseUrl = 'https://chatgpt.com/backend-api'
+    try {
+      const configPath = path.join(account.profileDir, 'config.toml')
+      const config = await fs.readFile(configPath, 'utf8')
+      const match = config.match(/chatgpt_base_url\s*=\s*["']?([^"'\s]+)["']?/)
+      if (match && match[1]) {
+        let base = match[1].trim()
+        while (base.endsWith('/')) base = base.slice(0, -1)
+        if ((base.startsWith('https://chatgpt.com') || base.startsWith('https://chat.openai.com')) && !base.includes('/backend-api')) {
+          base += '/backend-api'
+        }
+        baseUrl = base
+      }
+    } catch {}
+
+    const conversationUrl = `${baseUrl}/conversation`
+    const headers: Record<string, string> = {
+      Authorization: `Bearer ${tokens.accessToken}`,
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      'User-Agent': 'kfl/1.0',
+    }
+    if (tokens.accountId) {
+      headers['ChatGPT-Account-Id'] = tokens.accountId
+    }
+
+    const payload = {
+      action: 'next',
+      messages: [
+        {
+          id: crypto.randomUUID(),
+          author: { role: 'user' },
+          content: { content_type: 'text', parts: ['hi'] },
+          metadata: {},
+        },
+      ],
+      parent_message_id: crypto.randomUUID(),
+      model: 'auto',
+      timezone_offset_min: -420,
+      suggestions: [],
+      history_and_training_disabled: true,
+    }
+
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 20000)
+
+    try {
+      const response = await fetch(conversationUrl, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(payload),
+        signal: controller.signal,
+      })
+
+      if (!response.ok) {
+        const text = await response.text()
+        throw new Error(`OpenAI API error (${response.status}): ${text.slice(0, 150)}`)
+      }
+
+      return {
+        success: true,
+        message: `Successfully primed session for account ${account.email ?? account.id}.`,
+      }
+    } catch (err: any) {
+      if (err.name === 'AbortError') {
+        throw new Error('Priming request timed out.')
+      }
+      throw err
+    } finally {
+      clearTimeout(timeout)
+    }
+  }
 }

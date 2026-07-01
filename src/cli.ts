@@ -12,6 +12,7 @@ import {
   runBridgeCommand,
 } from './kfl-bridge.js'
 import { ProfileService } from './core/ProfileService.js'
+import { SessionService } from './core/SessionService.js'
 import { runDoctor } from './core/doctor.js'
 import type { Account, DoctorCheck } from './core/types.js'
 
@@ -224,6 +225,37 @@ async function main() {
       } else {
         const message = (result.switchResult.codexStatusStderr || result.switchResult.codexStatusStdout).trim()
         console.log(`Warning: codex login status check failed (${result.switchResult.codexStatusExitCode}): ${message}`)
+      }
+    })
+
+  program
+    .command('prime')
+    .description('Prime the 5-hour ChatGPT session by sending a minimal background message')
+    .option('--account <id-or-label>', 'Prime specific account by id or label (defaults to active account)')
+    .action(async (options: { account?: string }) => {
+      const state = await ProfileService.readState()
+      let targetAccount = state.accounts.find((a) => a.id === state.activeAccountId)
+      if (options.account) {
+        try {
+          targetAccount = ProfileService.resolveAccountByIdentifier(state, options.account)
+        } catch (err: any) {
+          console.error(`Error: ${err.message}`)
+          process.exitCode = 1
+          return
+        }
+      }
+      if (!targetAccount) {
+        console.error('Error: No active account configured.')
+        process.exitCode = 1
+        return
+      }
+      console.log(`Sending priming request for ${displayAccountName(targetAccount)}...`)
+      try {
+        const result = await SessionService.primeAccount(targetAccount)
+        console.log(result.message)
+      } catch (err: any) {
+        console.error(`Error: ${err.message}`)
+        process.exitCode = 1
       }
     })
 

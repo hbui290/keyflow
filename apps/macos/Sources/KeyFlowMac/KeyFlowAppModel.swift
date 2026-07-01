@@ -1,6 +1,7 @@
 import Combine
 import Foundation
 import ServiceManagement
+import UserNotifications
 
 enum BannerKind: Equatable {
     case info
@@ -188,6 +189,30 @@ final class KeyFlowAppModel: ObservableObject {
         }
     }
 
+    func primeAccount(id: String) async {
+        guard let bridge else { return }
+        guard currentOperation == nil else { return }
+
+        let accountName = accounts.first(where: { $0.id == id })?.displayName
+        currentOperation = AppOperation(title: "Priming account", subtitle: accountName)
+        defer { currentOperation = nil }
+
+        do {
+            let result = try await bridge.primeAccount(id: id)
+            applyStatus(result.state)
+            if let warning = result.warning {
+                banner = BannerState(kind: .warning, message: warning)
+                NotificationManager.shared.sendNotification(title: "KeyFlow Priming Warning", body: warning)
+            } else {
+                banner = BannerState(kind: .success, message: result.message)
+                NotificationManager.shared.sendNotification(title: "KeyFlow Primed", body: result.message)
+            }
+        } catch {
+            banner = BannerState(kind: .error, message: error.localizedDescription)
+            NotificationManager.shared.sendNotification(title: "KeyFlow Priming Failed", body: error.localizedDescription)
+        }
+    }
+
     func switchAccount(id: String) async {
         guard let bridge else { return }
         guard currentOperation == nil else { return }
@@ -200,11 +225,14 @@ final class KeyFlowAppModel: ObservableObject {
             applyStatus(result.state)
             if let warning = result.warning {
                 banner = BannerState(kind: .warning, message: warning)
+                NotificationManager.shared.sendNotification(title: "KeyFlow Switch Warning", body: warning)
             } else {
                 banner = BannerState(kind: .success, message: result.message)
+                NotificationManager.shared.sendNotification(title: "KeyFlow Switched", body: result.message)
             }
         } catch {
             banner = BannerState(kind: .error, message: error.localizedDescription)
+            NotificationManager.shared.sendNotification(title: "KeyFlow Switch Failed", body: error.localizedDescription)
         }
     }
 
@@ -233,11 +261,14 @@ final class KeyFlowAppModel: ObservableObject {
             }
             if let warning = result.warning {
                 banner = BannerState(kind: .warning, message: warning)
+                NotificationManager.shared.sendNotification(title: "KeyFlow Account Warning", body: warning)
             } else {
                 banner = BannerState(kind: .success, message: result.message)
+                NotificationManager.shared.sendNotification(title: "KeyFlow Account Added", body: result.message)
             }
         } catch {
             banner = BannerState(kind: .error, message: error.localizedDescription)
+            NotificationManager.shared.sendNotification(title: "KeyFlow Add Failed", body: error.localizedDescription)
         }
     }
 
@@ -260,11 +291,14 @@ final class KeyFlowAppModel: ObservableObject {
             }
             if let warning = result.warning {
                 banner = BannerState(kind: .warning, message: warning)
+                NotificationManager.shared.sendNotification(title: "KeyFlow Re-login Warning", body: warning)
             } else {
                 banner = BannerState(kind: .success, message: result.message)
+                NotificationManager.shared.sendNotification(title: "KeyFlow Re-login Success", body: result.message)
             }
         } catch {
             banner = BannerState(kind: .error, message: error.localizedDescription)
+            NotificationManager.shared.sendNotification(title: "KeyFlow Re-login Failed", body: error.localizedDescription)
         }
     }
 

@@ -13,3 +13,8 @@ dist/
 # Logs and OS files
 *.log
 .DS_Store
+
+# SwiftPM / macOS build outputs
+.build/
+.icon-build/
+apps/macos/dist/

@@ -99,6 +99,14 @@ final class KeyFlowBridgeClient: @unchecked Sendable {
         try await run(["doctor"], as: BridgeDoctorPayload.self)
     }
 
+    func primeAccount(id: String?) async throws -> BridgeActionPayload {
+        var arguments = ["prime"]
+        if let id = id {
+            arguments.append(contentsOf: ["--account", id])
+        }
+        return try await run(arguments, as: BridgeActionPayload.self)
+    }
+
     private func run<Payload: Decodable & Sendable>(_ arguments: [String], as type: Payload.Type) async throws -> Payload {
         let command = initialCommand
         return try await withCheckedThrowingContinuation { continuation in
