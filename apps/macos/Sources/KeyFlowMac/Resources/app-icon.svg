@@ -1,10 +1,51 @@
 <svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="1024" height="1024" rx="224" fill="#111111"/>
-  <path
-    d="M315 311C315 267.922 349.922 233 393 233H545C588.078 233 623 267.922 623 311V357C623 400.078 588.078 435 545 435H479C435.922 435 401 469.922 401 513V555C401 598.078 435.922 633 479 633H631C674.078 633 709 667.922 709 711V713C709 756.078 674.078 791 631 791H393C349.922 791 315 756.078 315 713V667"
-    stroke="#FFFFFF"
-    stroke-width="86"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-  />
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#080B10" />
+      <stop offset="50%" stop-color="#111622" />
+      <stop offset="100%" stop-color="#030508" />
+    </linearGradient>
+
+    <!-- Key Flow Gradient (Cyber Cyan & Electric Blue) -->
+    <linearGradient id="keyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00F2FE" />
+      <stop offset="100%" stop-color="#4FACFE" />
+    </linearGradient>
+
+    <!-- Flow Ripple Gradient (Amber Gold) -->
+    <linearGradient id="flowGrad" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FBBF24" />
+      <stop offset="100%" stop-color="#F59E0B" />
+    </linearGradient>
+    
+    <!-- Shadow Filter for depth -->
+    <filter id="glow" x="-10%" y="-10%" width="120%" height="120%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="8" stdDeviation="16" flood-color="#00F2FE" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+
+  <!-- Squircle Base for macOS App Icon -->
+  <rect width="1024" height="1024" rx="224" fill="url(#bgGrad)" stroke="#1F2937" stroke-width="8"/>
+
+  <!-- Decorative Inner Glow Border -->
+  <rect x="12" y="12" width="1000" height="1000" rx="212" fill="none" stroke="white" stroke-opacity="0.05" stroke-width="4"/>
+
+  <g filter="url(#glow)">
+    <!-- The "Key-Flow" Symbol -->
+    <!-- 1. The Head of the Key (Flowing Circle/Gear) -->
+    <circle cx="380" cy="380" r="140" stroke="url(#keyGrad)" stroke-width="45" stroke-linecap="round"/>
+    <!-- Inner design of the key head (Infinity / flow loop) -->
+    <path d="M300 380 C 300 330, 460 430, 460 380 C 460 330, 300 430, 300 380 Z" stroke="url(#flowGrad)" stroke-width="20" stroke-linecap="round" fill="none"/>
+    
+    <!-- 2. The Stem of the Key (Smooth Wave/Flow going downwards-right) -->
+    <path d="M495 495 L 720 720" stroke="url(#keyGrad)" stroke-width="45" stroke-linecap="round"/>
+    
+    <!-- 3. The Teeth of the Key (Formatted as stylized wave ripples/bars representing flow/code) -->
+    <path d="M620 620 L 685 555" stroke="url(#flowGrad)" stroke-width="35" stroke-linecap="round"/>
+    <path d="M680 680 L 745 615" stroke="url(#flowGrad)" stroke-width="35" stroke-linecap="round"/>
+    
+    <!-- 4. Dynamic Swoosh/Flow Stream wrapping around the key -->
+    <path d="M220 540 C 220 700, 420 800, 580 800 C 740 800, 800 680, 800 580 C 800 480, 720 380, 600 280" stroke="url(#flowGrad)" stroke-width="25" stroke-linecap="round" stroke-dasharray="10 25 150 25" fill="none"/>
+  </g>
 </svg>
