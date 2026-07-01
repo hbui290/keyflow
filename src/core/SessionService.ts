@@ -338,94 +338,41 @@ export class SessionService {
   }
 
   static async primeAccount(account: Account): Promise<{ success: boolean; message: string }> {
-    const { json, authPath } = await this.readAuthFile(account.profileDir)
-    let tokens = this.extractAuthTokens(authPath, json)
+    const codexExecutable = this.resolveCodexExecutable()
+    const args = ['exec', '--ephemeral', '--skip-git-repo-check', '--cd', '/tmp', 'hi']
 
-    try {
-      tokens = await this.refreshTokens(tokens)
-    } catch (err: any) {
-      throw new Error(`Token refresh failed: ${err.message}`)
-    }
-
-    let baseUrl = 'https://chatgpt.com/backend-api'
-    try {
-      const configPath = path.join(account.profileDir, 'config.toml')
-      const config = await fs.readFile(configPath, 'utf8')
-      const match = config.match(/chatgpt_base_url\s*=\s*["']?([^"'\s]+)["']?/)
-      if (match && match[1]) {
-        let base = match[1].trim()
-        while (base.endsWith('/')) base = base.slice(0, -1)
-        if ((base.startsWith('https://chatgpt.com') || base.startsWith('https://chat.openai.com')) && !base.includes('/backend-api')) {
-          base += '/backend-api'
-        }
-        baseUrl = base
-      }
-    } catch {}
-
-    const conversationUrl = `${baseUrl}/conversation`
-    const headers: Record<string, string> = {
-      Authorization: `Bearer ${tokens.accessToken}`,
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-      'Accept-Language': 'en-US,en;q=0.9',
-      'Referer': 'https://chatgpt.com/',
-      'Origin': 'https://chatgpt.com',
-      'sec-ch-ua': '"Chromium";v="124", "Google Chrome";v="124", "Not-A.Brand";v="99"',
-      'sec-ch-ua-mobile': '?0',
-      'sec-ch-ua-platform': '"macOS"',
-      'sec-fetch-dest': 'empty',
-      'sec-fetch-mode': 'cors',
-      'sec-fetch-site': 'same-origin',
-    }
-    if (tokens.accountId) {
-      headers['ChatGPT-Account-Id'] = tokens.accountId
-    }
-
-    const payload = {
-      action: 'next',
-      messages: [
-        {
-          id: crypto.randomUUID(),
-          author: { role: 'user' },
-          content: { content_type: 'text', parts: ['hi'] },
-          metadata: {},
-        },
-      ],
-      parent_message_id: crypto.randomUUID(),
-      model: 'auto',
-      timezone_offset_min: -420,
-      suggestions: [],
-      history_and_training_disabled: true,
-    }
-
-    const controller = new AbortController()
-    const timeout = setTimeout(() => controller.abort(), 20000)
-
-    try {
-      const response = await fetch(conversationUrl, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(payload),
-        signal: controller.signal,
+    return new Promise((resolve, reject) => {
+      const proc = spawn(codexExecutable, args, {
+        env: { ...process.env, CODEX_HOME: account.profileDir },
+        stdio: ['ignore', 'pipe', 'pipe'],
       })
 
-      if (!response.ok) {
-        const text = await response.text()
-        throw new Error(`OpenAI API error (${response.status}): ${text.slice(0, 150)}`)
-      }
+      let stdout = ''
+      let stderr = ''
 
-      return {
-        success: true,
-        message: `Successfully primed session for account ${account.email ?? account.id}.`,
-      }
-    } catch (err: any) {
-      if (err.name === 'AbortError') {
-        throw new Error('Priming request timed out.')
-      }
-      throw err
-    } finally {
-      clearTimeout(timeout)
-    }
+      proc.stdout.on('data', (data) => {
+        stdout += data.toString()
+      })
+
+      proc.stderr.on('data', (data) => {
+        stderr += data.toString()
+      })
+
+      proc.on('close', (code) => {
+        if (code !== 0) {
+          const errMsg = (stderr || stdout).trim()
+          reject(new Error(`Codex CLI priming failed (exit code ${code}): ${errMsg.slice(0, 200)}`))
+        } else {
+          resolve({
+            success: true,
+            message: `Successfully primed session for account ${account.email ?? account.id}.`,
+          })
+        }
+      })
+
+      proc.on('error', (err) => {
+        reject(new Error(`Failed to launch Codex CLI: ${err.message}`))
+      })
+    })
   }
 }
