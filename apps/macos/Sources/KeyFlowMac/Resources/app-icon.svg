@@ -1,25 +1,32 @@
 <svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- macOS Squircle Rounded Background (Premium Deep Slate Black) -->
-  <rect width="1024" height="1024" rx="224" fill="#0C0E12" />
+  <!-- macOS Squircle Background (Deep Obsidian Black) -->
+  <rect width="1024" height="1024" rx="230" fill="#0A0A0C" />
   
-  <!-- Subtle inner gradient border for macOS design aesthetic -->
-  <rect x="8" y="8" width="1008" height="1008" rx="216" fill="none" stroke="white" stroke-opacity="0.04" stroke-width="4" />
-  
-  <!-- Flow Wave Lines (Dynamic, ultra-clean curves passing behind the key) -->
-  <path d="M120 680 C 320 500, 520 860, 720 680 C 820 590, 880 500, 920 420" stroke="#00E5FF" stroke-opacity="0.25" stroke-width="16" stroke-linecap="round" fill="none"/>
-  <path d="M80 780 C 280 600, 480 960, 680 780 C 780 690, 840 600, 880 520" stroke="#FFB300" stroke-opacity="0.18" stroke-width="16" stroke-linecap="round" fill="none"/>
+  <!-- Subtle macOS App Icon Inner Border -->
+  <rect x="10" y="10" width="1004" height="1004" rx="220" fill="none" stroke="#FFFFFF" stroke-opacity="0.03" stroke-width="6" />
 
-  <g transform="translate(512, 512) rotate(-45) translate(-512, -512)">
-    <!-- Elegant Minimalist Key (Cyber Cyan & Ice White) -->
-    <!-- Key Head (Double Ring / Concentric Circles) -->
-    <circle cx="340" cy="512" r="110" stroke="#00E5FF" stroke-width="24" fill="none" stroke-linecap="round"/>
-    <circle cx="340" cy="512" r="50" stroke="#FFFFFF" stroke-opacity="0.85" stroke-width="16" fill="none"/>
+  <!-- Center Artwork (Elegant Symmetrical Geometry) -->
+  <g transform="translate(512, 512) scale(0.9) translate(-512, -512)">
+    <!-- Ambient Cyan Glow behind the key head -->
+    <circle cx="380" cy="512" r="160" fill="#00E5FF" fill-opacity="0.04" filter="blur(40px)"/>
     
-    <!-- Key Stem (Clean Line running diagonally) -->
-    <line x1="450" y1="512" x2="740" y2="512" stroke="#FFFFFF" stroke-width="24" stroke-linecap="round"/>
+    <!-- Ambient Gold Glow behind the key teeth -->
+    <circle cx="680" cy="512" r="140" fill="#FFB300" fill-opacity="0.04" filter="blur(40px)"/>
+
+    <!-- The Flow Wave: Beautiful clean, single mathematical wave curve -->
+    <path d="M180 570 C 280 430, 480 370, 580 512 C 680 654, 820 630, 840 570" stroke="#00E5FF" stroke-opacity="0.2" stroke-width="16" stroke-linecap="round" fill="none"/>
+    <path d="M180 570 C 280 430, 480 370, 580 512 C 680 654, 820 630, 840 570" stroke="#FFFFFF" stroke-opacity="0.08" stroke-width="32" stroke-linecap="round" fill="none"/>
+
+    <!-- The Key Structure: Flat, Solid, High-Contrast White and Accent Yellow -->
+    <!-- Stem -->
+    <path d="M480 512 H 780" stroke="#FFFFFF" stroke-width="48" stroke-linecap="round"/>
     
-    <!-- Key Teeth (Flow-styled geometric teeth in Amber Gold) -->
-    <path d="M610 512 V 582" stroke="#FFB300" stroke-width="24" stroke-linecap="round"/>
-    <path d="M680 512 V 582" stroke="#FFB300" stroke-width="24" stroke-linecap="round"/>
+    <!-- Head of the Key (Symmetric Polygon with round joint) -->
+    <rect x="230" y="362" width="300" height="300" rx="90" stroke="#FFFFFF" stroke-width="48" fill="none"/>
+    <circle cx="380" cy="512" r="50" fill="#FFFFFF" fill-opacity="0.15" stroke="#FFFFFF" stroke-width="16"/>
+
+    <!-- Teeth (Symmetrical, elegant block elements in pure Amber Gold) -->
+    <path d="M640 512 V 600" stroke="#FFB300" stroke-width="48" stroke-linecap="round"/>
+    <path d="M720 512 V 600" stroke="#FFB300" stroke-width="48" stroke-linecap="round"/>
   </g>
 </svg>
