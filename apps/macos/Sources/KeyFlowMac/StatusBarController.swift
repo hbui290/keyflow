@@ -113,7 +113,7 @@ final class StatusBarController: NSObject, NSPopoverDelegate {
         button.target = self
         button.action = #selector(handleStatusItemClick(_:))
         button.sendAction(on: [.leftMouseUp, .rightMouseUp])
-        button.setAccessibilityLabel("Codex Switch")
+        button.setAccessibilityLabel("KeyFlow")
 
         hostingView.translatesAutoresizingMaskIntoConstraints = false
         button.addSubview(hostingView)
