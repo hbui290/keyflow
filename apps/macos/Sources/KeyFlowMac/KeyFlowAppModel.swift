@@ -101,7 +101,7 @@ final class KeyFlowAppModel: ObservableObject {
                 try SMAppService.mainApp.unregister()
             }
             refreshOpenAtLoginStatus()
-            banner = BannerState(kind: .success, message: enabled ? "Codex Switch will open at login." : "Codex Switch will no longer open at login.")
+            banner = BannerState(kind: .success, message: enabled ? "KeyFlow will open at login." : "KeyFlow will no longer open at login.")
         } catch {
             refreshOpenAtLoginStatus()
             banner = BannerState(kind: .error, message: error.localizedDescription)
