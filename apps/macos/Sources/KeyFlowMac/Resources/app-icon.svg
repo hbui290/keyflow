@@ -1,32 +1,93 @@
 <svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- macOS Squircle Background (Deep Obsidian Black) -->
-  <rect width="1024" height="1024" rx="230" fill="#0A0A0C" />
-  
-  <!-- Subtle macOS App Icon Inner Border -->
-  <rect x="10" y="10" width="1004" height="1004" rx="220" fill="none" stroke="#FFFFFF" stroke-opacity="0.03" stroke-width="6" />
+  <defs>
+    <!-- Background: Top-down light on deep charcoal metallic sheet -->
+    <linearGradient id="macBg" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" stop-color="#1E2330"/>
+      <stop offset="100%" stop-color="#0B0D12"/>
+    </linearGradient>
 
-  <!-- Center Artwork (Elegant Symmetrical Geometry) -->
-  <g transform="translate(512, 512) scale(0.9) translate(-512, -512)">
-    <!-- Ambient Cyan Glow behind the key head -->
-    <circle cx="380" cy="512" r="160" fill="#00E5FF" fill-opacity="0.04" filter="blur(40px)"/>
-    
-    <!-- Ambient Gold Glow behind the key teeth -->
-    <circle cx="680" cy="512" r="140" fill="#FFB300" fill-opacity="0.04" filter="blur(40px)"/>
+    <!-- Bevel effect for macOS squircle rim -->
+    <linearGradient id="rimGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0.4"/>
+    </linearGradient>
 
-    <!-- The Flow Wave: Beautiful clean, single mathematical wave curve -->
-    <path d="M180 570 C 280 430, 480 370, 580 512 C 680 654, 820 630, 840 570" stroke="#00E5FF" stroke-opacity="0.2" stroke-width="16" stroke-linecap="round" fill="none"/>
-    <path d="M180 570 C 280 430, 480 370, 580 512 C 680 654, 820 630, 840 570" stroke="#FFFFFF" stroke-opacity="0.08" stroke-width="32" stroke-linecap="round" fill="none"/>
+    <!-- Key Body: Polished metallic silver gradient -->
+    <linearGradient id="silverMetal" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="40%" stop-color="#E2E8F0"/>
+      <stop offset="100%" stop-color="#94A3B8"/>
+    </linearGradient>
 
-    <!-- The Key Structure: Flat, Solid, High-Contrast White and Accent Yellow -->
-    <!-- Stem -->
-    <path d="M480 512 H 780" stroke="#FFFFFF" stroke-width="48" stroke-linecap="round"/>
-    
-    <!-- Head of the Key (Symmetric Polygon with round joint) -->
-    <rect x="230" y="362" width="300" height="300" rx="90" stroke="#FFFFFF" stroke-width="48" fill="none"/>
-    <circle cx="380" cy="512" r="50" fill="#FFFFFF" fill-opacity="0.15" stroke="#FFFFFF" stroke-width="16"/>
+    <!-- Key Accent: Neon Electric Cyan -->
+    <linearGradient id="neonCyan" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00F2FE"/>
+      <stop offset="100%" stop-color="#4FACFE"/>
+    </linearGradient>
 
-    <!-- Teeth (Symmetrical, elegant block elements in pure Amber Gold) -->
-    <path d="M640 512 V 600" stroke="#FFB300" stroke-width="48" stroke-linecap="round"/>
-    <path d="M720 512 V 600" stroke="#FFB300" stroke-width="48" stroke-linecap="round"/>
+    <!-- Teeth Accent: Rich Warm Amber Gold -->
+    <linearGradient id="amberGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FCD34D"/>
+      <stop offset="50%" stop-color="#F59E0B"/>
+      <stop offset="100%" stop-color="#D97706"/>
+    </linearGradient>
+
+    <!-- Professional Soft Drop Shadow for macOS depth -->
+    <filter id="layerShadow" x="-20%" y="-20%" width="140%" height="140%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="16" stdDeviation="24" flood-color="#000000" flood-opacity="0.45"/>
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#000000" flood-opacity="0.25"/>
+    </filter>
+
+    <filter id="glowCyan" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="25" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Squircle Base for macOS App Icon -->
+  <rect width="1024" height="1024" rx="224" fill="url(#macBg)"/>
+
+  <!-- macOS Top-down Rim Light Bevel -->
+  <rect x="6" y="6" width="1012" height="1012" rx="218" fill="none" stroke="url(#rimGrad)" stroke-width="12"/>
+  <rect x="12" y="12" width="1000" height="1000" rx="212" fill="none" stroke="#FFFFFF" stroke-opacity="0.04" stroke-width="4"/>
+
+  <!-- Background Flow Wave: Smooth math curve with translucent cyber glow -->
+  <g opacity="0.3" filter="url(#glowCyan)">
+    <path d="M150 720 C 350 500, 500 900, 700 700 C 800 600, 850 500, 900 400" stroke="#00F2FE" stroke-width="36" stroke-linecap="round" fill="none"/>
+    <path d="M120 740 C 320 520, 470 920, 670 720" stroke="#F59E0B" stroke-width="16" stroke-linecap="round" fill="none" opacity="0.4"/>
+  </g>
+
+  <!-- The Main Key Object with deep macOS shadows -->
+  <g filter="url(#layerShadow)">
+    <g transform="translate(512, 512) rotate(-45) translate(-512, -512)">
+      
+      <!-- Key Stem (Deep dimensional metallic bar) -->
+      <!-- Draw base stem in dark metallic for 3D extrusion effect -->
+      <path d="M420 514 H 750" stroke="#475569" stroke-width="56" stroke-linecap="round"/>
+      <!-- Top surface of stem -->
+      <path d="M420 510 H 746" stroke="url(#silverMetal)" stroke-width="48" stroke-linecap="round"/>
+      
+      <!-- Key Head (Rounded Squircle Disc with inner hollow loop) -->
+      <!-- Extrusion base -->
+      <rect x="202" y="336" width="310" height="310" rx="95" fill="#334155" />
+      <!-- Metallic Surface -->
+      <rect x="202" y="332" width="310" height="310" rx="95" fill="url(#silverMetal)" />
+      <!-- Colored Inner Ring -->
+      <rect x="226" y="356" width="262" height="262" rx="74" fill="none" stroke="url(#neonCyan)" stroke-width="32" />
+      <!-- Center Core Cutout -->
+      <rect x="290" y="420" width="134" height="134" rx="46" fill="#0B0D12" stroke="#FFFFFF" stroke-opacity="0.08" stroke-width="8"/>
+      
+      <!-- Lightning Bolt Emblem inside core cutout (Prime symbol) -->
+      <path d="M365 440 L 330 495 H 375 L 340 550 L 395 490 H 350 L 365 440 Z" fill="url(#amberGold)"/>
+
+      <!-- Teeth (3D styled geometric teeth) -->
+      <!-- Extrusion bases -->
+      <path d="M590 512 V 624" stroke="#B45309" stroke-width="52" stroke-linecap="round"/>
+      <path d="M670 512 V 624" stroke="#B45309" stroke-width="52" stroke-linecap="round"/>
+      <!-- Top surfaces -->
+      <path d="M590 510 V 618" stroke="url(#amberGold)" stroke-width="44" stroke-linecap="round"/>
+      <path d="M670 510 V 618" stroke="url(#amberGold)" stroke-width="44" stroke-linecap="round"/>
+      
+    </g>
   </g>
 </svg>
