@@ -54,14 +54,24 @@ chmod +x "$BRIDGE_DIR/kfl"
 
 rm -rf "$ICON_WORK_DIR"
 mkdir -p "$ICONSET_DIR"
-qlmanage -t -s 1024 -o "$ICON_WORK_DIR" "$ICON_SVG_SRC" >/dev/null 2>&1
+
+CUSTOM_PNG_SRC="$APP_ROOT/Sources/KeyFlowMac/Resources/AppGlyph.png"
+if [[ -f "$CUSTOM_PNG_SRC" ]]; then
+  echo "Using high-quality pre-rendered PNG app icon..."
+  cp "$CUSTOM_PNG_SRC" "$ICON_PREVIEW"
+else
+  echo "Rendering app icon from SVG..."
+  qlmanage -t -s 1024 -o "$ICON_WORK_DIR" "$ICON_SVG_SRC" >/dev/null 2>&1
+fi
 
 if [[ ! -f "$ICON_PREVIEW" ]]; then
-  echo "Failed to render SVG app icon." >&2
+  echo "Failed to prepare app icon preview." >&2
   exit 1
 fi
 
-cp "$ICON_SVG_SRC" "$RESOURCES_DIR/app-icon.svg"
+if [[ -f "$ICON_SVG_SRC" ]]; then
+  cp "$ICON_SVG_SRC" "$RESOURCES_DIR/app-icon.svg"
+fi
 cp "$ICON_PREVIEW" "$RESOURCES_DIR/AppGlyph.png"
 
 sips -z 16 16 "$ICON_PREVIEW" --out "$ICONSET_DIR/icon_16x16.png" >/dev/null

@@ -1,51 +1,25 @@
 <svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <!-- Background Gradient -->
-    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#080B10" />
-      <stop offset="50%" stop-color="#111622" />
-      <stop offset="100%" stop-color="#030508" />
-    </linearGradient>
+  <!-- macOS Squircle Rounded Background (Premium Deep Slate Black) -->
+  <rect width="1024" height="1024" rx="224" fill="#0C0E12" />
+  
+  <!-- Subtle inner gradient border for macOS design aesthetic -->
+  <rect x="8" y="8" width="1008" height="1008" rx="216" fill="none" stroke="white" stroke-opacity="0.04" stroke-width="4" />
+  
+  <!-- Flow Wave Lines (Dynamic, ultra-clean curves passing behind the key) -->
+  <path d="M120 680 C 320 500, 520 860, 720 680 C 820 590, 880 500, 920 420" stroke="#00E5FF" stroke-opacity="0.25" stroke-width="16" stroke-linecap="round" fill="none"/>
+  <path d="M80 780 C 280 600, 480 960, 680 780 C 780 690, 840 600, 880 520" stroke="#FFB300" stroke-opacity="0.18" stroke-width="16" stroke-linecap="round" fill="none"/>
 
-    <!-- Key Flow Gradient (Cyber Cyan & Electric Blue) -->
-    <linearGradient id="keyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#00F2FE" />
-      <stop offset="100%" stop-color="#4FACFE" />
-    </linearGradient>
-
-    <!-- Flow Ripple Gradient (Amber Gold) -->
-    <linearGradient id="flowGrad" x1="100%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#FBBF24" />
-      <stop offset="100%" stop-color="#F59E0B" />
-    </linearGradient>
+  <g transform="translate(512, 512) rotate(-45) translate(-512, -512)">
+    <!-- Elegant Minimalist Key (Cyber Cyan & Ice White) -->
+    <!-- Key Head (Double Ring / Concentric Circles) -->
+    <circle cx="340" cy="512" r="110" stroke="#00E5FF" stroke-width="24" fill="none" stroke-linecap="round"/>
+    <circle cx="340" cy="512" r="50" stroke="#FFFFFF" stroke-opacity="0.85" stroke-width="16" fill="none"/>
     
-    <!-- Shadow Filter for depth -->
-    <filter id="glow" x="-10%" y="-10%" width="120%" height="120%" filterUnits="userSpaceOnUse">
-      <feDropShadow dx="0" dy="8" stdDeviation="16" flood-color="#00F2FE" flood-opacity="0.25"/>
-    </filter>
-  </defs>
-
-  <!-- Squircle Base for macOS App Icon -->
-  <rect width="1024" height="1024" rx="224" fill="url(#bgGrad)" stroke="#1F2937" stroke-width="8"/>
-
-  <!-- Decorative Inner Glow Border -->
-  <rect x="12" y="12" width="1000" height="1000" rx="212" fill="none" stroke="white" stroke-opacity="0.05" stroke-width="4"/>
-
-  <g filter="url(#glow)">
-    <!-- The "Key-Flow" Symbol -->
-    <!-- 1. The Head of the Key (Flowing Circle/Gear) -->
-    <circle cx="380" cy="380" r="140" stroke="url(#keyGrad)" stroke-width="45" stroke-linecap="round"/>
-    <!-- Inner design of the key head (Infinity / flow loop) -->
-    <path d="M300 380 C 300 330, 460 430, 460 380 C 460 330, 300 430, 300 380 Z" stroke="url(#flowGrad)" stroke-width="20" stroke-linecap="round" fill="none"/>
+    <!-- Key Stem (Clean Line running diagonally) -->
+    <line x1="450" y1="512" x2="740" y2="512" stroke="#FFFFFF" stroke-width="24" stroke-linecap="round"/>
     
-    <!-- 2. The Stem of the Key (Smooth Wave/Flow going downwards-right) -->
-    <path d="M495 495 L 720 720" stroke="url(#keyGrad)" stroke-width="45" stroke-linecap="round"/>
-    
-    <!-- 3. The Teeth of the Key (Formatted as stylized wave ripples/bars representing flow/code) -->
-    <path d="M620 620 L 685 555" stroke="url(#flowGrad)" stroke-width="35" stroke-linecap="round"/>
-    <path d="M680 680 L 745 615" stroke="url(#flowGrad)" stroke-width="35" stroke-linecap="round"/>
-    
-    <!-- 4. Dynamic Swoosh/Flow Stream wrapping around the key -->
-    <path d="M220 540 C 220 700, 420 800, 580 800 C 740 800, 800 680, 800 580 C 800 480, 720 380, 600 280" stroke="url(#flowGrad)" stroke-width="25" stroke-linecap="round" stroke-dasharray="10 25 150 25" fill="none"/>
+    <!-- Key Teeth (Flow-styled geometric teeth in Amber Gold) -->
+    <path d="M610 512 V 582" stroke="#FFB300" stroke-width="24" stroke-linecap="round"/>
+    <path d="M680 512 V 582" stroke="#FFB300" stroke-width="24" stroke-linecap="round"/>
   </g>
 </svg>
