@@ -1191,7 +1191,7 @@ struct MenuContentView: View {
         }
         .frame(width: 384)
         .background(
-            Color.clear
+            CodexVisual.surface.opacity(0.75)
                 .overlay(
                     LinearGradient(
                         colors: [
