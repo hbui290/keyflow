@@ -1133,10 +1133,10 @@ struct AddAccountSheet: View {
                     }
 
                     VStack(alignment: .leading, spacing: 3) {
-                        Text("Use device auth")
+                        Text("Login via code")
                             .font(.system(size: 13, weight: .semibold))
                             .foregroundStyle(.primary)
-                        Text("Browser login is preferred. Use device auth if handoff fails.")
+                        Text("Enter code manually if auto-login fails.")
                             .font(.system(size: 12, weight: .medium))
                             .foregroundStyle(CodexVisual.quietText)
                             .lineLimit(2)
