@@ -926,6 +926,18 @@ struct DetailHeaderView: View {
                 .font(.callout.weight(.medium))
                 .foregroundStyle(CodexVisual.quietText)
                 .lineLimit(1)
+
+                HStack(spacing: 6) {
+                    Image(systemName: "folder")
+                        .font(.system(size: 10))
+                    Text(account.profileDir)
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+                        .textSelection(.enabled)
+                }
+                .font(.system(size: 10, weight: .medium))
+                .foregroundStyle(CodexVisual.quietText)
+                .padding(.top, 2)
             }
 
             Spacer()
@@ -1357,28 +1369,7 @@ struct ManagerWindowView: View {
                                 }
                             }
 
-                            Divider().opacity(0.2)
 
-                            // Part B: Selected Account Profile Folder Path (only if selected)
-                            if let account = model.selectedAccount {
-                                HStack(alignment: .top, spacing: 10) {
-                                    Image(systemName: "folder")
-                                        .foregroundStyle(CodexVisual.neutralAccent)
-                                    VStack(alignment: .leading, spacing: 2) {
-                                        Text("Profile Path")
-                                            .font(.system(size: 11, weight: .semibold))
-                                            .foregroundStyle(CodexVisual.quietText)
-                                        Text(account.profileDir)
-                                            .font(.caption)
-                                            .foregroundStyle(CodexVisual.quietText)
-                                            .textSelection(.enabled)
-                                            .lineLimit(2)
-                                    }
-                                }
-                                .padding(.vertical, 2)
-
-                                Divider().opacity(0.2)
-                            }
 
                             // Part C: Codex environment status (Doctor Report)
                             VStack(alignment: .leading, spacing: 12) {
