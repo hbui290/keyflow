@@ -1340,18 +1340,20 @@ struct ManagerWindowView: View {
                                     .disabled(model.hasBlockingOperation)
                                 }
 
-                                Toggle("Auto-prime session (every 5h)", isOn: Binding(
-                                    get: { UserDefaults.standard.object(forKey: "autoPrime_\(account.id)") as? Bool ?? true },
-                                    set: { UserDefaults.standard.set($0, forKey: "autoPrime_\(account.id)") }
-                                ))
-                                .toggleStyle(.switch)
-                                .font(.caption)
-                                .frame(maxWidth: 220, alignment: .leading)
-
-                                Toggle("Purge profile on remove", isOn: $model.purgeProfileOnRemove)
+                                VStack(alignment: .leading, spacing: 10) {
+                                    Toggle("Auto-prime session (every 5h)", isOn: Binding(
+                                        get: { UserDefaults.standard.object(forKey: "autoPrime_\(account.id)") as? Bool ?? true },
+                                        set: { UserDefaults.standard.set($0, forKey: "autoPrime_\(account.id)") }
+                                    ))
                                     .toggleStyle(.switch)
-                                    .font(.caption)
-                                    .frame(maxWidth: 220, alignment: .leading)
+                                    .font(.system(size: 12, weight: .medium))
+
+                                    Toggle("Purge profile on remove", isOn: $model.purgeProfileOnRemove)
+                                        .toggleStyle(.switch)
+                                        .font(.system(size: 12, weight: .medium))
+                                }
+                                .frame(width: 280, alignment: .leading)
+                                .padding(.top, 4)
                             }
                         }
                     } else {
@@ -1369,7 +1371,7 @@ struct ManagerWindowView: View {
                             VStack(alignment: .leading, spacing: 4) {
                                 Toggle("Open at login", isOn: openAtLoginBinding)
                                     .toggleStyle(.switch)
-                                Text("Start CSW automatically when you sign in.")
+                                Text("Start KeyFlow automatically when you sign in.")
                                     .font(.caption)
                                     .foregroundStyle(CodexVisual.quietText)
                             }
