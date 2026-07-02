@@ -564,8 +564,8 @@ struct StatusBarLabelView: View {
                     .scaleEffect(0.7)
             } else {
                 Text("K")
-                    .font(.system(size: 16.5, weight: .black, design: .rounded))
-                    .foregroundStyle(.primary)
+                    .font(.system(size: 15.5, weight: .semibold, design: .rounded))
+                    .foregroundStyle(Color.primary.opacity(0.85))
             }
         }
         .frame(width: 24, height: 22)
