@@ -1416,49 +1416,52 @@ struct ManagerWindowView: View {
                                         .frame(height: 110)
                                         .opacity(0.15)
 
-                                    // Column 2: System Metadata
-                                    VStack(alignment: .leading, spacing: 12) {
-                                        // Last Sync
-                                        VStack(alignment: .leading, spacing: 3) {
-                                            Text("SYNCED")
-                                                .font(.system(size: 9, weight: .bold))
-                                                .foregroundStyle(CodexVisual.quietText)
-
-                                            RelativeTimestampText(prefix: "", milliseconds: account.usage.updatedAt)
-                                                .font(.system(size: 13, weight: .semibold))
-                                                .foregroundStyle(.primary)
-                                        }
-
-                                        // HStack containing Plan and Resets
+                                    // Column 2: System Metadata (Grouped horizontally and centered vertically to avoid empty space)
+                                    VStack {
+                                        Spacer()
                                         HStack(alignment: .top, spacing: 14) {
-                                            // Account Plan
+                                            // Synced
+                                            VStack(alignment: .leading, spacing: 3) {
+                                                Text("SYNCED")
+                                                    .font(.system(size: 9, weight: .bold))
+                                                    .foregroundStyle(CodexVisual.quietText)
+
+                                                RelativeTimestampText(prefix: "", milliseconds: account.usage.updatedAt)
+                                                    .font(.system(size: 12, weight: .semibold))
+                                                    .foregroundStyle(.primary)
+                                                    .lineLimit(1)
+                                            }
+                                            .frame(maxWidth: .infinity, alignment: .leading)
+
+                                            // Plan
                                             VStack(alignment: .leading, spacing: 3) {
                                                 Text("PLAN")
                                                     .font(.system(size: 9, weight: .bold))
                                                     .foregroundStyle(CodexVisual.quietText)
 
                                                 Text((account.usage.planType ?? "unknown").uppercased())
-                                                    .font(.system(size: 13, weight: .bold))
+                                                    .font(.system(size: 12, weight: .bold))
                                                     .foregroundStyle(planColor(for: account.usage.planType))
+                                                    .lineLimit(1)
                                             }
                                             .frame(maxWidth: .infinity, alignment: .leading)
 
-                                            // Rate Limit Resets
+                                            // Resets
                                             if let resets = account.usage.rateLimitResets {
                                                 VStack(alignment: .leading, spacing: 4) {
                                                     Text("RESETS")
                                                         .font(.system(size: 9, weight: .bold))
                                                         .foregroundStyle(CodexVisual.quietText)
 
-                                                    HStack(spacing: 4) {
+                                                    HStack(spacing: 3) {
                                                         Image(systemName: "arrow.counterclockwise.circle.fill")
-                                                            .font(.system(size: 10, weight: .bold))
+                                                            .font(.system(size: 9, weight: .bold))
                                                         Text("\(resets)")
-                                                            .font(.system(size: 11, weight: .bold))
+                                                            .font(.system(size: 10, weight: .bold))
                                                     }
                                                     .foregroundStyle(CodexVisual.neutralAccent)
-                                                    .padding(.horizontal, 6)
-                                                    .padding(.vertical, 2)
+                                                    .padding(.horizontal, 5)
+                                                    .padding(.vertical, 1.5)
                                                     .background(CodexVisual.neutralAccent.opacity(0.10))
                                                     .clipShape(Capsule())
                                                     .overlay(
@@ -1469,8 +1472,9 @@ struct ManagerWindowView: View {
                                                 .frame(maxWidth: .infinity, alignment: .leading)
                                             }
                                         }
+                                        Spacer()
                                     }
-                                    .frame(width: 140, alignment: .leading)
+                                    .frame(width: 195, height: 110)
                                 }
                             }
                             .padding(16)
