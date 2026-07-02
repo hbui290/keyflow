@@ -592,14 +592,16 @@ struct StatusBarLabelView: View {
             } else {
                 ZStack {
                     RoundedRectangle(cornerRadius: 4.5, style: .continuous)
-                        .stroke(Color.primary.opacity(0.55), lineWidth: 1.2)
+                        .fill(Color.primary)
                         .frame(width: 17, height: 17)
 
                     Text("K")
-                        .font(.system(size: 10, weight: .bold, design: .rounded))
-                        .foregroundStyle(Color.primary.opacity(0.85))
-                        .offset(y: -0.2)
+                        .font(.system(size: 11, weight: .black, design: .rounded))
+                        .foregroundStyle(Color.black)
+                        .blendMode(.destinationOut)
+                        .offset(x: -0.2, y: -0.3)
                 }
+                .compositingGroup()
             }
         }
         .frame(width: 26, height: 22)
