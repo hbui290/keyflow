@@ -238,6 +238,21 @@ export class ProfileService {
       tokens = SessionService.extractAuthTokens(paths.codexAuthPath, json)
       SessionService.validateChatGptAuth(tokens)
     } catch {
+      try {
+        const state = await this.readState()
+        if (state.activeAccountId) {
+          const activeAcc = state.accounts.find((acc: Account) => acc.id === state.activeAccountId)
+          if (activeAcc && activeAcc.usage.status !== 'relogin_required') {
+            activeAcc.usage.status = 'relogin_required'
+            activeAcc.usage.error = 'Current Codex account is not logged in yet.'
+            activeAcc.updatedAt = Date.now()
+            await this.writeState(state)
+          }
+        }
+      } catch (dbErr) {
+        console.error('Failed to update active account status on auth read failure:', dbErr)
+      }
+
       return {
         linked: false,
         created: false,
