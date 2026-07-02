@@ -686,11 +686,35 @@ struct MenuHeaderView: View {
                         .lineLimit(1)
                         .truncationMode(.tail)
 
-                    Text(account?.subtitle ?? "Connect a KeyFlow login")
+                    if let account {
+                        HStack(spacing: 5) {
+                            Text("In use")
+                                .foregroundStyle(statusColor(for: account))
+                            
+                            Text("•")
+                                .foregroundStyle(Color.primary.opacity(0.24))
+
+                            if let resets = account.usage.rateLimitResets {
+                                Text("\(resets) resets")
+                                    .foregroundStyle(CodexVisual.neutralAccent)
+                                Text("•")
+                                    .foregroundStyle(Color.primary.opacity(0.24))
+                            }
+                            
+                            Text(resetDate(from: account.usage.weekly.resetAt))
+                                .monospacedDigit()
+                        }
                         .font(.system(size: 10, weight: .semibold))
                         .foregroundStyle(CodexVisual.quietText)
                         .lineLimit(1)
-                        .truncationMode(.middle)
+                        .truncationMode(.tail)
+                    } else {
+                        Text("Connect a KeyFlow login")
+                            .font(.system(size: 10, weight: .semibold))
+                            .foregroundStyle(CodexVisual.quietText)
+                            .lineLimit(1)
+                            .truncationMode(.middle)
+                    }
                 }
 
                 Spacer()
