@@ -55,85 +55,85 @@ components:
 
 ## Overview
 
-**KeyFlow** sở hữu ngôn ngữ thiết kế tối giản, hiện đại và tập trung hoàn toàn vào dữ liệu sử dụng (**Glanceability**). Giao diện ứng dụng bám sát các nguyên lý thiết kế native của macOS (macOS Native Aesthetic):
-* **Utilitarianism**: Tránh xa các yếu tố trang trí dư thừa (slop UI), tập trung cao độ vào việc hiển thị các thông số rate-limit cốt lõi.
-* **Tonal Contrast**: Sử dụng màu sắc tương phản cao giữa trạng thái bình thường (xanh dương chủ đạo) và trạng thái khẩn cấp (đỏ báo lỗi).
-* **Compact Inspector Layout**: Sắp xếp thông số dạng key-value thẳng hàng dọc tăm tắp, loại bỏ các khoảng trống vô nghĩa trong các ô metadata.
+**KeyFlow** adopts a minimalist, highly focused visual language centered around data accessibility (**Glanceability**). The interface aligns with native macOS UI design patterns:
+* **Utilitarianism**: Rejects unnecessary decorative items (slop UI), keeping the interface clean and highlighting core rate-limit metrics.
+* **Tonal Contrast**: Uses stark visual cues to separate normal operations (blue theme) from critical warnings (red error alerts).
+* **Compact Inspector Layout**: Features vertical, grid-aligned key-value pairs to prevent awkward gaps between metadata.
 
 ---
 
 ## Colors
 
-Hệ màu sắc của KeyFlow được tối ưu hóa cho cả hai chế độ **Light Mode** và **Dark Mode** của macOS:
-* **Primary Accent (`primary` / `#1084FF`):** Màu xanh dương của macOS, tượng trưng cho trạng thái hoạt động bình thường, ổn định. Tự động chuyển sang `#007AFF` ở chế độ sáng để đảm bảo độ tương phản.
-* **Critical Accent (`criticalAccent` / `#F87171`):** Màu đỏ cảnh báo dành cho các profile bị mất kết nối, lỗi token hoặc hết hạn cookie. Chuyển sang `#DC2626` trong chế độ sáng.
-* **Quiet Text (`quietText` / `#8E8E93`):** Màu xám phụ đề dành cho các nhãn chữ in hoa (uppercase labels) và thông tin phụ.
-* **Surface (`surface`):** Màu nền bán trong suốt (translucent) đặc trưng của các cửa sổ popover trên macOS.
+Colors adapt dynamically between macOS **Light Mode** and **Dark Mode**:
+* **Primary Accent (`primary` / `#1084FF`):** The system blue accent representing healthy, active configurations. Reverts to `#007AFF` in Light Mode for contrast compliance.
+* **Critical Accent (`criticalAccent` / `#F87171`):** A warning red tone indicating unlinked configurations, token expirations, or cookie errors. Reverts to `#DC2626` in Light Mode.
+* **Quiet Text (`quietText` / `#8E8E93`):** Neutral gray tones designated for uppercase labels and supplementary notes.
+* **Surface (`surface`):** Translucent background overlays representing standard macOS popover canvases.
 
 ---
 
 ## Typography
 
-Hệ thống font chữ sử dụng bộ font hệ thống của Apple (`SF Pro Text` và `SF Pro Display`) với các vai trò thiết kế:
-* **Title (14px, Bold):** Dành cho email tài khoản hoặc label ở phần Header Popover.
-* **Body-md (12px, Medium):** Dành cho giá trị của gói cước, trạng thái hoạt động.
-* **Label-xs (9px, Bold, Uppercase):** Dành cho các nhãn tiêu đề nhỏ (`SYNCED`, `PLAN`, `RESETS`).
-* **Monospaced Digit (11px, SemiBold):** Dành cho các con số, phần trăm và thời gian đếm ngược để tránh hiện tượng nhảy ký tự khi chữ số thay đổi.
+Text elements utilize Apple's system fonts (`SF Pro Text` and `SF Pro Display`) mapped to distinct UI roles:
+* **Title (14px, Bold):** Used for profile display names or email addresses in the Header.
+* **Body-md (12px, Medium):** Used for status messages and plan details.
+* **Label-xs (9px, Bold, Uppercase):** Used for metadata labels (`SYNCED`, `PLAN`, `RESETS`).
+* **Monospaced Digit (11px, SemiBold):** Used for counts, percentages, and count-down timers to avoid visual jitter when digits change width.
 
 ---
 
 ## Layout
 
-Cấu trúc chia layout được tối ưu hóa cho không gian hẹp (Menu Bar Popover có chiều rộng cố định `384pt`):
+Designed specifically for compact menu bar targets (fixed Popover width of `384pt`):
 * **Vertical Alignment (Inspector Grid):**
-  * Trong bảng chi tiết, cột Metadata bên phải sử dụng layout căn thẳng hàng dọc. 
-  * Cột nhãn có chiều rộng cố định **`52pt`**, căn lề trái.
-  * Cột giá trị nằm kế bên với khoảng cách **`8pt`**, căn lề trái. Điều này giúp các thông số gióng thẳng hàng dọc một cách hoàn mỹ, không tạo khoảng trống rỗng kỳ cục ở giữa.
+  * The right-hand system metadata panel aligns labels and values left-justified.
+  * The label column is locked at a fixed width of **`52pt`**, aligned left.
+  * The value column is aligned left right next to it, separated by an **`8pt`** gap. This creates a clean inspector layout and eliminates large gaps.
 * **Spacing Scale:**
-  * `xs` (4px) cho khoảng cách nhãn con.
-  * `sm` (8px) cho khoảng cách ngang giữa các nút và icon.
-  * `md` (12px) cho spacing dọc giữa các khối thông tin nhỏ.
-  * `lg` (16px) cho padding mép ngoài của các panel.
+  * `xs` (4px) for minor sub-label gaps.
+  * `sm` (8px) for horizontal item padding.
+  * `md` (12px) for vertical gaps between card sections.
+  * `lg` (16px) for main panel margins.
 
 ---
 
 ## Elevation & Depth
 
-* Không lạm dụng hiệu ứng đổ bóng (Drop Shadows) nặng nề gây visual noise.
-* Độ sâu được tạo ra bằng các đường viền siêu mỏng độ tương phản thấp (`white.opacity(0.10)` hoặc `black.opacity(0.10)`) và các mảng nền tối (`primary.opacity(0.02)`).
+* Rejects heavy drop shadows that introduce visual noise.
+* Depth is established via low-contrast thin borders (`white.opacity(0.10)` or `black.opacity(0.10)`) and subtle dark background layers (`primary.opacity(0.02)`).
 
 ---
 
 ## Shapes
 
-* Các cửa sổ Popover và Manager sử dụng corner radius mềm mại theo tiêu chuẩn macOS mới:
-  * **Avatar & Status Dots:** Tròn hoàn hảo (`full`).
-  * **Badges / Pills:** Dạng `Capsule` bo tròn 2 đầu.
-  * **Panel nền:** Corner radius **`12px`** hoặc **`14px`** (`rounded.md`).
+Popover and Manager corners adhere to macOS guidelines:
+* **Avatar & Status Dots:** Circled (`full`).
+* **Badges / Pills:** Double-rounded `Capsule`.
+* **Panels:** Rounded corner radius of **`12px`** or **`14px`** (`rounded.md`).
 
 ---
 
 ## Components
 
 ### 1. Progress Bar (GlowProgressBar)
-Thanh tiến trình hiển thị mức độ cạn kiệt hạn ngạch tin nhắn:
-* Chiều cao mặc định **`5px`**, bo tròn đầu.
-* Có hiệu ứng tỏa sáng nhẹ (Glow overlay) ở phía dưới thanh khi tài khoản đang active để tạo điểm nhấn thị giác cao cấp.
+Visual representation of rate limit consumption:
+* Height set to **`5px`** with fully rounded caps.
+* Includes a subtle glow overlay beneath active account bars to emphasize significance.
 
 ### 2. Capsule Badge (Resets Pill)
-Hộp hiển thị số lượt khôi phục rate limit còn lại:
-* Sử dụng hình dáng Capsule.
-* Nền có màu xanh nhạt `primary.opacity(0.10)`, viền mỏng màu xanh `primary.opacity(0.22)`, chữ và icon màu xanh đậm để tạo cảm giác tinh tế, cao cấp.
+Displays remaining rate limit reset credits:
+* Uses a compact capsule shape.
+* Filled with a light blue background (`primary.opacity(0.10)`), surrounded by a thin outline (`primary.opacity(0.22)`), with text and icon colored in rich blue to feel premium.
 
 ---
 
 ## Do's and Don'ts
 
-* **Nên làm (Do)**:
-  * Do căn lề trái thẳng hàng tăm tắp cho cả nhãn và giá trị của các thông số kỹ thuật.
-  * Do viết hoa toàn bộ (uppercase) các nhãn phụ đề nhỏ (`SYNCED`, `PLAN`, `RESETS`).
-  * Do ẩn các panel danh sách phụ khi không có phần tử để thu gọn không gian menu bar.
-* **Không nên làm (Don't)**:
-  * Don't sử dụng `Spacer()` để đẩy nhãn và giá trị sang hai rìa xa nhau khi chiều rộng khung hẹp, gây rời rạc giao diện.
-  * Don't lạm dụng các icon màu sắc sặc sỡ bên ngoài màu accent chủ đạo.
-  * Don't thay đổi font chữ hệ thống sang font serif hoặc font có độ rộng ký tự biến đổi cho các dãy số đếm ngược thời gian.
+* **Do's**:
+  * Do align both labels and values left-justified in metadata rows.
+  * Do capitalize all sub-panel headers (`SYNCED`, `PLAN`, `RESETS`).
+  * Do collapse the bottom list panel entirely if no secondary profiles exist to save space.
+* **Don'ts**:
+  * Don't use `Spacer()` to push labels and values to opposite extremes when margins are narrow.
+  * Don't use saturated, non-accent colors for general symbols.
+  * Don't change the system monospaced digit font for count-down numbers.

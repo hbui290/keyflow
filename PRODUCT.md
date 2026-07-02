@@ -2,89 +2,89 @@
 
 ## 1. Overview & Vision
 
-**Codex Switch** (thương hiệu thương mại: **KeyFlow**) là giải pháp quản lý đa tài khoản chuyên nghiệp dành cho lập trình viên sử dụng ứng dụng Codex Desktop (ChatGPT client) trên hệ điều hành macOS. 
+**Codex Switch** (commercially branded as **KeyFlow**) is a professional multi-account management solution built for developers using the Codex Desktop app (ChatGPT client) on macOS.
 
-Nhiều lập trình viên sở hữu nhiều tài khoản ChatGPT (Plus, Team, Enterprise) nhằm tối ưu hóa giới hạn tin nhắn (rate limits). Tuy nhiên, Codex Desktop gốc không hỗ trợ tính năng chuyển đổi tài khoản, buộc người dùng phải đăng xuất và đăng nhập lại một cách thủ công vô cùng phiền phức. 
+Many developers own multiple ChatGPT accounts (Plus, Team, Enterprise) to optimize message rate limits. However, the official Codex Desktop app does not support account switching, forcing users to manually log out and log back in, which is highly disruptive to their workflow.
 
-**Codex Switch** giải quyết triệt để nỗi đau này bằng cách cung cấp cơ chế chuyển đổi tài khoản chỉ với 1-Click thông qua 3 giao diện tương tác:
-* **CLI (Command Line Interface)**: Dành cho những lập trình viên thích thao tác nhanh trong terminal.
-* **TUI (Terminal User Interface)**: Giao diện trực quan ngay trên terminal để duyệt và switch nhanh.
-* **Native macOS Status Bar App (KeyFlowMac)**: Ứng dụng menu bar cao cấp, chạy nền, cung cấp khả năng chẩn đoán tức thì và giao diện chuyển đổi mượt mà.
+**Codex Switch** addresses this pain point by providing a seamless, 1-click account switching mechanism accessible via three interfaces:
+* **CLI (Command Line Interface)**: For terminal-heavy developers who prefer quick commands.
+* **TUI (Terminal User Interface)**: An interactive terminal interface for browsing and switching profiles.
+* **Native macOS Status Bar App (KeyFlowMac)**: A premium macOS menu bar app that runs silently in the background, offering instant diagnostics and a fluid switching interface.
 
 ---
 
 ## 2. Target Users & Use Cases
 
-* **Đối tượng người dùng**: Các kỹ sư phần mềm, lập trình viên sử dụng Codex/ChatGPT thường xuyên trong công việc hàng ngày trên macOS. Họ sở hữu từ 2 tài khoản ChatGPT trở lên để tránh bị nghẽn giới hạn tin nhắn (Rate Limit).
-* **Mục tiêu cốt lõi**:
-  * Nhận biết tài khoản nào đang hoạt động (**In use**) và tình trạng giới hạn tin nhắn (5H, Weekly) của nó chỉ trong 1 giây.
-  * Chuyển đổi tài khoản cực kỳ an toàn mà không làm mất phiên làm việc.
-  * Đồng bộ ngược phiên làm việc từ KeyFlow sang Codex khi Codex bị logout.
-  * Nhận diện tài khoản lỗi và yêu cầu đăng nhập lại (**Re-login**) trực quan.
+* **Target Audience**: Software engineers and developers who heavily rely on ChatGPT/Codex in their daily macOS workflow and manage two or more accounts to bypass rate limits.
+* **Core Goals**:
+  * Identify which account is active (**In use**) and check its message quota (5H, Weekly) at a single glance.
+  * Switch accounts safely without losing the current session.
+  * Force-sync credentials from KeyFlow back to Codex when Codex gets logged out.
+  * Highlight account errors and request a **Re-login** visually and intuitively.
 
 ---
 
 ## 3. Product Architecture & Core Tech Stack
 
-Kiến trúc dự án được phân chia thành 2 lớp rõ rệt, kết nối với nhau qua cơ chế IPC (Inter-Process Communication):
+The project is split into two main layers connected via Inter-Process Communication (IPC):
 
 ### 3.1 Backend Core (TypeScript / Bun)
-Chịu trách nhiệm xử lý logic hệ thống, đọc ghi tệp và tương tác với các endpoint API của OpenAI.
+Handles system logic, file system operations, and OpenAI API endpoint interactions.
 * **ProfileService**: 
-  * Quản lý trạng thái ứng dụng tại tệp `state.json`.
-  * Chuẩn hóa dữ liệu đầu vào và đầu ra qua hàm `sanitizeState()`, bảo vệ tính toàn vẹn của các cấu trúc dữ liệu mới như `rateLimitResets`.
-  * Quản lý đường dẫn profile độc lập dưới dạng thư mục con để lưu trữ cookie/auth.
+  * Manages global app state in `state.json`.
+  * Sanitizes data structures via `sanitizeState()` to preserve new properties such as `rateLimitResets`.
+  * Manages isolated profile directories to store cookies and authentications.
 * **SessionService**:
-  * Thực hiện ghi đè tệp tin `auth.json` của Codex để đồng bộ cấu hình đăng nhập.
-  * Sử dụng AppleScript để tắt và khởi chạy lại ứng dụng Codex Desktop (`restartCodexDesktopApp`) nhằm áp dụng cache session mới trên RAM.
+  * Overwrites Codex's active credentials in `auth.json` to swap sessions.
+  * Uses AppleScript to terminate and relaunch the Codex Desktop application (`restartCodexDesktopApp`) to immediately apply the new cached session on RAM.
 * **UsageService**:
-  * Fetch song song dữ liệu giới hạn tin nhắn 5H và Weekly từ tài khoản.
-  * Tích hợp gọi API OpenAI `/backend-api/wham/rate-limit-reset-credits` để trích xuất chỉ số lượt khôi phục rate limit khả dụng (`rateLimitResets`).
+  * Fetches 5-hour and Weekly message usage snapshots in parallel.
+  * Queries OpenAI's `/backend-api/wham/rate-limit-reset-credits` endpoint to retrieve available rate limit reset credits (`rateLimitResets`).
 
 ### 3.2 Frontend Layer (Swift / SwiftUI - KeyFlowMac)
-Ứng dụng native chạy trên thanh menu bar của macOS:
-* **KeyFlowBridgeClient**: Cầu nối giao tiếp IPC gửi lệnh thực thi Bun CLI và phân tích kết quả trả về dạng JSON.
+A native macOS status bar app:
+* **KeyFlowBridgeClient**: Handles IPC communications to execute the Bun CLI and parse returning JSON payloads.
 * **Popover View**: 
-  * **MenuHeaderView**: Khu vực cao nhất, hiển thị thông tin tài khoản đang active hiện tại, email, trạng thái hoạt động (**`In use`**), và chỉ số lượt đặt lại rate limit (**`resets`**). Kèm theo đó là hệ thống nút điều khiển nhanh (Refresh, Add, Settings, Power).
-  * **Usage Section**: Vẽ 2 thanh tiến trình (Progress Bar) tỏa sáng (Glow) cho hạn mức 5H và Weekly. Kèm các mốc thời gian reset cụ thể.
-  * **Metadata Section**: Bảng key-value mini cân đối hiển thị: thời gian đồng bộ (`SYNCED`), gói tài khoản (`PLAN`) và lượt khôi phục (`RESETS`).
-  * **ScrollView List**: Danh sách chứa các tài khoản phụ (inactive) để người dùng chuyển đổi nhanh. Tự động ẩn đi khi chỉ có 1 tài khoản duy nhất để tối ưu giao diện.
-* **Manager Window**: Cửa sổ quản lý chi tiết gồm thanh bên (Sidebar) hiển thị danh sách tất cả tài khoản và màn hình chẩn đoán Diagnostics chi tiết (phát hiện lỗi mạng, hết hạn token, Codex unlinked...).
+  * **MenuHeaderView**: The top panel displaying the active account, email, **`In use`** status, and available **`resets`**. Contains quick action buttons (Refresh, Add, Settings, Power).
+  * **Usage Section**: Renders two glowing progress bars representing 5H and Weekly usage quotas along with precise reset timestamps.
+  * **Metadata Section**: A clean, balanced key-value grid showing synchronization time (`SYNCED`), account plan (`PLAN`), and rate limit credits (`RESETS`).
+  * **ScrollView List**: Lists inactive accounts for quick switching. Automatically hides in single-account mode to keep the interface compact.
+* **Manager Window**: A full management interface featuring an account list sidebar and a detailed Diagnostics view (network checks, token health, Codex linkage status, etc.).
 
 ---
 
 ## 4. Key Product Features
 
-### 4.1 Quản lý Hồ sơ Đăng nhập (Multi-profile Management)
-* Thêm mới tài khoản bằng phương pháp Cookie thông thường hoặc chế độ Device Auth nâng cao.
-* Đặt tên gợi nhớ (Label) cho từng tài khoản để dễ phân biệt.
-* Tự động gán chữ ký số độc lập (`authSignature`) dựa trên token đăng nhập nhằm tránh hiện tượng profile trùng lặp.
+### 4.1 Multi-profile Management
+* Add new accounts via standard cookie extraction or advanced Device Authentication.
+* Assign custom labels to profiles for easy identification.
+* Automatically generate unique signatures (`authSignature`) based on login tokens to prevent duplicate profiles.
 
-### 4.2 Chuyển đổi siêu tốc (Fast Switch / 1-Click Switch)
-* Khi click vào một tài khoản phụ trong danh sách Popover hoặc Manager, hệ thống sẽ thực hiện chuyển đổi phiên dưới đĩa đệm và tự động nạp lại Codex.app.
-* Cơ chế khóa nút (Disable action buttons) trong quá trình chuyển đổi để đảm bảo tiến trình chạy bất đồng bộ hoàn thành an toàn, tránh xung đột dữ liệu.
+### 4.2 1-Click Fast Switching
+* Clicking an inactive account in the Popover or Manager triggers a background session swap and restarts Codex.app.
+* Disables interaction buttons during transit to ensure asynchronous background operations complete safely without file conflicts.
 
-### 4.3 Đồng bộ hóa Codex chủ động (Sync to Codex)
-* Tự động phát hiện khi Codex bị đăng xuất (mất tệp `auth.json` gốc) và hiển thị banner chẩn đoán đỏ hoặc đổi nút Active thành **`Sync to Codex`**.
-* Chỉ với 1-Click, KeyFlow sẽ copy cưỡng bức phiên làm việc hiện tại đè vào Codex để phục hồi đăng nhập tức thì mà không yêu cầu nhập lại mật khẩu.
+### 4.3 Active Codex Syncing (Sync to Codex)
+* Detects when Codex gets logged out (missing `auth.json`) and presents a prominent warning banner or upgrades the switch button to **`Sync to Codex`**.
+* Restores Codex credentials instantly with one click, without requiring the user to re-enter credentials.
 
-### 4.4 Chẩn đoán & Yêu cầu Đăng nhập lại (Diagnostics & Re-login)
-* Phát hiện và cập nhật trạng thái lỗi thành `relogin_required` ngay khi phát hiện phiên đăng nhập hết hạn hoặc cookie chết.
-* Hiển thị banner cảnh báo đỏ nổi bật cùng nút hành động **`Re-login`**. Khi click vào nút này, hệ thống sẽ mở trình duyệt web hoặc terminal để người dùng hoàn tất đăng nhập lại cho profile đó.
+### 4.4 Diagnostics & Re-login
+* Marks profiles as `relogin_required` immediately upon detecting expired tokens, revoked cookies, or invalid sessions.
+* Displays a warning banner with a **`Re-login`** button, prompting the user to complete authentication in a browser or terminal window.
 
-### 4.5 Theo dõi Rate-limit Reset Credits
-* Đồng bộ và hiển thị số lượt khôi phục giới hạn tin nhắn khả dụng của ChatGPT Plus/Team (ví dụ: "2 resets").
-* Giúp người dùng chủ động đưa ra quyết định switch tài khoản khi tài khoản hiện tại hết lượt hoặc chuẩn bị cạn kiệt.
+### 4.5 Rate-limit Reset Credits Tracking
+* Tracks and displays available rate limit reset credits (e.g., "2 resets").
+* Allows users to make informed switching decisions before current account limits are reached.
 
 ---
 
 ## 5. Do's and Don'ts
 
-* **Nên làm (Do)**:
-  * Đảm bảo tính "Glanceability" (nhìn phát hiểu luôn). Giao diện Menu bar phải cực kỳ gọn gàng, tôn vinh dữ liệu sử dụng lên hàng đầu.
-  * Giữ cấu trúc dữ liệu lưu trữ sạch sẽ, luôn chạy hàm lọc `sanitizeState()` khi ghi dữ liệu.
-  * Đồng bộ phiên đăng nhập an toàn, luôn tạo bản sao lưu (`backupPath`) trước khi ghi đè auth Codex.
-* **Không nên làm (Don't)**:
-  * Không lặp lại thông tin dư thừa trên UI (như việc hiện email 2 lần kề nhau).
-  * Không để các khoảng trống rỗng kỳ cục giữa nhãn và giá trị trên giao diện; sử dụng căn lề thẳng hàng dọc theo chuẩn macOS.
-  * Không để lộ bí mật thông tin nhạy cảm của tài khoản trong log hoặc giao diện hiển thị công khai.
+* **Do's**:
+  * Prioritize "Glanceability". The menu bar UI should display core usage data clearly and concisely.
+  * Maintain clean state file writing; always filter properties using `sanitizeState()`.
+  * Ensure session syncing is safe; always create a backup (`backupPath`) before overwriting Codex's credentials.
+* **Don'ts**:
+  * Do not display redundant information (such as duplicate emails on adjacent lines).
+  * Do not leave irregular empty spaces between labels and values; align elements left-justified in a clean column.
+  * Do not leak sensitive tokens or account keys in logs or public interfaces.
