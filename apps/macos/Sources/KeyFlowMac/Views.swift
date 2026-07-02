@@ -1288,8 +1288,8 @@ struct ManagerWindowView: View {
                                 )
                             }
 
-                            // SECTION 1: Account Actions & Preferences
-                            DetailSection(title: "Account Actions & Preferences", showSeparator: true) {
+                            // SECTION 1: Preferences & Actions
+                            DetailSection(title: "Preferences", showSeparator: true) {
                                 // Status Notes or Errors if any
                                 if let error = account.usage.error, !error.isEmpty {
                                     Text(error)
@@ -1332,14 +1332,28 @@ struct ManagerWindowView: View {
                                     .disabled(model.hasBlockingOperation)
                                 }
 
-                                Toggle("Auto-prime session (every 5h)", isOn: Binding(
-                                    get: { UserDefaults.standard.object(forKey: "autoPrime_\(account.id)") as? Bool ?? true },
-                                    set: { UserDefaults.standard.set($0, forKey: "autoPrime_\(account.id)") }
-                                ))
-                                .toggleStyle(.switch)
-                                .font(.system(size: 12, weight: .medium))
+                                // Consolidated Preferences Toggles
+                                VStack(alignment: .leading, spacing: 12) {
+                                    Toggle("Auto-prime session (every 5h)", isOn: Binding(
+                                        get: { UserDefaults.standard.object(forKey: "autoPrime_\(account.id)") as? Bool ?? true },
+                                        set: { UserDefaults.standard.set($0, forKey: "autoPrime_\(account.id)") }
+                                    ))
+                                    .toggleStyle(.switch)
+                                    .font(.system(size: 12, weight: .medium))
+
+                                    Divider().opacity(0.15)
+
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Toggle("Open at login", isOn: openAtLoginBinding)
+                                            .toggleStyle(.switch)
+                                            .font(.system(size: 12, weight: .medium))
+                                        Text("Start KeyFlow automatically when you sign in.")
+                                            .font(.system(size: 10))
+                                            .foregroundStyle(CodexVisual.quietText)
+                                    }
+                                }
                                 .frame(width: 280, alignment: .leading)
-                                .padding(.top, 4)
+                                .padding(.top, 6)
                             }
                             .confirmationDialog(
                                 "Remove Account",
@@ -1365,23 +1379,9 @@ struct ManagerWindowView: View {
                         .padding(.top, 80)
                     }
 
-                    // SECTION 2: System Settings & Diagnostics (Always displayed)
-                    DetailSection(title: "System & Diagnostics", showSeparator: true) {
+                    // SECTION 2: System Diagnostics (Always displayed)
+                    DetailSection(title: "System Diagnostics", showSeparator: true) {
                         VStack(alignment: .leading, spacing: 14) {
-                            // Part A: Open at Login Global Toggle
-                            HStack(alignment: .center, spacing: 12) {
-                                Image(systemName: "power.circle")
-                                    .font(.system(size: 16))
-                                    .foregroundStyle(CodexVisual.neutralAccent)
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Toggle("Open at login", isOn: openAtLoginBinding)
-                                        .toggleStyle(.switch)
-                                        .font(.system(size: 12, weight: .medium))
-                                    Text("Start KeyFlow automatically when you sign in.")
-                                        .font(.caption)
-                                        .foregroundStyle(CodexVisual.quietText)
-                                }
-                            }
 
 
 
