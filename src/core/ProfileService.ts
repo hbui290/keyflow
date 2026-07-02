@@ -147,6 +147,7 @@ export class ProfileService {
               resetAt: typeof usage?.weekly?.resetAt === 'number' ? usage.weekly.resetAt : null,
               windowSeconds: typeof usage?.weekly?.windowSeconds === 'number' ? usage.weekly.windowSeconds : null,
             },
+            rateLimitResets: typeof usage?.rateLimitResets === 'number' ? usage.rateLimitResets : null,
           },
         }
       })
