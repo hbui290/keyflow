@@ -994,7 +994,9 @@ struct DetailHeaderView: View {
 
             // Quick Actions HStack aligned to the right (layout prioritized to prevent truncation)
             HStack(spacing: 8) {
-                if account.usage.status == .reloginRequired {
+                let showRelogin = account.usage.status == .reloginRequired || 
+                                  (account.isActive && (account.usage.status == .never || note == "Current Codex account is not logged in yet."))
+                if showRelogin {
                     Button {
                         Task { await model.reloginAccount(id: account.id) }
                     } label: {

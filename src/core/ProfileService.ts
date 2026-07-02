@@ -249,7 +249,10 @@ export class ProfileService {
     const signature = this.computeAuthSignature(tokens)
     const email = SessionService.extractEmailFromIdToken(tokens.idToken)
     const state = await this.readState()
-    const matched = state.accounts.find((account: Account) => account.authSignature === signature)
+    const matched = state.accounts.find((account: Account) => {
+      if (email && account.email === email) return true
+      return account.authSignature === signature
+    })
 
     if (matched) {
       await this.syncCurrentCodexFilesToProfile(matched.profileDir)
@@ -269,6 +272,7 @@ export class ProfileService {
         ...matched,
         email: email ?? matched.email ?? null,
         label: email && shouldPromoteLabel ? email : matched.label,
+        authSignature: signature, // Update to the latest signature to prevent future mismatches
         updatedAt: refreshUsage ? Date.now() : matched.updatedAt,
         usage: newUsage,
       }
