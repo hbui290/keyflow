@@ -457,15 +457,14 @@ struct IconCommandButton: View {
     var body: some View {
         Button(role: role, action: action) {
             Label(title, systemImage: systemImage)
-                .labelStyle(.titleAndIcon)
+                .labelStyle(.iconOnly)
                 .font(.system(size: 12, weight: .semibold))
-                .padding(.horizontal, 10)
-                .frame(height: 28)
+                .frame(width: 28, height: 28)
                 .background(
-                    Capsule(style: .continuous)
+                    Circle()
                         .fill(isProminent ? CodexVisual.neutralAccent.opacity(0.18) : Color.primary.opacity(0.055))
                         .overlay(
-                            Capsule(style: .continuous)
+                            Circle()
                                 .strokeBorder(isProminent ? CodexVisual.neutralAccent.opacity(0.30) : Color.primary.opacity(0.07))
                         )
                 )
@@ -774,7 +773,7 @@ struct ActionStripView: View {
                 guard !model.isRefreshingAll, !model.hasBlockingOperation else { return }
                 Task { await model.refreshAll() }
             } label: {
-                HStack(spacing: 6) {
+                ZStack {
                     if model.isRefreshingAll {
                         ProgressView()
                             .controlSize(.small)
@@ -783,16 +782,14 @@ struct ActionStripView: View {
                         Image(systemName: "arrow.clockwise")
                             .font(.system(size: 12, weight: .semibold))
                     }
-                    Text("Refresh")
                 }
                 .font(.system(size: 12, weight: .semibold))
-                .padding(.horizontal, 10)
-                .frame(height: 28)
+                .frame(width: 28, height: 28)
                 .background(
-                    Capsule(style: .continuous)
+                    Circle()
                         .fill(Color.primary.opacity(0.055))
                         .overlay(
-                            Capsule(style: .continuous)
+                            Circle()
                                 .strokeBorder(Color.primary.opacity(0.07))
                         )
                 )
@@ -807,20 +804,18 @@ struct ActionStripView: View {
                     guard !model.hasBlockingOperation else { return }
                     Task { await model.primeAccount(id: activeAcc.id) }
                 } label: {
-                    HStack(spacing: 6) {
+                    ZStack {
                         Image(systemName: "bolt.fill")
                             .font(.system(size: 12, weight: .semibold))
                             .foregroundStyle(Color.yellow)
-                        Text("Prime")
                     }
                     .font(.system(size: 12, weight: .semibold))
-                    .padding(.horizontal, 10)
-                    .frame(height: 28)
+                    .frame(width: 28, height: 28)
                     .background(
-                        Capsule(style: .continuous)
+                        Circle()
                             .fill(Color.primary.opacity(0.055))
                             .overlay(
-                                Capsule(style: .continuous)
+                                Circle()
                                     .strokeBorder(Color.primary.opacity(0.07))
                             )
                     )
