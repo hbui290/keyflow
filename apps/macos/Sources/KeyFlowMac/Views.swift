@@ -1362,10 +1362,6 @@ struct ManagerWindowView: View {
                                             RelativeTimestampText(prefix: "", milliseconds: account.usage.updatedAt)
                                                 .font(.system(size: 13, weight: .semibold))
                                                 .foregroundStyle(.primary)
-
-                                            Text("Sync connection active")
-                                                .font(.system(size: 9, weight: .medium))
-                                                .foregroundStyle(CodexVisual.quietText)
                                         }
 
                                         // Account Plan
@@ -1377,10 +1373,6 @@ struct ManagerWindowView: View {
                                             Text((account.usage.planType ?? "unknown").uppercased())
                                                 .font(.system(size: 13, weight: .bold))
                                                 .foregroundStyle(CodexVisual.neutralAccent)
-
-                                            Text("ChatGPT authenticated")
-                                                .font(.system(size: 9, weight: .medium))
-                                                .foregroundStyle(CodexVisual.quietText)
                                         }
                                     }
                                     .frame(width: 140, alignment: .leading)
@@ -1442,7 +1434,7 @@ struct ManagerWindowView: View {
 
                                 // Consolidated Preferences Toggles in HStack
                                 HStack(spacing: 24) {
-                                    Toggle("Auto-refresh (every 5h)", isOn: Binding(
+                                    Toggle("Auto-prime (every 5h)", isOn: Binding(
                                         get: { UserDefaults.standard.object(forKey: "autoPrime_\(account.id)") as? Bool ?? true },
                                         set: { UserDefaults.standard.set($0, forKey: "autoPrime_\(account.id)") }
                                     ))
