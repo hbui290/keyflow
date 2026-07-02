@@ -10,24 +10,24 @@ export async function runDoctor(): Promise<DoctorReport> {
   const codexVersion = await SessionService.runProcessAsync(SessionService.resolveCodexExecutable(), ['--version'])
 
   checks.push({
-    name: 'codex_binary',
+    name: 'Codex Engine',
     ok: (codexVersion.status ?? 1) === 0,
     details:
       (codexVersion.status ?? 1) === 0
-        ? (codexVersion.stdout ?? '').trim() || 'codex is available'
-        : (codexVersion.stderr ?? '').trim() || 'codex command failed',
+        ? (codexVersion.stdout ?? '').trim() || 'Codex CLI is available'
+        : (codexVersion.stderr ?? '').trim() || 'Codex CLI command failed',
   })
 
   try {
     await ProfileService.ensureSwitchDirs()
     checks.push({
-      name: 'switch_dirs',
+      name: 'KeyFlow Storage',
       ok: true,
       details: `${paths.switchHome}`,
     })
   } catch (error: any) {
     checks.push({
-      name: 'switch_dirs',
+      name: 'KeyFlow Storage',
       ok: false,
       details: (error as Error).message,
     })
@@ -36,7 +36,7 @@ export async function runDoctor(): Promise<DoctorReport> {
   try {
     const state = await ProfileService.readState()
     checks.push({
-      name: 'state_file',
+      name: 'Accounts Database',
       ok: true,
       details: `${state.accounts.length} account(s) tracked`,
     })
@@ -48,21 +48,21 @@ export async function runDoctor(): Promise<DoctorReport> {
         const tokens = SessionService.extractAuthTokens(authPath, json)
         SessionService.validateChatGptAuth(tokens)
         checks.push({
-          name: `account:${account.id}`,
+          name: `Account: ${account.label}`,
           ok: true,
-          details: `${account.label} (${tokens.authMode ?? 'unknown'})`,
+          details: `${tokens.authMode ?? 'chatgpt'} session active`,
         })
       } catch (error: any) {
         checks.push({
-          name: `account:${account.id}`,
+          name: `Account: ${account.label}`,
           ok: false,
-          details: `${account.label}: ${(error as Error).message}`,
+          details: (error as Error).message,
         })
       }
     }
   } catch (error: any) {
     checks.push({
-      name: 'state_file',
+      name: 'Accounts Database',
       ok: false,
       details: (error as Error).message,
     })
