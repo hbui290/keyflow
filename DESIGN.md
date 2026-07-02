@@ -2,7 +2,8 @@
 name: KeyFlow Prestige
 colors:
   primary: "#1084FF"
-  primary-dark: "#007AFF"
+  primary-dark: "#0055B3"
+  primary-container: "#E8F2FF"
   criticalAccent: "#F87171"
   criticalAccent-dark: "#DC2626"
   surface: "#1E1E1E"
@@ -45,10 +46,22 @@ components:
     height: 5px
     rounded: "{rounded.sm}"
   badge-capsule:
-    backgroundColor: "{colors.primary}"
-    textColor: "{colors.primary}"
+    backgroundColor: "{colors.primary-container}"
+    textColor: "{colors.primary-dark}"
     padding: "6px 1.5px"
     rounded: "{rounded.capsule}"
+  error-banner:
+    backgroundColor: "{colors.criticalAccent-dark}"
+    textColor: "{colors.hairline}"
+    rounded: "{rounded.sm}"
+  diagnostics-icon:
+    textColor: "{colors.criticalAccent}"
+  metadata-label:
+    textColor: "{colors.quietText}"
+    typography: "{typography.label-xs}"
+  avatar-border:
+    textColor: "{colors.hairline}"
+    rounded: "{rounded.sm}"
 ---
 
 # Design Specification - KeyFlow (Codex Switch)
@@ -65,8 +78,11 @@ components:
 ## Colors
 
 Colors adapt dynamically between macOS **Light Mode** and **Dark Mode**:
-* **Primary Accent (`primary` / `#1084FF`):** The system blue accent representing healthy, active configurations. Reverts to `#007AFF` in Light Mode for contrast compliance.
-* **Critical Accent (`criticalAccent` / `#F87171`):** A warning red tone indicating unlinked configurations, token expirations, or cookie errors. Reverts to `#DC2626` in Light Mode.
+* **Primary Accent (`primary` / `#1084FF`):** The system blue accent representing healthy, active configurations.
+* **Primary Dark (`primary-dark` / `#0055B3`):** Darker blue variant for text overlays on light backgrounds to pass contrast checks.
+* **Primary Container (`primary-container` / `#E8F2FF`):** Soft blue tint fill for container backgrounds.
+* **Critical Accent (`criticalAccent` / `#F87171`):** A warning red tone indicating unlinked configurations.
+* **Critical Dark (`criticalAccent-dark` / `#DC2626`):** Solid red background fill for high contrast layouts.
 * **Quiet Text (`quietText` / `#8E8E93`):** Neutral gray tones designated for uppercase labels and supplementary notes.
 * **Surface (`surface`):** Translucent background overlays representing standard macOS popover canvases.
 
@@ -127,7 +143,7 @@ Displays remaining rate limit reset credits:
 
 ---
 
-## Do's and Don'ts
+## Do's and Don't's
 
 * **Do's**:
   * Do align both labels and values left-justified in metadata rows.
