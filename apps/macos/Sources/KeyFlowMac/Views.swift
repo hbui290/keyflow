@@ -852,7 +852,12 @@ struct AccountRowView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
 
                 HStack(spacing: 6) {
-                    if let note = visibleStatusNote(for: account) {
+                    if account.isActive {
+                        Text("In use")
+                            .foregroundStyle(tint)
+                        Text("•")
+                            .foregroundStyle(Color.primary.opacity(0.24))
+                    } else if let note = visibleStatusNote(for: account) {
                         Text(note)
                         Text("•")
                             .foregroundStyle(Color.primary.opacity(0.24))
@@ -860,10 +865,10 @@ struct AccountRowView: View {
                     Text(resetDate(from: account.usage.weekly.resetAt))
                         .monospacedDigit()
                 }
-                    .font(.system(size: 11, weight: .semibold))
-                    .foregroundStyle(CodexVisual.quietText)
-                    .lineLimit(1)
-                    .padding(.leading, 34)
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundStyle(CodexVisual.quietText)
+                .lineLimit(1)
+                .padding(.leading, 34)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
 
