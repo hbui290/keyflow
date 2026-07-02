@@ -559,70 +559,28 @@ struct StatusBarLabelView: View {
     var body: some View {
         let account = model.activeAccount
         let remaining = account?.fiveHourRemaining
-        let tint = statusBarUsageColor(for: remaining)
 
-        ZStack {
-            StatusBarBatteryMeter(percent: remaining, fill: tint, height: 10)
-                .frame(width: 30, height: 10)
-                .frame(maxWidth: .infinity, alignment: .center)
-                .accessibilityLabel("Remaining five-hour usage")
-                .accessibilityValue(percentString(remaining))
-                .opacity(model.currentOperation == nil ? 1 : 0)
-
+        HStack(spacing: 5) {
             if model.currentOperation != nil {
                 ProgressView()
                     .controlSize(.small)
-                    .scaleEffect(0.70)
-                    .background(
-                        Capsule(style: .continuous)
-                            .fill(Color.primary.opacity(0.18))
-                            .frame(width: 30, height: 12)
-                    )
+                    .scaleEffect(0.65)
+            } else {
+                Image(systemName: "key.horizontal")
+                    .font(.system(size: 11, weight: .medium))
+            }
+
+            if let remaining = remaining {
+                Text(percentString(remaining))
+                    .font(.system(size: 10.5, weight: .bold, design: .rounded))
+                    .monospacedDigit()
+            } else {
+                Text("--%")
+                    .font(.system(size: 10.5, weight: .bold, design: .rounded))
+                    .foregroundStyle(Color.secondary)
             }
         }
-        .frame(maxWidth: .infinity, minHeight: 14, alignment: .center)
-    }
-}
-
-struct StatusBarBatteryMeter: View {
-    let percent: Double?
-    let fill: Color
-    var height: CGFloat = 10
-
-    private var normalizedPercent: CGFloat {
-        CGFloat(max(0, min((percent ?? 0) / 100, 1)))
-    }
-
-    var body: some View {
-        GeometryReader { proxy in
-            let percentFillWidth = proxy.size.width * normalizedPercent
-            let shape = Capsule(style: .continuous)
-
-            ZStack(alignment: .leading) {
-                shape
-                    .fill(Color.black.opacity(0.58))
-                    .overlay(
-                        shape.strokeBorder(Color.white.opacity(0.38), lineWidth: 0.75)
-                    )
-
-                shape
-                    .fill(
-                        LinearGradient(
-                            colors: [
-                                fill.opacity(0.92),
-                                fill,
-                            ],
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        )
-                    )
-                    .frame(width: percentFillWidth)
-            }
-        }
-        .frame(height: height)
-        .clipShape(Capsule(style: .continuous))
-        .accessibilityLabel("Remaining five-hour usage")
-        .accessibilityValue(percentString(percent))
+        .padding(.horizontal, 4)
     }
 }
 
