@@ -1284,30 +1284,23 @@ struct ManagerWindowView: View {
                                 )
                             }
 
-                            DetailSection(title: "Details") {
+                            // SECTION 1: Account Actions & Preferences
+                            DetailSection(title: "Account Actions & Preferences", showSeparator: true) {
+                                // Status Notes or Errors if any
                                 if let error = account.usage.error, !error.isEmpty {
                                     Text(error)
                                         .font(.caption)
-                                        .foregroundStyle(CodexVisual.quietText)
+                                        .foregroundStyle(CodexVisual.criticalAccent)
                                         .textSelection(.enabled)
-                                } else if account.usage.status != .ok {
-                                    Text(visibleStatusNote(for: account) ?? "")
+                                        .padding(.bottom, 4)
+                                } else if account.usage.status != .ok, let note = visibleStatusNote(for: account) {
+                                    Text(note)
                                         .font(.caption)
                                         .foregroundStyle(CodexVisual.quietText)
+                                        .padding(.bottom, 4)
                                 }
 
-                                HStack(alignment: .top, spacing: 10) {
-                                    Image(systemName: "folder")
-                                        .foregroundStyle(CodexVisual.neutralAccent)
-                                    Text(account.profileDir)
-                                        .font(.caption)
-                                        .foregroundStyle(CodexVisual.quietText)
-                                        .textSelection(.enabled)
-                                        .lineLimit(2)
-                                }
-                            }
-
-                            DetailSection(title: "Actions") {
+                                // Quick Actions HStack
                                 HStack(spacing: 10) {
                                     if account.usage.status == .reloginRequired {
                                         Button {
@@ -1340,6 +1333,7 @@ struct ManagerWindowView: View {
                                     .disabled(model.hasBlockingOperation)
                                 }
 
+                                // Account-specific Toggles
                                 VStack(alignment: .leading, spacing: 10) {
                                     Toggle("Auto-prime session (every 5h)", isOn: Binding(
                                         get: { UserDefaults.standard.object(forKey: "autoPrime_\(account.id)") as? Bool ?? true },
@@ -1364,52 +1358,83 @@ struct ManagerWindowView: View {
                         .padding(.top, 80)
                     }
 
-                    DetailSection(title: "Settings") {
-                        HStack(alignment: .center, spacing: 10) {
-                            Image(systemName: "power.circle")
-                                .foregroundStyle(CodexVisual.neutralAccent)
-                            VStack(alignment: .leading, spacing: 4) {
-                                Toggle("Open at login", isOn: openAtLoginBinding)
-                                    .toggleStyle(.switch)
-                                Text("Start KeyFlow automatically when you sign in.")
-                                    .font(.caption)
-                                    .foregroundStyle(CodexVisual.quietText)
-                            }
-                        }
-                    }
-
-                    DetailSection(title: "Diagnostics") {
-                        HStack {
-                            Text("Codex environment")
-                                .font(.subheadline.weight(.semibold))
-                            Spacer()
-                            Button {
-                                Task { await model.loadDoctor() }
-                            } label: {
-                                Label("Refresh", systemImage: "arrow.clockwise")
-                            }
-                            .disabled(model.hasBlockingOperation)
-                        }
-
-                        if let doctor = model.doctorReport {
-                            ForEach(doctor.checks) { check in
-                                VStack(alignment: .leading, spacing: 5) {
-                                    HStack(spacing: 8) {
-                                        StatusDot(color: CodexVisual.neutralAccent, size: 7)
-                                        Text(check.name)
-                                            .font(.subheadline.weight(.medium))
-                                    }
-                                    Text(check.details)
+                    // SECTION 2: System Settings & Diagnostics (Always displayed)
+                    DetailSection(title: "System & Diagnostics", showSeparator: true) {
+                        VStack(alignment: .leading, spacing: 14) {
+                            // Part A: Open at Login Global Toggle
+                            HStack(alignment: .center, spacing: 12) {
+                                Image(systemName: "power.circle")
+                                    .font(.system(size: 16))
+                                    .foregroundStyle(CodexVisual.neutralAccent)
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Toggle("Open at login", isOn: openAtLoginBinding)
+                                        .toggleStyle(.switch)
+                                        .font(.system(size: 12, weight: .medium))
+                                    Text("Start KeyFlow automatically when you sign in.")
                                         .font(.caption)
                                         .foregroundStyle(CodexVisual.quietText)
-                                        .textSelection(.enabled)
                                 }
-                                .padding(.vertical, 3)
                             }
-                        } else {
-                            Text("Diagnostics have not been loaded yet.")
-                                .font(.caption)
-                                .foregroundStyle(CodexVisual.quietText)
+
+                            Divider().opacity(0.2)
+
+                            // Part B: Selected Account Profile Folder Path (only if selected)
+                            if let account = model.selectedAccount {
+                                HStack(alignment: .top, spacing: 10) {
+                                    Image(systemName: "folder")
+                                        .foregroundStyle(CodexVisual.neutralAccent)
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text("Profile Path")
+                                            .font(.system(size: 11, weight: .semibold))
+                                            .foregroundStyle(CodexVisual.quietText)
+                                        Text(account.profileDir)
+                                            .font(.caption)
+                                            .foregroundStyle(CodexVisual.quietText)
+                                            .textSelection(.enabled)
+                                            .lineLimit(2)
+                                    }
+                                }
+                                .padding(.vertical, 2)
+
+                                Divider().opacity(0.2)
+                            }
+
+                            // Part C: Codex environment status (Doctor Report)
+                            VStack(alignment: .leading, spacing: 12) {
+                                HStack {
+                                    Text("Codex environment")
+                                        .font(.subheadline.weight(.semibold))
+                                    Spacer()
+                                    Button {
+                                        Task { await model.loadDoctor() }
+                                    } label: {
+                                        Label("Refresh Diagnostics", systemImage: "arrow.clockwise")
+                                    }
+                                    .buttonStyle(.borderless)
+                                    .disabled(model.hasBlockingOperation)
+                                }
+
+                                if let doctor = model.doctorReport {
+                                    ForEach(doctor.checks) { check in
+                                        VStack(alignment: .leading, spacing: 4) {
+                                            HStack(spacing: 8) {
+                                                StatusDot(color: check.ok ? CodexVisual.neutralAccent : CodexVisual.criticalAccent, size: 7)
+                                                Text(check.name)
+                                                    .font(.subheadline.weight(.medium))
+                                            }
+                                            Text(check.details)
+                                                .font(.caption)
+                                                .foregroundStyle(CodexVisual.quietText)
+                                                .textSelection(.enabled)
+                                        }
+                                        .padding(.vertical, 2)
+                                    }
+                                } else {
+                                    Text("Diagnostics have not been loaded yet.")
+                                        .font(.caption)
+                                        .foregroundStyle(CodexVisual.quietText)
+                                }
+                            }
                         }
                     }
                 }
