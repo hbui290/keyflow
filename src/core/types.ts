@@ -20,6 +20,7 @@ export type UsageSnapshot = {
   updatedAt: number | null
   last5Hours: UsageWindow
   weekly: UsageWindow
+  rateLimitResets?: number | null
 }
 
 export type Account = {

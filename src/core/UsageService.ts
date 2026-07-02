@@ -19,6 +19,7 @@ export class UsageService {
       updatedAt: null,
       last5Hours: { usedPercent: null, remainingPercent: null, resetAt: null, windowSeconds: null },
       weekly: { usedPercent: null, remainingPercent: null, resetAt: null, windowSeconds: null },
+      rateLimitResets: null,
     }
   }
 
@@ -108,6 +109,32 @@ export class UsageService {
         }
       }
 
+      let resetsCount: number | null = null
+      if (url.includes('/backend-api')) {
+        try {
+          const resetsUrl = url.replace('/wham/usage', '/wham/rate-limit-reset-credits')
+          const controller = new AbortController()
+          const timeout = setTimeout(() => controller.abort(), 10000)
+          const headers: Record<string, string> = {
+            Authorization: `Bearer ${tokens.accessToken}`,
+            Accept: 'application/json',
+            'User-Agent': 'keyflow/1.0',
+          }
+          if (tokens.accountId) headers['ChatGPT-Account-Id'] = tokens.accountId
+
+          const response = await fetch(resetsUrl, { headers, signal: controller.signal })
+          clearTimeout(timeout)
+          if (response.ok) {
+            const resData = (await response.json()) as { available_count?: number }
+            if (typeof resData.available_count === 'number') {
+              resetsCount = resData.available_count
+            }
+          }
+        } catch (e) {
+          console.error('Failed to fetch rate limit resets:', e)
+        }
+      }
+
       const clamp = (val: any) => (typeof val === 'number' && !Number.isNaN(val) ? Math.max(0, Math.min(100, val)) : null)
       const uPercent = clamp(data.rate_limit?.primary_window?.used_percent)
       const primary: UsageWindow = {
@@ -138,6 +165,7 @@ export class UsageService {
           updatedAt: Date.now(),
           last5Hours: primary,
           weekly,
+          rateLimitResets: resetsCount,
         },
         warning: null,
       }

@@ -862,6 +862,12 @@ struct AccountRowView: View {
                         Text("•")
                             .foregroundStyle(Color.primary.opacity(0.24))
                     }
+                    if let resets = account.usage.rateLimitResets {
+                        Text("\(resets) resets")
+                            .foregroundStyle(CodexVisual.neutralAccent)
+                        Text("•")
+                            .foregroundStyle(Color.primary.opacity(0.24))
+                    }
                     Text(resetDate(from: account.usage.weekly.resetAt))
                         .monospacedDigit()
                 }
@@ -1430,6 +1436,19 @@ struct ManagerWindowView: View {
                                             Text((account.usage.planType ?? "unknown").uppercased())
                                                 .font(.system(size: 13, weight: .bold))
                                                 .foregroundStyle(planColor(for: account.usage.planType))
+                                        }
+
+                                        // Rate Limit Resets
+                                        if let resets = account.usage.rateLimitResets {
+                                            VStack(alignment: .leading, spacing: 3) {
+                                                Text("RESETS REMAINING")
+                                                    .font(.system(size: 9, weight: .bold))
+                                                    .foregroundStyle(CodexVisual.quietText)
+
+                                                Text("\(resets)")
+                                                    .font(.system(size: 13, weight: .bold))
+                                                    .foregroundStyle(CodexVisual.neutralAccent)
+                                            }
                                         }
                                     }
                                     .frame(width: 140, alignment: .leading)

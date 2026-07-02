@@ -34,6 +34,7 @@ struct UsageSnapshot: Codable, Hashable, Sendable {
     let updatedAt: Double?
     let last5Hours: UsageWindow
     let weekly: UsageWindow
+    let rateLimitResets: Int?
 }
 
 struct BridgeAccountSummary: Codable, Hashable, Identifiable, Sendable {
