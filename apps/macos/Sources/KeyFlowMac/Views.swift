@@ -566,8 +566,7 @@ struct StatusBarLabelView: View {
                     .controlSize(.small)
                     .scaleEffect(0.65)
             } else {
-                Image(systemName: "key.horizontal")
-                    .font(.system(size: 11, weight: .medium))
+                AppGlyph(size: 14)
             }
 
             if let remaining = remaining {
