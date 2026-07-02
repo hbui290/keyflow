@@ -356,7 +356,7 @@ struct DualUsageView: View {
     var body: some View {
         VStack(spacing: spacing) {
             UsageLane(label: "5H", percent: fiveHour)
-            UsageLane(label: "WK", percent: weekly)
+            UsageLane(label: "W", percent: weekly)
         }
     }
 }
@@ -453,7 +453,7 @@ struct AccountUsageStack: View {
     var body: some View {
         VStack(alignment: .trailing, spacing: 7) {
             AccountUsageMeter(label: "5H", value: fiveHour)
-            AccountUsageMeter(label: "WK", value: weekly)
+            AccountUsageMeter(label: "W", value: weekly)
         }
     }
 }
@@ -753,7 +753,7 @@ struct MenuHeaderView: View {
                         HeaderMetaItem(title: "5H Next") {
                             Text(resetTime(from: account.usage.last5Hours.resetAt))
                         }
-                        HeaderMetaItem(title: "WK Reset") {
+                        HeaderMetaItem(title: "W Reset") {
                             Text(resetDate(from: account.usage.weekly.resetAt))
                         }
                     }
@@ -892,7 +892,7 @@ struct ManagerSidebarAccountRow: View {
 
             HStack(spacing: 6) {
                 PercentPill(label: "5H", value: account.fiveHourRemaining)
-                PercentPill(label: "WK", value: account.weeklyRemaining)
+                PercentPill(label: "W", value: account.weeklyRemaining)
             }
         }
         .padding(.vertical, 7)
