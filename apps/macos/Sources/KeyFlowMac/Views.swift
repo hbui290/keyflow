@@ -1416,56 +1416,60 @@ struct ManagerWindowView: View {
                                         .frame(height: 110)
                                         .opacity(0.15)
 
-                                    // Column 2: System Metadata (Stacked vertically with tighter spacing for perfect height balance)
-                                    VStack(alignment: .leading, spacing: 10) {
-                                        // Synced
-                                        VStack(alignment: .leading, spacing: 2) {
-                                            Text("SYNCED")
-                                                .font(.system(size: 9, weight: .bold))
-                                                .foregroundStyle(CodexVisual.quietText)
-
-                                            RelativeTimestampText(prefix: "", milliseconds: account.usage.updatedAt)
-                                                .font(.system(size: 12, weight: .semibold))
-                                                .foregroundStyle(.primary)
-                                        }
-
-                                        // Plan
-                                        VStack(alignment: .leading, spacing: 2) {
-                                            Text("PLAN")
-                                                .font(.system(size: 9, weight: .bold))
-                                                .foregroundStyle(CodexVisual.quietText)
-
-                                            Text((account.usage.planType ?? "unknown").uppercased())
-                                                .font(.system(size: 12, weight: .bold))
-                                                .foregroundStyle(planColor(for: account.usage.planType))
-                                        }
-
-                                        // Resets
-                                        if let resets = account.usage.rateLimitResets {
-                                            VStack(alignment: .leading, spacing: 3) {
-                                                Text("RESETS")
+                                    // Column 2: System Metadata (Stacked vertically, label and value inline on the same row)
+                                    VStack {
+                                        Spacer()
+                                        VStack(alignment: .leading, spacing: 12) {
+                                            // Synced
+                                            HStack(alignment: .center) {
+                                                Text("SYNCED")
                                                     .font(.system(size: 9, weight: .bold))
                                                     .foregroundStyle(CodexVisual.quietText)
+                                                Spacer()
+                                                RelativeTimestampText(prefix: "", milliseconds: account.usage.updatedAt)
+                                                    .font(.system(size: 11, weight: .semibold))
+                                                    .foregroundStyle(.primary)
+                                            }
 
-                                                HStack(spacing: 4) {
-                                                    Image(systemName: "arrow.counterclockwise.circle.fill")
-                                                        .font(.system(size: 10, weight: .bold))
-                                                    Text("\(resets) left")
-                                                        .font(.system(size: 11, weight: .bold))
+                                            // Plan
+                                            HStack(alignment: .center) {
+                                                Text("PLAN")
+                                                    .font(.system(size: 9, weight: .bold))
+                                                    .foregroundStyle(CodexVisual.quietText)
+                                                Spacer()
+                                                Text((account.usage.planType ?? "unknown").uppercased())
+                                                    .font(.system(size: 11, weight: .bold))
+                                                    .foregroundStyle(planColor(for: account.usage.planType))
+                                            }
+
+                                            // Resets
+                                            if let resets = account.usage.rateLimitResets {
+                                                HStack(alignment: .center) {
+                                                    Text("RESETS")
+                                                        .font(.system(size: 9, weight: .bold))
+                                                        .foregroundStyle(CodexVisual.quietText)
+                                                    Spacer()
+                                                    HStack(spacing: 3) {
+                                                        Image(systemName: "arrow.counterclockwise.circle.fill")
+                                                            .font(.system(size: 9, weight: .bold))
+                                                        Text("\(resets)")
+                                                            .font(.system(size: 10, weight: .bold))
+                                                    }
+                                                    .foregroundStyle(CodexVisual.neutralAccent)
+                                                    .padding(.horizontal, 6)
+                                                    .padding(.vertical, 1.5)
+                                                    .background(CodexVisual.neutralAccent.opacity(0.10))
+                                                    .clipShape(Capsule())
+                                                    .overlay(
+                                                        Capsule()
+                                                            .strokeBorder(CodexVisual.neutralAccent.opacity(0.22), lineWidth: 1)
+                                                    )
                                                 }
-                                                .foregroundStyle(CodexVisual.neutralAccent)
-                                                .padding(.horizontal, 7)
-                                                .padding(.vertical, 2)
-                                                .background(CodexVisual.neutralAccent.opacity(0.10))
-                                                .clipShape(Capsule())
-                                                .overlay(
-                                                    Capsule()
-                                                        .strokeBorder(CodexVisual.neutralAccent.opacity(0.22), lineWidth: 1)
-                                                )
                                             }
                                         }
+                                        Spacer()
                                     }
-                                    .frame(width: 140, alignment: .leading)
+                                    .frame(width: 155, height: 110)
                                 }
                             }
                             .padding(16)
