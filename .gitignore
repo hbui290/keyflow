@@ -5,14 +5,15 @@ node_modules/
 dist/
 
 # Local agents and config
-.agents
 .agents/
+.depwire/
+scratch/
 .env
 .env.*
 
 # Logs and OS files
 *.log
-.DS_Store
+**/.DS_Store
 
 # SwiftPM / macOS build outputs
 .build/

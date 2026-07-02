@@ -7,7 +7,7 @@ APP_PATH="$DIST_DIR/KeyFlow.app"
 DMG_PATH="$DIST_DIR/KeyFlow.dmg"
 
 if [[ ! -d "$APP_PATH" ]]; then
-  echo "Error: KeyFlow.app not found. Build the app first using scripts/build-macos-app.sh" >&2
+  echo "Error: KeyFlow.app not found. Build the app first using scripts/build-keyflow-app.sh" >&2
   exit 1
 fi
 
