@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'bun:test'
 import { ProfileService } from './ProfileService.js'
 import { SessionService } from './SessionService.js'
+import { UsageService } from './UsageService.js'
+import fs from 'node:fs/promises'
+import path from 'node:path'
+import os from 'node:os'
 
 describe('ProfileService & SessionService Unit Tests', () => {
   describe('ProfileService.sanitizeState', () => {
@@ -104,6 +108,93 @@ describe('ProfileService & SessionService Unit Tests', () => {
         expect(result.message).toContain('Successfully primed session for account mock@example.com')
       } finally {
         SessionService.primeAccount = originalPrime
+      }
+    })
+  })
+
+  describe('ProfileService.ensureCurrentCodexLinked matching logic', () => {
+    it('should match existing account by email even if authSignature is different', async () => {
+      const originalReadState = ProfileService.readState
+      const originalWriteState = ProfileService.writeState
+      const originalGetPaths = ProfileService.getPaths
+      const originalSync = ProfileService.syncCurrentCodexFilesToProfile
+      const originalReadAuth = SessionService.readAuthFile
+      const originalResolve = UsageService.resolveUsageSnapshot
+
+      let writtenState: any = null
+
+      ProfileService.readState = async () => ({
+        activeAccountId: 'acc-old',
+        accounts: [
+          {
+            id: 'acc-old',
+            label: 'Old Account',
+            email: 'boss@example.com',
+            profileDir: '/profiles/acc-old',
+            authSignature: 'old-sig',
+            usage: { status: 'ok', last5Hours: { usedPercent: 50 } },
+          } as any
+        ]
+      })
+
+      ProfileService.writeState = async (state) => {
+        writtenState = state
+      }
+
+      const testDir = path.join(os.tmpdir(), `keyflow-test-${Math.random().toString(36).substring(7)}`)
+      const codexHome = path.join(testDir, 'codex-home')
+      const codexAuthPath = path.join(codexHome, 'auth.json')
+
+      ProfileService.getPaths = () => ({
+        codexHome,
+        codexAuthPath,
+        profilesDir: path.join(testDir, 'profiles'),
+        statePath: path.join(testDir, 'state.json'),
+      })
+
+      ProfileService.syncCurrentCodexFilesToProfile = async () => {}
+
+      SessionService.readAuthFile = async () => ({
+        authPath: codexAuthPath,
+        json: {
+          tokens: {
+            access_token: 'new-access-token',
+            id_token: 'header.eyJlbWFpbCI6ImJvc3NAZXhhbXBsZS5jb20ifQ.signature', // boss@example.com
+          }
+        }
+      })
+
+      UsageService.resolveUsageSnapshot = async () => ({
+        usage: { status: 'ok', source: 'wham_usage', last5Hours: { usedPercent: 10 } } as any,
+        warning: null,
+      })
+
+      try {
+        await fs.mkdir(codexHome, { recursive: true })
+        await fs.writeFile(codexAuthPath, JSON.stringify({
+          tokens: {
+            access_token: 'new-access-token',
+            id_token: 'header.eyJlbWFpbCI6ImJvc3NAZXhhbXBsZS5jb20ifQ.signature',
+          }
+        }))
+
+        const result = await ProfileService.ensureCurrentCodexLinked()
+        expect(result.linked).toBe(true)
+        expect(result.created).toBe(false)
+        expect(result.account?.id).toBe('acc-old')
+        expect(result.account?.authSignature).not.toBe('old-sig') // Should update authSignature
+        expect(writtenState).not.toBeNull()
+        expect(writtenState.accounts[0].authSignature).not.toBe('old-sig')
+      } finally {
+        ProfileService.readState = originalReadState
+        ProfileService.writeState = originalWriteState
+        ProfileService.getPaths = originalGetPaths
+        ProfileService.syncCurrentCodexFilesToProfile = originalSync
+        SessionService.readAuthFile = originalReadAuth
+        UsageService.resolveUsageSnapshot = originalResolve
+        try {
+          await fs.rm(testDir, { recursive: true, force: true })
+        } catch {}
       }
     })
   })
