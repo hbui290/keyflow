@@ -97,5 +97,8 @@ if command -v codesign >/dev/null 2>&1; then
   codesign --force --deep --sign - "$APP_BUNDLE" >/dev/null 2>&1 || true
 fi
 
+# Clean up temporary icon build directory
+rm -rf "$ICON_WORK_DIR"
+
 echo "Built app bundle:"
 echo "$APP_BUNDLE"
