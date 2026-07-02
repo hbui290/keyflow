@@ -5,19 +5,19 @@
   <!-- Subtle macOS App Icon Inner Border -->
   <rect x="10" y="10" width="1004" height="1004" rx="220" fill="none" stroke="#FFFFFF" stroke-opacity="0.02" stroke-width="6" />
 
-  <!-- 3x3 Dot Grid Matrix (KeyFlow Abstract T-Key) -->
+  <!-- 3x3 Dot Grid Matrix (KeyFlow - Stylized Geometric "K" for Key & Flow) -->
   <!-- Row 0 -->
   <circle cx="312" cy="312" r="64" fill="#FFFFFF" />
-  <circle cx="512" cy="312" r="64" fill="#FFFFFF" />
-  <circle cx="712" cy="312" r="64" fill="#FFFFFF" />
+  <circle cx="512" cy="312" r="64" fill="#2A2E3D" fill-opacity="0.4" />
+  <circle cx="712" cy="312" r="64" fill="#00E5FF" />
 
   <!-- Row 1 -->
-  <circle cx="312" cy="512" r="64" fill="#2A2E3D" fill-opacity="0.4"/>
+  <circle cx="312" cy="512" r="64" fill="#FFFFFF" />
   <circle cx="512" cy="512" r="64" fill="#FFFFFF" />
-  <circle cx="712" cy="512" r="64" fill="#2A2E3D" fill-opacity="0.4"/>
+  <circle cx="712" cy="512" r="64" fill="#2A2E3D" fill-opacity="0.4" />
 
   <!-- Row 2 -->
-  <circle cx="312" cy="712" r="64" fill="#2A2E3D" fill-opacity="0.4"/>
-  <circle cx="512" cy="712" r="64" fill="#FFB300" />
-  <circle cx="712" cy="712" r="64" fill="#2A2E3D" fill-opacity="0.4"/>
+  <circle cx="312" cy="712" r="64" fill="#FFFFFF" />
+  <circle cx="512" cy="712" r="64" fill="#2A2E3D" fill-opacity="0.4" />
+  <circle cx="712" cy="712" r="64" fill="#00E5FF" />
 </svg>
