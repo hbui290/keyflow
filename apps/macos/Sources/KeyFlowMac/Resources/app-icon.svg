@@ -1,23 +1,31 @@
 <svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- macOS Squircle Background (Deep Obsidian Black) -->
-  <rect width="1024" height="1024" rx="230" fill="#0C0E12" />
+  <!-- macOS Squircle Background (Premium Vibrant Tech Blue) -->
+  <rect width="1024" height="1024" rx="224" fill="#2563EB" />
   
   <!-- Subtle macOS App Icon Inner Border -->
-  <rect x="10" y="10" width="1004" height="1004" rx="220" fill="none" stroke="#FFFFFF" stroke-opacity="0.02" stroke-width="6" />
+  <rect x="8" y="8" width="1008" height="1008" rx="216" fill="none" stroke="white" stroke-opacity="0.06" stroke-width="4" />
 
-  <!-- 3x3 Dot Grid Matrix (KeyFlow - Stylized Geometric "K" for Key & Flow) -->
-  <!-- Row 0 -->
-  <circle cx="312" cy="312" r="64" fill="#FFFFFF" />
-  <circle cx="512" cy="312" r="64" fill="#2A2E3D" fill-opacity="0.4" />
-  <circle cx="712" cy="312" r="64" fill="#00E5FF" />
+  <!-- Aerodynamic Sweeping Letter K (KeyFlow) & Signal Waves -->
+  <g>
+    <!-- 1. Stylized "K" in the exact ribbon-sweep curve aesthetic of the F icon -->
+    <path d="M 130 800 
+             C 170 610, 240 380, 360 280 
+             C 430 220, 520 220, 600 220 
+             L 600 320 
+             C 510 320, 440 350, 380 410 
+             C 450 390, 560 340, 660 300
+             L 730 370
+             C 620 420, 480 460, 370 480
+             C 450 510, 560 580, 660 740
+             L 560 800
+             C 480 670, 400 590, 340 560
+             C 290 580, 230 680, 190 800
+             Z" fill="white" />
 
-  <!-- Row 1 -->
-  <circle cx="312" cy="512" r="64" fill="#FFFFFF" />
-  <circle cx="512" cy="512" r="64" fill="#FFFFFF" />
-  <circle cx="712" cy="512" r="64" fill="#2A2E3D" fill-opacity="0.4" />
-
-  <!-- Row 2 -->
-  <circle cx="312" cy="712" r="64" fill="#FFFFFF" />
-  <circle cx="512" cy="712" r="64" fill="#2A2E3D" fill-opacity="0.4" />
-  <circle cx="712" cy="712" r="64" fill="#00E5FF" />
+    <!-- 2. The Ping / Flow Signal Waves -->
+    <rect x="670" y="300" width="32" height="120" rx="16" fill="white" />
+    <rect x="722" y="250" width="32" height="220" rx="16" fill="white" />
+    <rect x="774" y="200" width="32" height="320" rx="16" fill="white" />
+    <rect x="826" y="270" width="32" height="180" rx="16" fill="white" />
+  </g>
 </svg>
