@@ -7,7 +7,7 @@ import { ProfileService } from './ProfileService.js'
 const REFRESH_ENDPOINT = 'https://auth.openai.com/oauth/token'
 const REFRESH_CLIENT_ID = 'app_EMoamEEZ73f0CkXaXp7hrann'
 const CHATGPT_LOGIN_CONFIG = ['-c', 'forced_login_method="chatgpt"', '-c', 'cli_auth_credentials_store="file"'] as const
-const LOGIN_TIMEOUT_MS = 10 * 60 * 1000
+const LOGIN_TIMEOUT_MS = 2 * 60 * 1000
 const LOGIN_AUTH_POLL_MS = 500
 const MAX_LOGIN_OUTPUT_CHARS = 20_000
 const CODEX_APP_PATH = '/Applications/Codex.app'

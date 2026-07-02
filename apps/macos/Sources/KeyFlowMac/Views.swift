@@ -1137,6 +1137,7 @@ struct AddAccountSheet: View {
             HStack {
                 Spacer()
                 SheetActionButton(title: "Cancel") {
+                    model.cancelCurrentOperation()
                     model.isAddAccountSheetPresented = false
                 }
                 SheetActionButton(

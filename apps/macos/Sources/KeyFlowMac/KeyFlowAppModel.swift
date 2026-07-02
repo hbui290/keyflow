@@ -90,6 +90,10 @@ final class KeyFlowAppModel: ObservableObject {
         isAddAccountSheetPresented = true
     }
 
+    func cancelCurrentOperation() {
+        currentOperation = nil
+    }
+
     func refreshOpenAtLoginStatus() {
         openAtLogin = SMAppService.mainApp.status == .enabled
     }
