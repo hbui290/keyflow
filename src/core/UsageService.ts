@@ -82,14 +82,31 @@ export class UsageService {
       let tokens = SessionService.extractAuthTokens(authPath, json)
 
       const ageMs = Date.now() - (tokens.lastRefresh?.getTime() ?? 0)
-      if (tokens.refreshToken && ageMs > 8 * 24 * 60 * 60 * 1000) {
+      if (tokens.refreshToken && (ageMs > 45 * 60 * 1000 || !tokens.lastRefresh)) {
         try {
           tokens = await SessionService.refreshTokens(tokens)
-        } catch {}
+        } catch (e: any) {
+          // Silent catch to fallback to old token if network is temporarily down
+        }
       }
 
       const url = await this.resolveUsageUrl(profileDir)
-      const data = await this.fetchUsageFromApi(tokens, url)
+      let data: UsageApiResponse
+      try {
+        data = await this.fetchUsageFromApi(tokens, url)
+      } catch (error: any) {
+        // If API returns 401/403 and we have a refresh token, try to refresh and retry once
+        if (tokens.refreshToken && (error.message.includes('expired') || error.message.includes('401') || error.message.includes('403') || error.message.includes('Unauthorized'))) {
+          try {
+            tokens = await SessionService.refreshTokens(tokens)
+            data = await this.fetchUsageFromApi(tokens, url)
+          } catch {
+            throw error
+          }
+        } else {
+          throw error
+        }
+      }
 
       const clamp = (val: any) => (typeof val === 'number' && !Number.isNaN(val) ? Math.max(0, Math.min(100, val)) : null)
       const uPercent = clamp(data.rate_limit?.primary_window?.used_percent)
