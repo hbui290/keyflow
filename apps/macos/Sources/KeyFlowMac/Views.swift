@@ -581,12 +581,19 @@ struct StatusBarLabelView: View {
                     .controlSize(.small)
                     .scaleEffect(0.7)
             } else {
-                Text("K")
-                    .font(.system(size: 15.5, weight: .semibold, design: .rounded))
-                    .foregroundStyle(Color.primary.opacity(0.85))
+                ZStack {
+                    RoundedRectangle(cornerRadius: 4.5, style: .continuous)
+                        .stroke(Color.primary.opacity(0.55), lineWidth: 1.2)
+                        .frame(width: 17, height: 17)
+
+                    Text("K")
+                        .font(.system(size: 10, weight: .bold, design: .rounded))
+                        .foregroundStyle(Color.primary.opacity(0.85))
+                        .offset(y: -0.2)
+                }
             }
         }
-        .frame(width: 20, height: 22)
+        .frame(width: 22, height: 22)
     }
 }
 
