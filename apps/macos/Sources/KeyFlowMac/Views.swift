@@ -1316,7 +1316,7 @@ struct ManagerWindowView: View {
                                 .padding(.top, 4)
                             }
                             .confirmationDialog(
-                                "Remove Account?",
+                                "Remove Account",
                                 isPresented: $showingRemoveConfirmation,
                                 titleVisibility: .visible
                             ) {
