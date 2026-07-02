@@ -686,7 +686,7 @@ struct MenuHeaderView: View {
                         .lineLimit(1)
                         .truncationMode(.tail)
 
-                    Text(account?.subtitle ?? "Connect a Codex login")
+                    Text(account?.subtitle ?? "Connect a KeyFlow login")
                         .font(.system(size: 10, weight: .semibold))
                         .foregroundStyle(CodexVisual.quietText)
                         .lineLimit(1)
