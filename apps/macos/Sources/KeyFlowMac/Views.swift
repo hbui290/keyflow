@@ -596,10 +596,11 @@ struct StatusBarLabelView: View {
                         .frame(width: 17, height: 17)
 
                     Text("K")
-                        .font(.system(size: 11, weight: .black, design: .rounded))
+                        .font(.system(size: 13, weight: .black, design: .rounded))
                         .foregroundStyle(Color.black)
                         .blendMode(.destinationOut)
-                        .offset(x: -0.2, y: -0.3)
+                        .frame(width: 17, height: 17, alignment: .center)
+                        .offset(y: -0.5)
                 }
                 .compositingGroup()
             }
