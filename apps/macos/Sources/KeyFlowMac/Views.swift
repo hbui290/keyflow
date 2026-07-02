@@ -1004,12 +1004,16 @@ struct DetailHeaderView: View {
                     .fixedSize(horizontal: true, vertical: false)
                 }
 
+                let isUnlinked = account.isActive && model.banner?.message.contains("not logged in") == true
                 Button {
                     Task { await model.switchAccount(id: account.id) }
                 } label: {
-                    Label(account.isActive ? "Active" : "Switch", systemImage: account.isActive ? "checkmark.circle.fill" : "arrow.triangle.2.circlepath")
+                    Label(
+                        isUnlinked ? "Sync to Codex" : (account.isActive ? "Active" : "Switch"), 
+                        systemImage: isUnlinked ? "arrow.triangle.2.circlepath" : (account.isActive ? "checkmark.circle.fill" : "arrow.triangle.2.circlepath")
+                    )
                 }
-                .disabled(model.hasBlockingOperation || !account.canSwitch || account.isActive)
+                .disabled(model.hasBlockingOperation || (!account.canSwitch && !isUnlinked) || (account.isActive && !isUnlinked))
                 .fixedSize(horizontal: true, vertical: false)
 
                 Button(role: .destructive) {
