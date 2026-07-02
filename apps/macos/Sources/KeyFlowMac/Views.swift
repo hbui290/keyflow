@@ -776,32 +776,7 @@ struct ActionStripView: View {
             .disabled(model.isRefreshingAll || model.hasBlockingOperation)
             .help("Refresh all accounts")
 
-            if let activeAcc = model.activeAccount {
-                Button {
-                    guard !model.hasBlockingOperation else { return }
-                    Task { await model.primeAccount(id: activeAcc.id) }
-                } label: {
-                    ZStack {
-                        Image(systemName: "bolt.fill")
-                            .font(.system(size: 12, weight: .semibold))
-                            .foregroundStyle(Color.yellow)
-                    }
-                    .font(.system(size: 12, weight: .semibold))
-                    .frame(width: 28, height: 28)
-                    .background(
-                        Circle()
-                            .fill(Color.primary.opacity(0.055))
-                            .overlay(
-                                Circle()
-                                    .strokeBorder(Color.primary.opacity(0.07))
-                            )
-                    )
-                    .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-                .disabled(model.hasBlockingOperation)
-                .help("Prime current active account session")
-            }
+
 
             IconCommandButton(title: "Add", systemImage: "plus") {
                 model.openAddAccountFlow()
@@ -1320,12 +1295,7 @@ struct ManagerWindowView: View {
                                     }
                                     .disabled(model.hasBlockingOperation || !account.canSwitch || account.isActive)
 
-                                    Button {
-                                        Task { await model.primeAccount(id: account.id) }
-                                    } label: {
-                                        Label("Prime", systemImage: "bolt.fill")
-                                    }
-                                    .disabled(model.hasBlockingOperation || account.usage.status == .reloginRequired)
+
 
                                     Button(role: .destructive) {
                                         Task { await model.removeSelectedAccount() }
