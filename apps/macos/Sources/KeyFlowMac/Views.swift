@@ -1416,27 +1416,29 @@ struct ManagerWindowView: View {
                                         .frame(height: 110)
                                         .opacity(0.15)
 
-                                    // Column 2: System Metadata (Stacked vertically, label and value inline on the same row)
+                                    // Column 2: System Metadata (Left-aligned key-value table layout with fixed spacing to avoid empty gaps)
                                     VStack {
                                         Spacer()
-                                        VStack(alignment: .leading, spacing: 12) {
+                                        VStack(alignment: .leading, spacing: 10) {
                                             // Synced
-                                            HStack(alignment: .center) {
+                                            HStack(alignment: .center, spacing: 8) {
                                                 Text("SYNCED")
                                                     .font(.system(size: 9, weight: .bold))
                                                     .foregroundStyle(CodexVisual.quietText)
-                                                Spacer()
+                                                    .frame(width: 52, alignment: .leading)
+                                                
                                                 RelativeTimestampText(prefix: "", milliseconds: account.usage.updatedAt)
                                                     .font(.system(size: 11, weight: .semibold))
                                                     .foregroundStyle(.primary)
                                             }
 
                                             // Plan
-                                            HStack(alignment: .center) {
+                                            HStack(alignment: .center, spacing: 8) {
                                                 Text("PLAN")
                                                     .font(.system(size: 9, weight: .bold))
                                                     .foregroundStyle(CodexVisual.quietText)
-                                                Spacer()
+                                                    .frame(width: 52, alignment: .leading)
+                                                
                                                 Text((account.usage.planType ?? "unknown").uppercased())
                                                     .font(.system(size: 11, weight: .bold))
                                                     .foregroundStyle(planColor(for: account.usage.planType))
@@ -1444,19 +1446,20 @@ struct ManagerWindowView: View {
 
                                             // Resets
                                             if let resets = account.usage.rateLimitResets {
-                                                HStack(alignment: .center) {
+                                                HStack(alignment: .center, spacing: 8) {
                                                     Text("RESETS")
                                                         .font(.system(size: 9, weight: .bold))
                                                         .foregroundStyle(CodexVisual.quietText)
-                                                    Spacer()
+                                                        .frame(width: 52, alignment: .leading)
+                                                    
                                                     HStack(spacing: 3) {
                                                         Image(systemName: "arrow.counterclockwise.circle.fill")
-                                                            .font(.system(size: 9, weight: .bold))
+                                                            .font(.system(size: 8, weight: .bold))
                                                         Text("\(resets)")
                                                             .font(.system(size: 10, weight: .bold))
                                                     }
                                                     .foregroundStyle(CodexVisual.neutralAccent)
-                                                    .padding(.horizontal, 6)
+                                                    .padding(.horizontal, 5)
                                                     .padding(.vertical, 1.5)
                                                     .background(CodexVisual.neutralAccent.opacity(0.10))
                                                     .clipShape(Capsule())
@@ -1469,7 +1472,7 @@ struct ManagerWindowView: View {
                                         }
                                         Spacer()
                                     }
-                                    .frame(width: 155, height: 110)
+                                    .frame(width: 140, height: 110)
                                 }
                             }
                             .padding(16)
