@@ -107,7 +107,7 @@ final class StatusBarController: NSObject, NSPopoverDelegate {
     private func configureStatusItem() {
         guard let button = statusItem.button else { return }
 
-        statusItem.length = NSStatusItem.variableLength
+        statusItem.length = 26
         button.title = ""
         button.image = nil
         button.target = self
