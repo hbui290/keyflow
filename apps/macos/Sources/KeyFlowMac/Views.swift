@@ -182,6 +182,24 @@ func usageBarColor(for remainingPercent: Double?) -> Color {
     return CodexVisual.neutralAccent
 }
 
+func planColor(for plan: String?) -> Color {
+    guard let plan = plan?.lowercased() else { return Color.secondary }
+    switch plan {
+    case "pro":
+        return Color.orange // Premium Orange/Gold for ChatGPT Pro
+    case "plus":
+        return CodexVisual.neutralAccent // Blue for ChatGPT Plus
+    case "team":
+        return Color.green // Green for ChatGPT Team
+    case "enterprise":
+        return Color.purple // Purple/Ruby for Enterprise
+    case "free":
+        return Color.secondary // Gray for Free Plan
+    default:
+        return CodexVisual.neutralAccent
+    }
+}
+
 func percentString(_ value: Double?) -> String {
     guard let value else { return "n/a" }
     return value.percentText
@@ -916,25 +934,26 @@ struct DetailHeaderView: View {
                     .lineLimit(1)
                     .truncationMode(.tail)
 
-                HStack(spacing: 8) {
-                    StatusDot(color: account.isActive ? CodexVisual.neutralAccent : Color.primary.opacity(0.18), size: 7)
-                    if account.isActive {
-                        Text("Active profile")
-                    } else if let note {
-                        Text(note)
-                    }
-                    if let email = account.email, email != account.displayName {
-                        if account.isActive || note != nil {
-                            Text("•")
-                                .foregroundStyle(Color.primary.opacity(0.24))
+                let hasSubtitleContent = (!account.isActive && note != nil) || (account.email != nil && account.email != account.displayName)
+                if hasSubtitleContent {
+                    HStack(spacing: 8) {
+                        if !account.isActive, let note = note {
+                            StatusDot(color: CodexVisual.criticalAccent, size: 7)
+                            Text(note)
                         }
-                        Text(email)
-                            .truncationMode(.middle)
+                        if let email = account.email, email != account.displayName {
+                            if !account.isActive && note != nil {
+                                Text("•")
+                                    .foregroundStyle(Color.primary.opacity(0.24))
+                            }
+                            Text(email)
+                                .truncationMode(.middle)
+                        }
                     }
+                    .font(.callout.weight(.medium))
+                    .foregroundStyle(CodexVisual.quietText)
+                    .lineLimit(1)
                 }
-                .font(.callout.weight(.medium))
-                .foregroundStyle(CodexVisual.quietText)
-                .lineLimit(1)
 
                 Button {
                     let url = URL(fileURLWithPath: account.profileDir)
@@ -1346,7 +1365,7 @@ struct ManagerWindowView: View {
 
                                             Text((account.usage.planType ?? "unknown").uppercased())
                                                 .font(.system(size: 13, weight: .bold))
-                                                .foregroundStyle(CodexVisual.neutralAccent)
+                                                .foregroundStyle(planColor(for: account.usage.planType))
                                         }
                                     }
                                     .frame(width: 140, alignment: .leading)
