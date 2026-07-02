@@ -1302,6 +1302,49 @@ struct ManagerWindowView: View {
                         VStack(alignment: .leading, spacing: 18) {
                              DetailHeaderView(account: account, showingRemoveConfirmation: $showingRemoveConfirmation)
 
+                             if let error = account.usage.error, !error.isEmpty {
+                                 HStack(spacing: 8) {
+                                     Image(systemName: "exclamationmark.triangle.fill")
+                                         .font(.system(size: 11, weight: .bold))
+                                         .foregroundStyle(CodexVisual.criticalAccent)
+                                     Text(error)
+                                         .font(.system(size: 11, weight: .semibold))
+                                         .foregroundStyle(CodexVisual.criticalAccent)
+                                         .textSelection(.enabled)
+                                 }
+                                 .padding(.horizontal, 12)
+                                 .padding(.vertical, 8)
+                                 .background(
+                                     RoundedRectangle(cornerRadius: 6, style: .continuous)
+                                         .fill(CodexVisual.criticalAccent.opacity(0.08))
+                                         .overlay(
+                                             RoundedRectangle(cornerRadius: 6, style: .continuous)
+                                                 .strokeBorder(CodexVisual.criticalAccent.opacity(0.18))
+                                         )
+                                 )
+                                 .padding(.top, -6)
+                             } else if account.usage.status != .ok, let note = visibleStatusNote(for: account) {
+                                 HStack(spacing: 8) {
+                                     Image(systemName: "info.circle.fill")
+                                         .font(.system(size: 11))
+                                         .foregroundStyle(CodexVisual.quietText)
+                                     Text(note)
+                                         .font(.system(size: 11, weight: .medium))
+                                         .foregroundStyle(CodexVisual.quietText)
+                                 }
+                                 .padding(.horizontal, 12)
+                                 .padding(.vertical, 8)
+                                 .background(
+                                     RoundedRectangle(cornerRadius: 6, style: .continuous)
+                                         .fill(Color.primary.opacity(0.03))
+                                         .overlay(
+                                             RoundedRectangle(cornerRadius: 6, style: .continuous)
+                                                 .strokeBorder(Color.primary.opacity(0.06))
+                                         )
+                                 )
+                                 .padding(.top, -6)
+                             }
+
                             // Redesigned Unified Usage & Sessions Dashboard Card
                             VStack(alignment: .leading, spacing: 14) {
                                 Text("Usage & Sessions")
@@ -1394,20 +1437,6 @@ struct ManagerWindowView: View {
 
                             // SECTION 1: Settings
                              DetailSection(title: "Settings", showSeparator: true) {
-                                 // Status Notes or Errors if any
-                                 if let error = account.usage.error, !error.isEmpty {
-                                     Text(error)
-                                         .font(.caption)
-                                         .foregroundStyle(CodexVisual.criticalAccent)
-                                         .textSelection(.enabled)
-                                         .padding(.bottom, 4)
-                                 } else if account.usage.status != .ok, let note = visibleStatusNote(for: account) {
-                                     Text(note)
-                                         .font(.caption)
-                                         .foregroundStyle(CodexVisual.quietText)
-                                         .padding(.bottom, 4)
-                                 }
-
                                  // Consolidated Preferences Toggles in HStack
                                  HStack(spacing: 24) {
                                      Toggle("Auto-prime (every 5h)", isOn: Binding(
