@@ -257,13 +257,20 @@ export class ProfileService {
         ? await UsageService.resolveUsageSnapshot(matched.profileDir)
         : { usage: matched.usage, warning: null }
 
+      const newUsage = usageResult.usage
+      if (newUsage.status === 'relogin_required' || newUsage.status === 'error') {
+        newUsage.last5Hours = matched.usage.last5Hours ?? newUsage.last5Hours
+        newUsage.weekly = matched.usage.weekly ?? newUsage.weekly
+        newUsage.planType = matched.usage.planType ?? newUsage.planType
+      }
+
       const shouldPromoteLabel = matched.label === 'Current Codex' || matched.label === matched.email
       const nextMatched: Account = {
         ...matched,
         email: email ?? matched.email ?? null,
         label: email && shouldPromoteLabel ? email : matched.label,
         updatedAt: refreshUsage ? Date.now() : matched.updatedAt,
-        usage: usageResult.usage,
+        usage: newUsage,
       }
 
       const nextAccounts = state.accounts.map((acc: Account) => (acc.id === nextMatched.id ? nextMatched : acc))
@@ -429,10 +436,16 @@ export class ProfileService {
 
     const switchResult = await SessionService.switchToAccount(account)
     const usageResult = await UsageService.resolveUsageSnapshot(account.profileDir)
+    const newUsage = usageResult.usage
+    if (newUsage.status === 'relogin_required' || newUsage.status === 'error') {
+      newUsage.last5Hours = account.usage.last5Hours ?? newUsage.last5Hours
+      newUsage.weekly = account.usage.weekly ?? newUsage.weekly
+      newUsage.planType = account.usage.planType ?? newUsage.planType
+    }
 
     const nextAccounts = state.accounts.map((acc: Account) =>
       acc.id === account.id
-        ? { ...acc, updatedAt: Date.now(), usage: usageResult.usage }
+        ? { ...acc, updatedAt: Date.now(), usage: newUsage }
         : acc
     )
 
@@ -466,10 +479,16 @@ export class ProfileService {
         .filter((acc: Account) => targetIds.has(acc.id))
         .map(async (acc: Account) => {
           const usageResult = await UsageService.resolveUsageSnapshot(acc.profileDir)
+          const newUsage = usageResult.usage
+          if (newUsage.status === 'relogin_required' || newUsage.status === 'error') {
+            newUsage.last5Hours = acc.usage.last5Hours ?? newUsage.last5Hours
+            newUsage.weekly = acc.usage.weekly ?? newUsage.weekly
+            newUsage.planType = acc.usage.planType ?? newUsage.planType
+          }
           return {
             ...acc,
             updatedAt: Date.now(),
-            usage: usageResult.usage,
+            usage: newUsage,
           }
         })
     )
