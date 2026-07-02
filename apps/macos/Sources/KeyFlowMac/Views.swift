@@ -901,6 +901,8 @@ struct ManagerSidebarAccountRow: View {
 
 struct DetailHeaderView: View {
     let account: BridgeAccountSummary
+    @EnvironmentObject private var model: KeyFlowAppModel
+    @Binding var showingRemoveConfirmation: Bool
 
     var body: some View {
         let note = visibleStatusNote(for: account)
@@ -921,7 +923,7 @@ struct DetailHeaderView: View {
                     } else if let note {
                         Text(note)
                     }
-                    if let email = account.email {
+                    if let email = account.email, email != account.displayName {
                         if account.isActive || note != nil {
                             Text("•")
                                 .foregroundStyle(Color.primary.opacity(0.24))
@@ -962,6 +964,32 @@ struct DetailHeaderView: View {
             }
 
             Spacer()
+
+            // Quick Actions HStack aligned to the right
+            HStack(spacing: 8) {
+                if account.usage.status == .reloginRequired {
+                    Button {
+                        Task { await model.reloginAccount(id: account.id) }
+                    } label: {
+                        Label("Re-login", systemImage: "person.crop.circle.badge.exclamationmark")
+                    }
+                    .disabled(model.hasBlockingOperation)
+                }
+
+                Button {
+                    Task { await model.switchAccount(id: account.id) }
+                } label: {
+                    Label(account.isActive ? "Active" : "Switch", systemImage: account.isActive ? "checkmark.circle.fill" : "arrow.triangle.2.circlepath")
+                }
+                .disabled(model.hasBlockingOperation || !account.canSwitch || account.isActive)
+
+                Button(role: .destructive) {
+                    showingRemoveConfirmation = true
+                } label: {
+                    Label("Remove", systemImage: "trash")
+                }
+                .disabled(model.hasBlockingOperation)
+            }
         }
         .padding(.bottom, 4)
     }
@@ -1237,12 +1265,12 @@ struct ManagerWindowView: View {
                 VStack(alignment: .leading, spacing: 18) {
                     if let banner = model.banner {
                         BannerView(banner: banner)
-                            .padding(.bottom, 2)
+                .padding(.bottom, 2)
                     }
 
                     if let account = model.selectedAccount {
                         VStack(alignment: .leading, spacing: 18) {
-                            DetailHeaderView(account: account)
+                             DetailHeaderView(account: account, showingRemoveConfirmation: $showingRemoveConfirmation)
 
                             // Redesigned Unified Usage & Sessions Dashboard Card
                             VStack(alignment: .leading, spacing: 14) {
@@ -1334,65 +1362,37 @@ struct ManagerWindowView: View {
                                     )
                             )
 
-                            // SECTION 1: Preferences & Actions
-                            DetailSection(title: "Preferences", showSeparator: true) {
-                                // Status Notes or Errors if any
-                                if let error = account.usage.error, !error.isEmpty {
-                                    Text(error)
-                                        .font(.caption)
-                                        .foregroundStyle(CodexVisual.criticalAccent)
-                                        .textSelection(.enabled)
-                                        .padding(.bottom, 4)
-                                } else if account.usage.status != .ok, let note = visibleStatusNote(for: account) {
-                                    Text(note)
-                                        .font(.caption)
-                                        .foregroundStyle(CodexVisual.quietText)
-                                        .padding(.bottom, 4)
-                                }
+                            // SECTION 1: Settings
+                             DetailSection(title: "Settings", showSeparator: true) {
+                                 // Status Notes or Errors if any
+                                 if let error = account.usage.error, !error.isEmpty {
+                                     Text(error)
+                                         .font(.caption)
+                                         .foregroundStyle(CodexVisual.criticalAccent)
+                                         .textSelection(.enabled)
+                                         .padding(.bottom, 4)
+                                 } else if account.usage.status != .ok, let note = visibleStatusNote(for: account) {
+                                     Text(note)
+                                         .font(.caption)
+                                         .foregroundStyle(CodexVisual.quietText)
+                                         .padding(.bottom, 4)
+                                 }
 
-                                // Quick Actions HStack
-                                HStack(spacing: 10) {
-                                    if account.usage.status == .reloginRequired {
-                                        Button {
-                                            Task { await model.reloginAccount(id: account.id) }
-                                        } label: {
-                                            Label("Re-login", systemImage: "person.crop.circle.badge.exclamationmark")
-                                        }
-                                        .disabled(model.hasBlockingOperation)
-                                    }
+                                 // Consolidated Preferences Toggles in HStack
+                                 HStack(spacing: 24) {
+                                     Toggle("Auto-prime (every 5h)", isOn: Binding(
+                                         get: { UserDefaults.standard.object(forKey: "autoPrime_\(account.id)") as? Bool ?? true },
+                                         set: { UserDefaults.standard.set($0, forKey: "autoPrime_\(account.id)") }
+                                     ))
+                                     .toggleStyle(.switch)
+                                     .font(.system(size: 12, weight: .medium))
 
-                                    Button {
-                                        Task { await model.switchAccount(id: account.id) }
-                                    } label: {
-                                        Label(account.isActive ? "Active" : "Switch", systemImage: account.isActive ? "checkmark.circle.fill" : "arrow.triangle.2.circlepath")
-                                    }
-                                    .disabled(model.hasBlockingOperation || !account.canSwitch || account.isActive)
-
-
-
-                                    Button(role: .destructive) {
-                                        showingRemoveConfirmation = true
-                                    } label: {
-                                        Label("Remove", systemImage: "trash")
-                                    }
-                                    .disabled(model.hasBlockingOperation)
-                                }
-
-                                // Consolidated Preferences Toggles in HStack
-                                HStack(spacing: 24) {
-                                    Toggle("Auto-prime (every 5h)", isOn: Binding(
-                                        get: { UserDefaults.standard.object(forKey: "autoPrime_\(account.id)") as? Bool ?? true },
-                                        set: { UserDefaults.standard.set($0, forKey: "autoPrime_\(account.id)") }
-                                    ))
-                                    .toggleStyle(.switch)
-                                    .font(.system(size: 12, weight: .medium))
-
-                                    Toggle("Open at login", isOn: openAtLoginBinding)
-                                        .toggleStyle(.switch)
-                                        .font(.system(size: 12, weight: .medium))
-                                }
-                                .padding(.top, 6)
-                            }
+                                     Toggle("Open at login", isOn: openAtLoginBinding)
+                                         .toggleStyle(.switch)
+                                         .font(.system(size: 12, weight: .medium))
+                                 }
+                                 .padding(.top, 6)
+                             }
                             .confirmationDialog(
                                 "Remove Account",
                                 isPresented: $showingRemoveConfirmation,
