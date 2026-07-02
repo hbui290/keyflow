@@ -456,35 +456,37 @@ struct ManagerMetricCard<ValueContent: View, NoteContent: View>: View {
     @ViewBuilder let noteContent: () -> NoteContent
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 4) {
             HStack {
                 Text(title)
-                    .font(.system(size: 11, weight: .semibold))
+                    .font(.system(size: 10, weight: .bold))
                     .foregroundStyle(CodexVisual.quietText)
+                    .textCase(.uppercase)
                 Spacer()
                 Circle()
                     .fill(tint.opacity(0.86))
-                    .frame(width: 6, height: 6)
+                    .frame(width: 5, height: 5)
             }
 
             valueContent()
-                .font(.system(size: 24, weight: .semibold, design: .rounded))
+                .font(.system(size: 18, weight: .bold, design: .rounded))
                 .monospacedDigit()
                 .lineLimit(1)
-                .minimumScaleFactor(0.7)
+                .minimumScaleFactor(0.75)
 
             noteContent()
-                .font(.caption)
+                .font(.system(size: 10))
                 .foregroundStyle(CodexVisual.quietText)
                 .lineLimit(1)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(14)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
         .background(
-            RoundedRectangle(cornerRadius: CodexVisual.radiusMD, style: .continuous)
-                .fill(Color.primary.opacity(0.045))
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .fill(Color.primary.opacity(0.035))
                 .overlay(
-                    RoundedRectangle(cornerRadius: CodexVisual.radiusMD, style: .continuous)
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
                         .strokeBorder(Color.primary.opacity(0.07))
                 )
         )
@@ -1243,17 +1245,17 @@ struct ManagerWindowView: View {
                                 spacing: 12
                             ) {
                                 ManagerMetricCard(
-                                    title: "5H Next Refresh",
+                                    title: "5H Remaining",
                                     tint: statusColor(for: account),
                                     valueContent: {
-                                        Text(resetTime(from: account.usage.last5Hours.resetAt))
+                                        Text(percentString(account.fiveHourRemaining))
                                     },
                                     noteContent: {
-                                        Text("\(resetDate(from: account.usage.last5Hours.resetAt)) · remaining \(percentString(account.fiveHourRemaining))")
+                                        Text("Resets at \(resetTime(from: account.usage.last5Hours.resetAt))")
                                     }
                                 )
                                 ManagerMetricCard(
-                                    title: "Weekly Remaining",
+                                    title: "Weekly Quota",
                                     tint: CodexVisual.neutralAccent,
                                     valueContent: {
                                         Text(percentString(account.weeklyRemaining))
@@ -1263,23 +1265,23 @@ struct ManagerWindowView: View {
                                     }
                                 )
                                 ManagerMetricCard(
-                                    title: "Updated",
+                                    title: "Last Sync",
                                     tint: CodexVisual.neutralAccent,
                                     valueContent: {
                                         RelativeTimestampText(prefix: "", milliseconds: account.usage.updatedAt)
                                     },
                                     noteContent: {
-                                        Text(resetTimestamp(from: account.usage.last5Hours.resetAt))
+                                        Text("Sync active")
                                     }
                                 )
                                 ManagerMetricCard(
-                                    title: "Plan",
+                                    title: "Plan Type",
                                     tint: CodexVisual.neutralAccent,
                                     valueContent: {
                                         Text((account.usage.planType ?? "unknown").uppercased())
                                     },
                                     noteContent: {
-                                        Text(resetTimestamp(from: account.usage.weekly.resetAt))
+                                        Text("ChatGPT account")
                                     }
                                 )
                             }
