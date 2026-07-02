@@ -1417,19 +1417,28 @@ struct ManagerWindowView: View {
                                 }
 
                                 if let doctor = model.doctorReport {
-                                    ForEach(doctor.checks) { check in
-                                        VStack(alignment: .leading, spacing: 4) {
-                                            HStack(spacing: 8) {
-                                                StatusDot(color: check.ok ? CodexVisual.neutralAccent : CodexVisual.criticalAccent, size: 7)
-                                                Text(check.name)
-                                                    .font(.subheadline.weight(.medium))
+                                    LazyVGrid(
+                                        columns: [
+                                            GridItem(.flexible(), spacing: 20),
+                                            GridItem(.flexible(), spacing: 20),
+                                        ],
+                                        alignment: .leading,
+                                        spacing: 12
+                                    ) {
+                                        ForEach(doctor.checks) { check in
+                                            VStack(alignment: .leading, spacing: 4) {
+                                                HStack(spacing: 8) {
+                                                    StatusDot(color: check.ok ? CodexVisual.neutralAccent : CodexVisual.criticalAccent, size: 7)
+                                                    Text(check.name)
+                                                        .font(.subheadline.weight(.semibold))
+                                                }
+                                                Text(check.details)
+                                                    .font(.caption)
+                                                    .foregroundStyle(CodexVisual.quietText)
+                                                    .textSelection(.enabled)
+                                                    .lineLimit(1)
                                             }
-                                            Text(check.details)
-                                                .font(.caption)
-                                                .foregroundStyle(CodexVisual.quietText)
-                                                .textSelection(.enabled)
                                         }
-                                        .padding(.vertical, 2)
                                     }
                                 } else {
                                     Text("Diagnostics have not been loaded yet.")
