@@ -95,6 +95,42 @@ func makeRuntimeAppIcon(size: CGFloat = 512) -> NSImage? {
     return nil
 }
 
+struct UserAvatarView: View {
+    let email: String?
+    let size: CGFloat
+
+    var body: some View {
+        let displayName = email ?? "K"
+        let firstLetter = String(displayName.trimmingCharacters(in: .whitespacesAndNewlines).first ?? "K").uppercased()
+
+        let hash = displayName.hashValue
+        let colors: [[Color]] = [
+            [Color(red: 0.141, green: 0.353, blue: 0.824), Color(red: 0.224, green: 0.549, blue: 0.941)], // Blue gradient
+            [Color(red: 0.055, green: 0.569, blue: 0.380), Color(red: 0.180, green: 0.773, blue: 0.510)], // Green gradient
+            [Color(red: 0.812, green: 0.141, blue: 0.141), Color(red: 0.941, green: 0.353, blue: 0.353)], // Red gradient
+            [Color(red: 0.753, green: 0.424, blue: 0.055), Color(red: 0.941, green: 0.627, blue: 0.180)], // Orange gradient
+            [Color(red: 0.478, green: 0.141, blue: 0.812), Color(red: 0.667, green: 0.353, blue: 0.941)]  // Indigo gradient
+        ]
+        let index = abs(hash) % colors.count
+        let gradientColors = colors[index]
+
+        ZStack {
+            Circle()
+                .fill(
+                    LinearGradient(
+                        colors: gradientColors,
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+            Text(firstLetter)
+                .font(.system(size: size * 0.45, weight: .bold, design: .rounded))
+                .foregroundStyle(.white)
+        }
+        .frame(width: size, height: size)
+    }
+}
+
 struct AppGlyph: View {
     var size: CGFloat = 13
 
@@ -668,7 +704,7 @@ struct MenuHeaderView: View {
         PremiumPanel(cornerRadius: CodexVisual.radiusLG, padding: 16) {
             VStack(alignment: .leading, spacing: 14) {
                 HStack(alignment: .center, spacing: 11) {
-                    AppGlyph(size: 24)
+                    UserAvatarView(email: account?.displayName, size: 28)
 
                     VStack(alignment: .leading, spacing: 3) {
                         Text(account?.displayName ?? "No active account")
@@ -807,7 +843,18 @@ struct AccountRowView: View {
         HStack(alignment: .center, spacing: 12) {
             VStack(alignment: .leading, spacing: 6) {
                 HStack(spacing: 10) {
-                    StatusDot(color: account.isActive ? CodexVisual.neutralAccent : Color.primary.opacity(0.16), size: account.isActive ? 8 : 7)
+                    ZStack(alignment: .bottomTrailing) {
+                        UserAvatarView(email: account.displayName, size: 24)
+
+                        Circle()
+                            .fill(account.isActive ? CodexVisual.neutralAccent : Color.clear)
+                            .frame(width: 8, height: 8)
+                            .overlay(
+                                Circle()
+                                    .stroke(account.isActive ? tint.opacity(0.08) : Color(nsColor: .windowBackgroundColor), lineWidth: 1.5)
+                            )
+                            .offset(x: 1, y: 1)
+                    }
 
                     VStack(alignment: .leading, spacing: 2) {
                         Text(account.displayName)
@@ -838,7 +885,7 @@ struct AccountRowView: View {
                     .font(.system(size: 11, weight: .semibold))
                     .foregroundStyle(CodexVisual.quietText)
                     .lineLimit(1)
-                    .padding(.leading, account.isActive ? 18 : 17)
+                    .padding(.leading, 34)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -871,7 +918,19 @@ struct ManagerSidebarAccountRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 9) {
-                StatusDot(color: account.isActive ? CodexVisual.neutralAccent : Color.primary.opacity(0.16), size: 8)
+                ZStack(alignment: .bottomTrailing) {
+                    UserAvatarView(email: account.displayName, size: 22)
+
+                    Circle()
+                        .fill(account.isActive ? CodexVisual.neutralAccent : Color.clear)
+                        .frame(width: 8, height: 8)
+                        .overlay(
+                            Circle()
+                                .stroke(Color(nsColor: .windowBackgroundColor), lineWidth: 1.5)
+                        )
+                        .offset(x: 1, y: 1)
+                }
+
                 Text(account.displayName)
                     .font(.system(size: 13, weight: .semibold))
                     .lineLimit(1)
@@ -894,12 +953,7 @@ struct DetailHeaderView: View {
         let note = visibleStatusNote(for: account)
 
         HStack(alignment: .center, spacing: 14) {
-            ZStack {
-                Circle()
-                    .fill(statusColor(for: account).opacity(0.13))
-                    .frame(width: 46, height: 46)
-                AppGlyph(size: 24)
-            }
+            UserAvatarView(email: account.displayName, size: 46)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(account.displayName)
