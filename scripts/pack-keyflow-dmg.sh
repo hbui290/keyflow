@@ -2,7 +2,7 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-DIST_DIR="$REPO_ROOT/apps/macos/dist"
+DIST_DIR="$REPO_ROOT/dist"
 APP_PATH="$DIST_DIR/KeyFlow.app"
 DMG_PATH="$DIST_DIR/KeyFlow.dmg"
 

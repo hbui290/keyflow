@@ -18,4 +18,3 @@ scratch/
 # SwiftPM / macOS build outputs
 .build/
 .icon-build/
-apps/macos/dist/

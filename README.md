@@ -53,14 +53,14 @@ bun install
 # Build the complete macOS bundle
 ./scripts/build-keyflow-app.sh
 ```
-This script compiles the TypeScript backend bridge, builds the Xcode release executable, and packages them into `apps/macos/dist/KeyFlow.app`.
+This script compiles the TypeScript backend bridge, builds the Xcode release executable, and packages them into `dist/KeyFlow.app`.
 
 ### 3. Creating Installer
 To package the built application into a shareable macOS installer:
 ```bash
 ./scripts/pack-keyflow-dmg.sh
 ```
-The final installer will be generated at `apps/macos/dist/KeyFlow.dmg`.
+The final installer will be generated at `dist/KeyFlow.dmg`.
 
 ---
 

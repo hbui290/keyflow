@@ -4,7 +4,7 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 APP_ROOT="$REPO_ROOT/apps/macos"
 BUILD_ROOT="$APP_ROOT/.build"
-DIST_DIR="$APP_ROOT/dist"
+DIST_DIR="$REPO_ROOT/dist"
 APP_NAME="KeyFlow.app"
 APP_BUNDLE="$DIST_DIR/$APP_NAME"
 CONTENTS_DIR="$APP_BUNDLE/Contents"
