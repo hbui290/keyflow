@@ -988,6 +988,7 @@ struct DetailHeaderView: View {
                 }
                 .padding(.top, 2)
             }
+            .layoutPriority(0.8)
 
             Spacer()
 

@@ -47,6 +47,13 @@ export async function runDoctor(): Promise<DoctorReport> {
         const { authPath, json } = await SessionService.readAuthFile(account.profileDir)
         const tokens = SessionService.extractAuthTokens(authPath, json)
         SessionService.validateChatGptAuth(tokens)
+
+        if (account.usage.status === 'relogin_required') {
+          throw new Error('session expired, re-login required')
+        } else if (account.usage.status === 'error') {
+          throw new Error(account.usage.error ?? 'session error')
+        }
+
         checks.push({
           name: `Account: ${account.label}`,
           ok: true,
