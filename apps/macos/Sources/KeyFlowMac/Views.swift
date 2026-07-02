@@ -1416,65 +1416,56 @@ struct ManagerWindowView: View {
                                         .frame(height: 110)
                                         .opacity(0.15)
 
-                                    // Column 2: System Metadata (Grouped horizontally and centered vertically to avoid empty space)
-                                    VStack {
-                                        Spacer()
-                                        HStack(alignment: .top, spacing: 14) {
-                                            // Synced
+                                    // Column 2: System Metadata (Stacked vertically with tighter spacing for perfect height balance)
+                                    VStack(alignment: .leading, spacing: 10) {
+                                        // Synced
+                                        VStack(alignment: .leading, spacing: 2) {
+                                            Text("SYNCED")
+                                                .font(.system(size: 9, weight: .bold))
+                                                .foregroundStyle(CodexVisual.quietText)
+
+                                            RelativeTimestampText(prefix: "", milliseconds: account.usage.updatedAt)
+                                                .font(.system(size: 12, weight: .semibold))
+                                                .foregroundStyle(.primary)
+                                        }
+
+                                        // Plan
+                                        VStack(alignment: .leading, spacing: 2) {
+                                            Text("PLAN")
+                                                .font(.system(size: 9, weight: .bold))
+                                                .foregroundStyle(CodexVisual.quietText)
+
+                                            Text((account.usage.planType ?? "unknown").uppercased())
+                                                .font(.system(size: 12, weight: .bold))
+                                                .foregroundStyle(planColor(for: account.usage.planType))
+                                        }
+
+                                        // Resets
+                                        if let resets = account.usage.rateLimitResets {
                                             VStack(alignment: .leading, spacing: 3) {
-                                                Text("SYNCED")
+                                                Text("RESETS")
                                                     .font(.system(size: 9, weight: .bold))
                                                     .foregroundStyle(CodexVisual.quietText)
 
-                                                RelativeTimestampText(prefix: "", milliseconds: account.usage.updatedAt)
-                                                    .font(.system(size: 12, weight: .semibold))
-                                                    .foregroundStyle(.primary)
-                                                    .lineLimit(1)
-                                            }
-                                            .frame(maxWidth: .infinity, alignment: .leading)
-
-                                            // Plan
-                                            VStack(alignment: .leading, spacing: 3) {
-                                                Text("PLAN")
-                                                    .font(.system(size: 9, weight: .bold))
-                                                    .foregroundStyle(CodexVisual.quietText)
-
-                                                Text((account.usage.planType ?? "unknown").uppercased())
-                                                    .font(.system(size: 12, weight: .bold))
-                                                    .foregroundStyle(planColor(for: account.usage.planType))
-                                                    .lineLimit(1)
-                                            }
-                                            .frame(maxWidth: .infinity, alignment: .leading)
-
-                                            // Resets
-                                            if let resets = account.usage.rateLimitResets {
-                                                VStack(alignment: .leading, spacing: 4) {
-                                                    Text("RESETS")
-                                                        .font(.system(size: 9, weight: .bold))
-                                                        .foregroundStyle(CodexVisual.quietText)
-
-                                                    HStack(spacing: 3) {
-                                                        Image(systemName: "arrow.counterclockwise.circle.fill")
-                                                            .font(.system(size: 9, weight: .bold))
-                                                        Text("\(resets)")
-                                                            .font(.system(size: 10, weight: .bold))
-                                                    }
-                                                    .foregroundStyle(CodexVisual.neutralAccent)
-                                                    .padding(.horizontal, 5)
-                                                    .padding(.vertical, 1.5)
-                                                    .background(CodexVisual.neutralAccent.opacity(0.10))
-                                                    .clipShape(Capsule())
-                                                    .overlay(
-                                                        Capsule()
-                                                            .strokeBorder(CodexVisual.neutralAccent.opacity(0.22), lineWidth: 1)
-                                                    )
+                                                HStack(spacing: 4) {
+                                                    Image(systemName: "arrow.counterclockwise.circle.fill")
+                                                        .font(.system(size: 10, weight: .bold))
+                                                    Text("\(resets) left")
+                                                        .font(.system(size: 11, weight: .bold))
                                                 }
-                                                .frame(maxWidth: .infinity, alignment: .leading)
+                                                .foregroundStyle(CodexVisual.neutralAccent)
+                                                .padding(.horizontal, 7)
+                                                .padding(.vertical, 2)
+                                                .background(CodexVisual.neutralAccent.opacity(0.10))
+                                                .clipShape(Capsule())
+                                                .overlay(
+                                                    Capsule()
+                                                        .strokeBorder(CodexVisual.neutralAccent.opacity(0.22), lineWidth: 1)
+                                                )
                                             }
                                         }
-                                        Spacer()
                                     }
-                                    .frame(width: 195, height: 110)
+                                    .frame(width: 140, alignment: .leading)
                                 }
                             }
                             .padding(16)
