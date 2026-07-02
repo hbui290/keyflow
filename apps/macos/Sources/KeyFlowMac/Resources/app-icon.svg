@@ -5,19 +5,20 @@
   <!-- Subtle macOS App Icon Inner Border -->
   <rect x="8" y="8" width="1008" height="1008" rx="216" fill="none" stroke="white" stroke-opacity="0.06" stroke-width="4" />
 
-  <!-- Clean Aerodynamic Sweeping Letter K (KeyFlow) Centered -->
+  <!-- Stylized Sweeping Letter K (KeyFlow) Centered without Signal Waves -->
   <g transform="translate(80, 0)">
-    <!-- 1. Stylized "K" in the sweeping ribbon curve aesthetic -->
-    <path d="M 360 220 
-             C 290 380, 200 590, 130 800 
-             L 195 800 
-             C 255 620, 315 490, 345 470 
-             C 425 530, 525 620, 665 740 
-             L 565 800 
-             C 465 700, 395 610, 365 560 
-             C 455 510, 565 410, 735 370 
-             L 665 300 
-             C 565 340, 445 300, 365 220 
+    <path d="M 130 800 
+             C 170 610, 240 380, 360 280 
+             C 430 220, 520 220, 600 220 
+             L 600 320 
+             C 510 320, 440 350, 380 410 
+             C 450 390, 560 340, 660 300
+             L 730 370
+             C 620 420, 480 460, 370 480
+             C 450 510, 565 580, 660 740
+             L 560 800
+             C 480 670, 400 590, 340 560
+             C 290 580, 230 680, 190 800
              Z" fill="white" />
   </g>
 </svg>
