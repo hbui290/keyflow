@@ -586,7 +586,7 @@ struct StatusBarLabelView: View {
                     .foregroundStyle(Color.primary.opacity(0.85))
             }
         }
-        .frame(width: 16, height: 22)
+        .frame(width: 20, height: 22)
     }
 }
 
