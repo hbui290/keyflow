@@ -10,12 +10,12 @@ export async function runDoctor(): Promise<DoctorReport> {
   const codexVersion = await SessionService.runProcessAsync(SessionService.resolveCodexExecutable(), ['--version'])
 
   checks.push({
-    name: 'Codex Engine',
+    name: 'Core Daemon',
     ok: (codexVersion.status ?? 1) === 0,
     details:
       (codexVersion.status ?? 1) === 0
-        ? (codexVersion.stdout ?? '').trim() || 'Codex CLI is available'
-        : (codexVersion.stderr ?? '').trim() || 'Codex CLI command failed',
+        ? 'Daemon service is ready'
+        : 'Daemon service check failed',
   })
 
   try {

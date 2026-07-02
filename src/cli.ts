@@ -81,7 +81,7 @@ async function main() {
       })
     )
     .addCommand(
-      new Command('link-current').description('Link the current Codex login and return JSON').action(async () => {
+      new Command('link-current').description('Link the current ChatGPT login and return JSON').action(async () => {
         await runBridgeCommand(() => bridgeLinkCurrent())
       })
     )
@@ -125,7 +125,7 @@ async function main() {
     )
     .addCommand(
       new Command('relogin')
-        .description('Re-run Codex login for an existing account and return JSON')
+        .description('Re-run ChatGPT login for an existing account and return JSON')
         .requiredOption('--account <id>', 'Account id or exact label')
         .option('--device-auth', 'Use device-code login instead of direct browser flow', false)
         .action(async (options: { account: string; deviceAuth?: boolean }) => {
@@ -197,7 +197,7 @@ async function main() {
       })
       console.log(`Re-logged in account: ${displayAccountName(result.account)}`)
       if (result.switchedActive) {
-        console.log('Active Codex auth was updated.')
+        console.log('Active auth credentials were updated.')
       }
       if (result.warning) {
         console.log(`Warning: ${result.warning}`)
@@ -206,7 +206,7 @@ async function main() {
 
   program
     .command('use')
-    .description('Switch active Codex account by id or exact label')
+    .description('Switch active ChatGPT account by id or exact label')
     .argument('<id-or-label>', 'Account id or exact label')
     .action(async (identifier: string) => {
       const result = await ProfileService.useAccount(identifier)
@@ -317,11 +317,11 @@ async function main() {
 
   program
     .command('link-current')
-    .description('Link currently logged-in Codex account from ~/.codex/auth.json')
+    .description('Link currently logged-in ChatGPT account from ~/.codex/auth.json')
     .action(async () => {
       const result = await ProfileService.ensureCurrentCodexLinked()
       if (!result.linked || !result.account) {
-        console.log(result.warning ?? 'Current Codex account is not available.')
+        console.log(result.warning ?? 'Current ChatGPT account is not available.')
         return
       }
       if (result.created) {
