@@ -676,7 +676,7 @@ struct MenuHeaderView: View {
                             .lineLimit(1)
                             .truncationMode(.tail)
 
-                        Text(account?.subtitle ?? "Connect a ChatGPT login")
+                        Text(account?.subtitle ?? "Connect a Codex login")
                             .font(.system(size: 11, weight: .medium))
                             .foregroundStyle(CodexVisual.quietText)
                             .lineLimit(1)
@@ -1039,7 +1039,7 @@ struct AddAccountSheet: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Add account")
                         .font(.title3.weight(.semibold))
-                    Text("Create a named ChatGPT login profile.")
+                    Text("Create a named Codex login profile.")
                         .font(.system(size: 12, weight: .medium))
                         .foregroundStyle(CodexVisual.quietText)
                 }
@@ -1388,7 +1388,7 @@ struct ManagerWindowView: View {
                             // Part C: Codex environment status (Doctor Report)
                             VStack(alignment: .leading, spacing: 12) {
                                 HStack {
-                                    Text("KeyFlow environment")
+                                    Text("Codex environment")
                                         .font(.subheadline.weight(.semibold))
                                     Spacer()
                                     Button {
