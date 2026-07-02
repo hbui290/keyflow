@@ -478,17 +478,39 @@ export class ProfileService {
       state.accounts
         .filter((acc: Account) => targetIds.has(acc.id))
         .map(async (acc: Account) => {
-          const usageResult = await UsageService.resolveUsageSnapshot(acc.profileDir)
-          const newUsage = usageResult.usage
-          if (newUsage.status !== 'ok') {
-            newUsage.last5Hours = acc.usage.last5Hours ?? newUsage.last5Hours
-            newUsage.weekly = acc.usage.weekly ?? newUsage.weekly
-            newUsage.planType = acc.usage.planType ?? newUsage.planType
-          }
-          return {
-            ...acc,
-            updatedAt: Date.now(),
-            usage: newUsage,
+          try {
+            const usageResult = await UsageService.resolveUsageSnapshot(acc.profileDir)
+            const newUsage = usageResult.usage
+            if (newUsage.status !== 'ok') {
+              newUsage.last5Hours = acc.usage.last5Hours ?? newUsage.last5Hours
+              newUsage.weekly = acc.usage.weekly ?? newUsage.weekly
+              newUsage.planType = acc.usage.planType ?? newUsage.planType
+            }
+            return {
+              ...acc,
+              updatedAt: Date.now(),
+              usage: newUsage,
+            }
+          } catch (err: any) {
+            const errorMsg = err.message ?? String(err)
+            const status = errorMsg.includes('re-login') || errorMsg.includes('expired') || errorMsg.includes('401') || errorMsg.includes('403') || errorMsg.includes('Unauthorized')
+              ? 'relogin_required'
+              : 'error'
+            
+            const failedUsage: UsageSnapshot = {
+              source: acc.usage.source ?? 'wham_usage',
+              planType: acc.usage.planType,
+              status,
+              error: errorMsg,
+              updatedAt: Date.now(),
+              last5Hours: acc.usage.last5Hours,
+              weekly: acc.usage.weekly,
+            }
+            return {
+              ...acc,
+              updatedAt: Date.now(),
+              usage: failedUsage,
+            }
           }
         })
     )
