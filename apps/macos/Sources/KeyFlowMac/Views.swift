@@ -1191,11 +1191,11 @@ struct MenuContentView: View {
         }
         .frame(width: 384)
         .background(
-            CodexVisual.surface
+            Color.clear
                 .overlay(
                     LinearGradient(
                         colors: [
-                            CodexVisual.neutralAccent.opacity(0.055),
+                            CodexVisual.neutralAccent.opacity(0.04),
                             Color.clear,
                         ],
                         startPoint: .topLeading,
