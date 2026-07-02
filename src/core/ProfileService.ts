@@ -258,7 +258,7 @@ export class ProfileService {
         : { usage: matched.usage, warning: null }
 
       const newUsage = usageResult.usage
-      if (newUsage.status === 'relogin_required' || newUsage.status === 'error') {
+      if (newUsage.status !== 'ok') {
         newUsage.last5Hours = matched.usage.last5Hours ?? newUsage.last5Hours
         newUsage.weekly = matched.usage.weekly ?? newUsage.weekly
         newUsage.planType = matched.usage.planType ?? newUsage.planType
@@ -437,7 +437,7 @@ export class ProfileService {
     const switchResult = await SessionService.switchToAccount(account)
     const usageResult = await UsageService.resolveUsageSnapshot(account.profileDir)
     const newUsage = usageResult.usage
-    if (newUsage.status === 'relogin_required' || newUsage.status === 'error') {
+    if (newUsage.status !== 'ok') {
       newUsage.last5Hours = account.usage.last5Hours ?? newUsage.last5Hours
       newUsage.weekly = account.usage.weekly ?? newUsage.weekly
       newUsage.planType = account.usage.planType ?? newUsage.planType
@@ -480,7 +480,7 @@ export class ProfileService {
         .map(async (acc: Account) => {
           const usageResult = await UsageService.resolveUsageSnapshot(acc.profileDir)
           const newUsage = usageResult.usage
-          if (newUsage.status === 'relogin_required' || newUsage.status === 'error') {
+          if (newUsage.status !== 'ok') {
             newUsage.last5Hours = acc.usage.last5Hours ?? newUsage.last5Hours
             newUsage.weekly = acc.usage.weekly ?? newUsage.weekly
             newUsage.planType = acc.usage.planType ?? newUsage.planType
