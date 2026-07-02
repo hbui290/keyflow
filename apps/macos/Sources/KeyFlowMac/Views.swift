@@ -1509,7 +1509,14 @@ struct ManagerWindowView: View {
                                 }
 
                                 if let doctor = model.doctorReport {
-                                    VStack(alignment: .leading, spacing: 8) {
+                                    LazyVGrid(
+                                        columns: [
+                                            GridItem(.flexible(), spacing: 16),
+                                            GridItem(.flexible(), spacing: 16),
+                                        ],
+                                        alignment: .leading,
+                                        spacing: 12
+                                    ) {
                                         ForEach(doctor.checks) { check in
                                             HStack(alignment: .top, spacing: 12) {
                                                 Image(systemName: check.ok ? "checkmark.shield.fill" : "exclamationmark.shield.fill")
@@ -1528,10 +1535,6 @@ struct ManagerWindowView: View {
                                                 }
                                             }
                                             .padding(.vertical, 4)
-
-                                            if check.id != doctor.checks.last?.id {
-                                                Divider().opacity(0.06)
-                                            }
                                         }
                                     }
                                     .padding(14)

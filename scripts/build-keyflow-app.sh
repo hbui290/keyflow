@@ -12,10 +12,10 @@ MACOS_DIR="$CONTENTS_DIR/MacOS"
 RESOURCES_DIR="$CONTENTS_DIR/Resources"
 BRIDGE_DIR="$RESOURCES_DIR/bridge"
 INFO_PLIST_SRC="$APP_ROOT/Info.plist"
-ICON_SVG_SRC="$APP_ROOT/Sources/KeyFlowMac/Resources/app-icon.svg"
+ICON_SVG_SRC="$APP_ROOT/Sources/KeyFlowMac/Resources/keyflow-icon.svg"
 ICON_WORK_DIR="$APP_ROOT/.icon-build"
 ICONSET_DIR="$ICON_WORK_DIR/AppIcon.iconset"
-ICON_PREVIEW="$ICON_WORK_DIR/app-icon.svg.png"
+ICON_PREVIEW="$ICON_WORK_DIR/keyflow-icon.svg.png"
 
 mkdir -p "$DIST_DIR"
 
@@ -61,7 +61,7 @@ if [[ ! -f "$ICON_PREVIEW" ]]; then
   exit 1
 fi
 
-cp "$ICON_SVG_SRC" "$RESOURCES_DIR/app-icon.svg"
+cp "$ICON_SVG_SRC" "$RESOURCES_DIR/keyflow-icon.svg"
 cp "$ICON_PREVIEW" "$RESOURCES_DIR/AppGlyph.png"
 
 sips -z 16 16 "$ICON_PREVIEW" --out "$ICONSET_DIR/icon_16x16.png" >/dev/null
