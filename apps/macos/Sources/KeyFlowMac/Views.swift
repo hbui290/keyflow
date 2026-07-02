@@ -991,7 +991,7 @@ struct DetailHeaderView: View {
 
             Spacer()
 
-            // Quick Actions HStack aligned to the right
+            // Quick Actions HStack aligned to the right (layout prioritized to prevent truncation)
             HStack(spacing: 8) {
                 if account.usage.status == .reloginRequired {
                     Button {
@@ -1000,6 +1000,7 @@ struct DetailHeaderView: View {
                         Label("Re-login", systemImage: "person.crop.circle.badge.exclamationmark")
                     }
                     .disabled(model.hasBlockingOperation)
+                    .fixedSize(horizontal: true, vertical: false)
                 }
 
                 Button {
@@ -1008,6 +1009,7 @@ struct DetailHeaderView: View {
                     Label(account.isActive ? "Active" : "Switch", systemImage: account.isActive ? "checkmark.circle.fill" : "arrow.triangle.2.circlepath")
                 }
                 .disabled(model.hasBlockingOperation || !account.canSwitch || account.isActive)
+                .fixedSize(horizontal: true, vertical: false)
 
                 Button(role: .destructive) {
                     showingRemoveConfirmation = true
@@ -1015,7 +1017,9 @@ struct DetailHeaderView: View {
                     Label("Remove", systemImage: "trash")
                 }
                 .disabled(model.hasBlockingOperation)
+                .fixedSize(horizontal: true, vertical: false)
             }
+            .layoutPriority(1)
         }
         .padding(.bottom, 4)
     }
