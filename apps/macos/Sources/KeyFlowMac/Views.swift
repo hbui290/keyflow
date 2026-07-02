@@ -959,27 +959,26 @@ struct DetailHeaderView: View {
 
 struct DetailSection<Content: View>: View {
     let title: String
+    var showSeparator = true
     @ViewBuilder var content: Content
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
+            if showSeparator {
+                Divider()
+                    .opacity(0.35)
+                    .padding(.bottom, 4)
+            }
+
             Text(title)
-                .font(.system(size: 12, weight: .bold))
+                .font(.system(size: 11, weight: .bold))
                 .foregroundStyle(CodexVisual.quietText)
                 .textCase(.uppercase)
 
             content
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(16)
-        .background(
-            RoundedRectangle(cornerRadius: CodexVisual.radiusMD, style: .continuous)
-                .fill(Color.primary.opacity(0.035))
-                .overlay(
-                    RoundedRectangle(cornerRadius: CodexVisual.radiusMD, style: .continuous)
-                        .strokeBorder(Color.primary.opacity(0.07))
-                )
-        )
+        .padding(.vertical, 8)
     }
 }
 
