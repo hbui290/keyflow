@@ -1417,10 +1417,10 @@ struct ManagerWindowView: View {
                                         .opacity(0.15)
 
                                     // Column 2: System Metadata
-                                    VStack(alignment: .leading, spacing: 16) {
+                                    VStack(alignment: .leading, spacing: 12) {
                                         // Last Sync
                                         VStack(alignment: .leading, spacing: 3) {
-                                            Text("LAST SYNC")
+                                            Text("SYNCED")
                                                 .font(.system(size: 9, weight: .bold))
                                                 .foregroundStyle(CodexVisual.quietText)
 
@@ -1429,39 +1429,44 @@ struct ManagerWindowView: View {
                                                 .foregroundStyle(.primary)
                                         }
 
-                                        // Account Plan
-                                        VStack(alignment: .leading, spacing: 3) {
-                                            Text("PLAN TYPE")
-                                                .font(.system(size: 9, weight: .bold))
-                                                .foregroundStyle(CodexVisual.quietText)
-
-                                            Text((account.usage.planType ?? "unknown").uppercased())
-                                                .font(.system(size: 13, weight: .bold))
-                                                .foregroundStyle(planColor(for: account.usage.planType))
-                                        }
-
-                                        // Rate Limit Resets
-                                        if let resets = account.usage.rateLimitResets {
-                                            VStack(alignment: .leading, spacing: 4) {
-                                                Text("RESETS REMAINING")
+                                        // HStack containing Plan and Resets
+                                        HStack(alignment: .top, spacing: 14) {
+                                            // Account Plan
+                                            VStack(alignment: .leading, spacing: 3) {
+                                                Text("PLAN")
                                                     .font(.system(size: 9, weight: .bold))
                                                     .foregroundStyle(CodexVisual.quietText)
 
-                                                HStack(spacing: 5) {
-                                                    Image(systemName: "arrow.counterclockwise.circle.fill")
-                                                        .font(.system(size: 10, weight: .bold))
-                                                    Text("\(resets) left")
-                                                        .font(.system(size: 11, weight: .bold))
+                                                Text((account.usage.planType ?? "unknown").uppercased())
+                                                    .font(.system(size: 13, weight: .bold))
+                                                    .foregroundStyle(planColor(for: account.usage.planType))
+                                            }
+                                            .frame(maxWidth: .infinity, alignment: .leading)
+
+                                            // Rate Limit Resets
+                                            if let resets = account.usage.rateLimitResets {
+                                                VStack(alignment: .leading, spacing: 4) {
+                                                    Text("RESETS")
+                                                        .font(.system(size: 9, weight: .bold))
+                                                        .foregroundStyle(CodexVisual.quietText)
+
+                                                    HStack(spacing: 4) {
+                                                        Image(systemName: "arrow.counterclockwise.circle.fill")
+                                                            .font(.system(size: 10, weight: .bold))
+                                                        Text("\(resets)")
+                                                            .font(.system(size: 11, weight: .bold))
+                                                    }
+                                                    .foregroundStyle(CodexVisual.neutralAccent)
+                                                    .padding(.horizontal, 6)
+                                                    .padding(.vertical, 2)
+                                                    .background(CodexVisual.neutralAccent.opacity(0.10))
+                                                    .clipShape(Capsule())
+                                                    .overlay(
+                                                        Capsule()
+                                                            .strokeBorder(CodexVisual.neutralAccent.opacity(0.22), lineWidth: 1)
+                                                    )
                                                 }
-                                                .foregroundStyle(CodexVisual.neutralAccent)
-                                                .padding(.horizontal, 8)
-                                                .padding(.vertical, 3)
-                                                .background(CodexVisual.neutralAccent.opacity(0.10))
-                                                .clipShape(Capsule())
-                                                .overlay(
-                                                    Capsule()
-                                                        .strokeBorder(CodexVisual.neutralAccent.opacity(0.22), lineWidth: 1)
-                                                )
+                                                .frame(maxWidth: .infinity, alignment: .leading)
                                             }
                                         }
                                     }
