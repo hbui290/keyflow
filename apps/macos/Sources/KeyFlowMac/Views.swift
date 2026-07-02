@@ -593,7 +593,7 @@ struct StatusBarLabelView: View {
                 }
             }
         }
-        .frame(width: 22, height: 22)
+        .frame(width: 26, height: 22)
     }
 }
 
