@@ -564,22 +564,24 @@ struct StatusBarLabelView: View {
             if model.currentOperation != nil {
                 ProgressView()
                     .controlSize(.small)
-                    .scaleEffect(0.65)
+                    .scaleEffect(0.7)
             } else {
-                AppGlyph(size: 14)
+                Text("K")
+                    .font(.system(size: 13, weight: .black, design: .rounded))
+                    .foregroundStyle(.primary)
             }
 
             if let remaining = remaining {
                 Text(percentString(remaining))
-                    .font(.system(size: 10.5, weight: .bold, design: .rounded))
+                    .font(.system(size: 12, weight: .bold, design: .rounded))
                     .monospacedDigit()
             } else {
                 Text("--%")
-                    .font(.system(size: 10.5, weight: .bold, design: .rounded))
+                    .font(.system(size: 12, weight: .bold, design: .rounded))
                     .foregroundStyle(Color.secondary)
             }
         }
-        .padding(.horizontal, 4)
+        .padding(.horizontal, 6)
     }
 }
 
