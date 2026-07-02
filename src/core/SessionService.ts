@@ -375,7 +375,7 @@ export class SessionService {
 
   static async primeAccount(account: Account): Promise<{ success: boolean; message: string }> {
     const codexExecutable = this.resolveCodexExecutable()
-    const args = ['exec', '--ephemeral', '--skip-git-repo-check', '--cd', '/tmp', 'hi']
+    const args = ['exec', '--ephemeral', '--skip-git-repo-check', '--cd', '/tmp', 'echo']
 
     return new Promise((resolve, reject) => {
       const proc = spawn(codexExecutable, args, {
