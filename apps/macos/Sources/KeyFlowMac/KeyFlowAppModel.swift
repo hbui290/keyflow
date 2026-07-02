@@ -324,7 +324,7 @@ final class KeyFlowAppModel: ObservableObject {
         }
     }
 
-    func removeSelectedAccount() async {
+    func removeSelectedAccount(purge: Bool) async {
         guard let bridge else { return }
         guard currentOperation == nil else { return }
         guard let selectedAccount else {
@@ -336,9 +336,8 @@ final class KeyFlowAppModel: ObservableObject {
         defer { currentOperation = nil }
 
         do {
-            let result = try await bridge.removeAccount(id: selectedAccount.id, purge: purgeProfileOnRemove)
+            let result = try await bridge.removeAccount(id: selectedAccount.id, purge: purge)
             applyStatus(result.state)
-            purgeProfileOnRemove = false
             banner = BannerState(kind: .success, message: result.message)
         } catch {
             banner = BannerState(kind: .error, message: error.localizedDescription)

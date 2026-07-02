@@ -1181,6 +1181,7 @@ struct MenuContentView: View {
 
 struct ManagerWindowView: View {
     @EnvironmentObject private var model: KeyFlowAppModel
+    @State private var showingRemoveConfirmation = false
 
     private var openAtLoginBinding: Binding<Bool> {
         Binding {
@@ -1298,28 +1299,36 @@ struct ManagerWindowView: View {
 
 
                                     Button(role: .destructive) {
-                                        Task { await model.removeSelectedAccount() }
+                                        showingRemoveConfirmation = true
                                     } label: {
                                         Label("Remove", systemImage: "trash")
                                     }
                                     .disabled(model.hasBlockingOperation)
                                 }
 
-                                // Account-specific Toggles
-                                VStack(alignment: .leading, spacing: 10) {
-                                    Toggle("Auto-prime session (every 5h)", isOn: Binding(
-                                        get: { UserDefaults.standard.object(forKey: "autoPrime_\(account.id)") as? Bool ?? true },
-                                        set: { UserDefaults.standard.set($0, forKey: "autoPrime_\(account.id)") }
-                                    ))
-                                    .toggleStyle(.switch)
-                                    .font(.system(size: 12, weight: .medium))
-
-                                    Toggle("Purge profile on remove", isOn: $model.purgeProfileOnRemove)
-                                        .toggleStyle(.switch)
-                                        .font(.system(size: 12, weight: .medium))
-                                }
+                                Toggle("Auto-prime session (every 5h)", isOn: Binding(
+                                    get: { UserDefaults.standard.object(forKey: "autoPrime_\(account.id)") as? Bool ?? true },
+                                    set: { UserDefaults.standard.set($0, forKey: "autoPrime_\(account.id)") }
+                                ))
+                                .toggleStyle(.switch)
+                                .font(.system(size: 12, weight: .medium))
                                 .frame(width: 280, alignment: .leading)
                                 .padding(.top, 4)
+                            }
+                            .confirmationDialog(
+                                "Remove Account?",
+                                isPresented: $showingRemoveConfirmation,
+                                titleVisibility: .visible
+                            ) {
+                                Button("Remove & Delete Cached Data", role: .destructive) {
+                                    Task { await model.removeSelectedAccount(purge: true) }
+                                }
+                                Button("Remove Only (Keep Cached Data)") {
+                                    Task { await model.removeSelectedAccount(purge: false) }
+                                }
+                                Button("Cancel", role: .cancel) {}
+                            } message: {
+                                Text("Do you want to delete the cached profile data from your disk as well? Keeping it allows you to log back in instantly later.")
                             }
                         }
                     } else {
