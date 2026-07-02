@@ -1440,27 +1440,19 @@ struct ManagerWindowView: View {
                                     .disabled(model.hasBlockingOperation)
                                 }
 
-                                // Consolidated Preferences Toggles
-                                VStack(alignment: .leading, spacing: 12) {
-                                    Toggle("Auto-prime session (every 5h)", isOn: Binding(
+                                // Consolidated Preferences Toggles in HStack
+                                HStack(spacing: 24) {
+                                    Toggle("Auto-prime session", isOn: Binding(
                                         get: { UserDefaults.standard.object(forKey: "autoPrime_\(account.id)") as? Bool ?? true },
                                         set: { UserDefaults.standard.set($0, forKey: "autoPrime_\(account.id)") }
                                     ))
                                     .toggleStyle(.switch)
                                     .font(.system(size: 12, weight: .medium))
 
-                                    Divider().opacity(0.15)
-
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        Toggle("Open at login", isOn: openAtLoginBinding)
-                                            .toggleStyle(.switch)
-                                            .font(.system(size: 12, weight: .medium))
-                                        Text("Start KeyFlow automatically when you sign in.")
-                                            .font(.system(size: 10))
-                                            .foregroundStyle(CodexVisual.quietText)
-                                    }
+                                    Toggle("Open at login", isOn: openAtLoginBinding)
+                                        .toggleStyle(.switch)
+                                        .font(.system(size: 12, weight: .medium))
                                 }
-                                .frame(width: 280, alignment: .leading)
                                 .padding(.top, 6)
                             }
                             .confirmationDialog(
