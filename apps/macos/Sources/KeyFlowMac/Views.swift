@@ -1226,15 +1226,13 @@ struct MenuContentView: View {
                     BannerView(banner: banner)
                 }
 
-                SectionDivider()
+                let inactiveAccounts = model.accounts.filter { !$0.isActive }
+                if !inactiveAccounts.isEmpty {
+                    SectionDivider()
 
-                if model.accounts.isEmpty {
-                    EmptyStateView(title: "No accounts", detail: "Use Add to connect a Codex login.")
-                        .padding(.vertical, 4)
-                } else {
                     ScrollView {
                         VStack(alignment: .leading, spacing: 4) {
-                            ForEach(Array(model.accounts.enumerated()), id: \.element.id) { index, account in
+                            ForEach(Array(inactiveAccounts.enumerated()), id: \.element.id) { index, account in
                                 Button {
                                     if account.usage.status == .reloginRequired {
                                         Task { await model.reloginAccount(id: account.id) }
@@ -1248,7 +1246,7 @@ struct MenuContentView: View {
                                 .buttonStyle(.plain)
                                 .disabled(model.hasBlockingOperation || (!account.canSwitch && account.usage.status != .reloginRequired))
 
-                                if index < model.accounts.count - 1 {
+                                if index < inactiveAccounts.count - 1 {
                                     SectionDivider()
                                         .padding(.horizontal, 4)
                                 }
@@ -1257,6 +1255,10 @@ struct MenuContentView: View {
                         .padding(.bottom, 2)
                     }
                     .frame(maxHeight: 240)
+                } else if model.accounts.isEmpty {
+                    SectionDivider()
+                    EmptyStateView(title: "No accounts", detail: "Use Add to connect a Codex login.")
+                        .padding(.vertical, 4)
                 }
             }
             .padding(16)
