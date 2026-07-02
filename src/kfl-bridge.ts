@@ -241,7 +241,7 @@ export async function bridgePrime(accountId?: string): Promise<BridgeActionPaylo
   }
 
   const result = await SessionService.primeAccount(targetAccount)
-  const nextState = await ProfileService.readState()
+  const { state: nextState } = await ProfileService.refreshUsage({ accountId: targetAccount.id })
 
   return buildActionPayload(nextState, {
     message: result.message,
