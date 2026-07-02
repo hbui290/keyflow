@@ -1316,19 +1316,19 @@ struct ManagerWindowView: View {
                                 .padding(.top, 4)
                             }
                             .confirmationDialog(
-                                "Remove Account?",
+                                "Are you sure you want to remove the account “\(account.displayName)”?",
                                 isPresented: $showingRemoveConfirmation,
                                 titleVisibility: .visible
                             ) {
-                                Button("Remove & Delete Cached Data", role: .destructive) {
+                                Button("Remove & Delete Data", role: .destructive) {
                                     Task { await model.removeSelectedAccount(purge: true) }
                                 }
-                                Button("Remove Only (Keep Cached Data)") {
+                                Button("Remove Only") {
                                     Task { await model.removeSelectedAccount(purge: false) }
                                 }
                                 Button("Cancel", role: .cancel) {}
                             } message: {
-                                Text("Do you want to delete the cached profile data from your disk as well? Keeping it allows you to log back in instantly later.")
+                                Text("This account will be removed from KeyFlow. You can also choose to permanently delete its cached profile data from your disk.")
                             }
                         }
                     } else {
