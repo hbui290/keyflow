@@ -14,7 +14,10 @@
     "typecheck": "tsc --noEmit",
     "compile:cli": "bun build ./src/cli.ts --compile --outfile ./dist/kfl",
     "compile:bridge": "bun build ./src/kfl-bridge-cli.ts --compile --outfile ./dist/kfl-bridge",
-    "compile": "rm -rf dist && bun run compile:cli && bun run compile:bridge"
+    "compile": "rm -rf dist && bun run compile:cli && bun run compile:bridge",
+    "build": "bun run compile && ./scripts/build-keyflow-app.sh",
+    "pack": "./scripts/pack-keyflow-dmg.sh",
+    "test": "bun test"
   },
   "dependencies": {
     "commander": "14.0.2"
