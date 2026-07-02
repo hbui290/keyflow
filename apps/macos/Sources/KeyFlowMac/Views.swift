@@ -1442,7 +1442,7 @@ struct ManagerWindowView: View {
 
                                 // Consolidated Preferences Toggles in HStack
                                 HStack(spacing: 24) {
-                                    Toggle("Auto-prime session", isOn: Binding(
+                                    Toggle("Auto-refresh (every 5h)", isOn: Binding(
                                         get: { UserDefaults.standard.object(forKey: "autoPrime_\(account.id)") as? Bool ?? true },
                                         set: { UserDefaults.standard.set($0, forKey: "autoPrime_\(account.id)") }
                                     ))
