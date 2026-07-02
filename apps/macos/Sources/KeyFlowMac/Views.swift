@@ -557,10 +557,7 @@ struct StatusBarLabelView: View {
     @EnvironmentObject private var model: KeyFlowAppModel
 
     var body: some View {
-        let account = model.activeAccount
-        let remaining = account?.fiveHourRemaining
-
-        HStack(spacing: 5) {
+        ZStack {
             if model.currentOperation != nil {
                 ProgressView()
                     .controlSize(.small)
@@ -570,18 +567,8 @@ struct StatusBarLabelView: View {
                     .font(.system(size: 13, weight: .black, design: .rounded))
                     .foregroundStyle(.primary)
             }
-
-            if let remaining = remaining {
-                Text(percentString(remaining))
-                    .font(.system(size: 12, weight: .bold, design: .rounded))
-                    .monospacedDigit()
-            } else {
-                Text("--%")
-                    .font(.system(size: 12, weight: .bold, design: .rounded))
-                    .foregroundStyle(Color.secondary)
-            }
         }
-        .padding(.horizontal, 6)
+        .frame(width: 24, height: 22)
     }
 }
 
