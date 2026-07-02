@@ -20,6 +20,15 @@ private enum CodexVisual {
             }
         })
     }
+    static var neutralAccentDark: Color {
+        Color(nsColor: NSColor(name: nil) { appearance in
+            if appearance.bestMatch(from: [.darkAqua, .vibrantDark]) != nil {
+                return NSColor(red: 10/255, green: 132/255, blue: 255/255, alpha: 1.0)
+            } else {
+                return NSColor(red: 0/255, green: 85/255, blue: 179/255, alpha: 1.0) // #0055B3
+            }
+        })
+    }
     static var criticalAccent: Color {
         Color(nsColor: NSColor(name: nil) { appearance in
             if appearance.bestMatch(from: [.darkAqua, .vibrantDark]) != nil {
@@ -696,7 +705,7 @@ struct MenuHeaderView: View {
 
                             if let resets = account.usage.rateLimitResets {
                                 Text("\(resets) resets")
-                                    .foregroundStyle(CodexVisual.neutralAccent)
+                                    .foregroundStyle(CodexVisual.neutralAccentDark)
                                 Text("•")
                                     .foregroundStyle(Color.primary.opacity(0.24))
                             }
@@ -888,7 +897,7 @@ struct AccountRowView: View {
                     }
                     if let resets = account.usage.rateLimitResets {
                         Text("\(resets) resets")
-                            .foregroundStyle(CodexVisual.neutralAccent)
+                            .foregroundStyle(CodexVisual.neutralAccentDark)
                         Text("•")
                             .foregroundStyle(Color.primary.opacity(0.24))
                     }
