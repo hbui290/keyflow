@@ -1440,14 +1440,26 @@ struct ManagerWindowView: View {
 
                                         // Rate Limit Resets
                                         if let resets = account.usage.rateLimitResets {
-                                            VStack(alignment: .leading, spacing: 3) {
+                                            VStack(alignment: .leading, spacing: 4) {
                                                 Text("RESETS REMAINING")
                                                     .font(.system(size: 9, weight: .bold))
                                                     .foregroundStyle(CodexVisual.quietText)
 
-                                                Text("\(resets)")
-                                                    .font(.system(size: 13, weight: .bold))
-                                                    .foregroundStyle(CodexVisual.neutralAccent)
+                                                HStack(spacing: 5) {
+                                                    Image(systemName: "arrow.counterclockwise.circle.fill")
+                                                        .font(.system(size: 10, weight: .bold))
+                                                    Text("\(resets) left")
+                                                        .font(.system(size: 11, weight: .bold))
+                                                }
+                                                .foregroundStyle(CodexVisual.neutralAccent)
+                                                .padding(.horizontal, 8)
+                                                .padding(.vertical, 3)
+                                                .background(CodexVisual.neutralAccent.opacity(0.10))
+                                                .clipShape(Capsule())
+                                                .overlay(
+                                                    Capsule()
+                                                        .strokeBorder(CodexVisual.neutralAccent.opacity(0.22), lineWidth: 1)
+                                                )
                                             }
                                         }
                                     }
