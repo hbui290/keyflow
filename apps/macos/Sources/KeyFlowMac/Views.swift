@@ -14,9 +14,9 @@ private enum CodexVisual {
     static var neutralAccent: Color {
         Color(nsColor: NSColor(name: nil) { appearance in
             if appearance.bestMatch(from: [.darkAqua, .vibrantDark]) != nil {
-                return NSColor(red: 129/255, green: 140/255, blue: 248/255, alpha: 1.0)
+                return NSColor(red: 10/255, green: 132/255, blue: 255/255, alpha: 1.0)
             } else {
-                return NSColor(red: 79/255, green: 70/255, blue: 229/255, alpha: 1.0)
+                return NSColor(red: 0/255, green: 122/255, blue: 255/255, alpha: 1.0)
             }
         })
     }
