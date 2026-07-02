@@ -292,7 +292,7 @@ struct TimeRemainingText: View {
     }
 }
 
-struct CompactUsageBar: View {
+struct GlowProgressBar: View {
     let percent: Double?
     let color: Color
     var height: CGFloat = 6
@@ -300,28 +300,28 @@ struct CompactUsageBar: View {
     var body: some View {
         let normalized = max(0, min((percent ?? 0) / 100, 1))
 
-        Capsule()
-            .fill(Color.primary.opacity(0.18))
-            .overlay(
+        GeometryReader { geo in
+            ZStack(alignment: .leading) {
                 Capsule()
-                    .strokeBorder(Color.primary.opacity(0.12))
-            )
-            .overlay(alignment: .leading) {
+                    .fill(Color.primary.opacity(0.08))
+                    .overlay(
+                        Capsule()
+                            .strokeBorder(Color.primary.opacity(0.04), lineWidth: 0.5)
+                    )
+
                 Capsule()
                     .fill(
                         LinearGradient(
-                            colors: [
-                                color.opacity(0.92),
-                                color,
-                            ],
+                            colors: [color.opacity(0.9), color],
                             startPoint: .leading,
                             endPoint: .trailing
                         )
                     )
-                    .scaleEffect(x: normalized, y: 1, anchor: .leading)
+                    .frame(width: geo.size.width * normalized)
+                    .shadow(color: color.opacity(0.4), radius: 3, x: 0, y: 0)
             }
+        }
         .frame(height: height)
-        .accessibilityLabel("Remaining five-hour usage")
     }
 }
 
@@ -336,7 +336,7 @@ struct UsageLane: View {
                 .foregroundStyle(CodexVisual.quietText)
                 .frame(width: 24, alignment: .leading)
 
-            CompactUsageBar(percent: percent, color: usageBarColor(for: percent), height: 5)
+            GlowProgressBar(percent: percent, color: usageBarColor(for: percent), height: 5)
                 .frame(height: 5)
 
             Text(percentString(percent))
@@ -431,7 +431,7 @@ struct AccountUsageMeter: View {
                 .foregroundStyle(CodexVisual.quietText)
                 .frame(width: 20, alignment: .leading)
 
-            CompactUsageBar(percent: value, color: usageBarColor(for: value), height: 4)
+            GlowProgressBar(percent: value, color: usageBarColor(for: value), height: 4)
                 .frame(width: 42, height: 4)
 
             Text(percentString(value))
@@ -534,19 +534,22 @@ struct EmptyStateView: View {
     let detail: String
 
     var body: some View {
-        PremiumPanel(cornerRadius: CodexVisual.radiusMD, padding: 16) {
-            VStack(alignment: .leading, spacing: 9) {
-                Image(systemName: "person.crop.circle.badge.plus")
-                    .font(.system(size: 20, weight: .semibold))
-                    .foregroundStyle(CodexVisual.neutralAccent)
-                Text(title)
-                    .font(.title3.weight(.semibold))
-                Text(detail)
-                    .font(.callout)
-                    .foregroundStyle(CodexVisual.quietText)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
+        VStack(spacing: 10) {
+            Image(systemName: "person.crop.circle.badge.plus")
+                .font(.system(size: 30, weight: .light))
+                .foregroundStyle(CodexVisual.neutralAccent.opacity(0.6))
+                .padding(.bottom, 2)
+            Text(title)
+                .font(.system(size: 14, weight: .bold))
+            Text(detail)
+                .font(.system(size: 11, weight: .medium))
+                .foregroundStyle(CodexVisual.quietText)
+                .multilineTextAlignment(.center)
+                .lineLimit(2)
+                .padding(.horizontal, 24)
         }
+        .frame(maxWidth: .infinity, alignment: .center)
+        .padding(.vertical, 32)
     }
 }
 
@@ -696,138 +699,142 @@ struct HeaderMetaItem<ValueContent: View>: View {
 
 struct MenuHeaderView: View {
     @EnvironmentObject private var model: KeyFlowAppModel
-
-    var body: some View {
-        let account = model.activeAccount
-        let tint = statusColor(for: account)
-
-        PremiumPanel(cornerRadius: CodexVisual.radiusLG, padding: 16) {
-            VStack(alignment: .leading, spacing: 14) {
-                HStack(alignment: .center, spacing: 11) {
-                    UserAvatarView(email: account?.displayName, size: 28)
-
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text(account?.displayName ?? "No active account")
-                            .font(.system(size: 15, weight: .semibold))
-                            .lineLimit(1)
-                            .truncationMode(.tail)
-
-                        Text(account?.subtitle ?? "Connect a Codex login")
-                            .font(.system(size: 11, weight: .medium))
-                            .foregroundStyle(CodexVisual.quietText)
-                            .lineLimit(1)
-                            .truncationMode(.middle)
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-
-                    if let note = visibleStatusNote(for: account) {
-                        HStack(spacing: 6) {
-                            StatusDot(color: tint, size: 7)
-                            Text(note)
-                                .font(.system(size: 11, weight: .semibold))
-                                .foregroundStyle(.primary.opacity(0.82))
-                        }
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 6)
-                        .background(
-                            Capsule(style: .continuous)
-                                .fill(tint.opacity(0.10))
-                                .overlay(
-                                    Capsule(style: .continuous)
-                                        .strokeBorder(tint.opacity(0.16))
-                                )
-                        )
-                    }
-                }
-
-                DualUsageView(
-                    fiveHour: account?.fiveHourRemaining,
-                    weekly: account?.weeklyRemaining,
-                    spacing: 9
-                )
-
-                HStack(alignment: .top, spacing: 10) {
-                    HeaderMetaItem(title: "Updated") {
-                        RelativeTimestampText(prefix: "", milliseconds: account?.usage.updatedAt)
-                    }
-                    HeaderMetaItem(title: "5H Next") {
-                        Text(resetTime(from: account?.usage.last5Hours.resetAt))
-                    }
-                    HeaderMetaItem(title: "WK Reset") {
-                        Text(resetDate(from: account?.usage.weekly.resetAt))
-                    }
-                }
-                .padding(.top, 1)
-
-                if let operation = model.currentOperation {
-                    HStack(spacing: 8) {
-                        ProgressView()
-                            .controlSize(.small)
-                            .scaleEffect(0.76)
-                        Text(operation.subtitle ?? operation.title)
-                            .font(.caption.weight(.medium))
-                            .foregroundStyle(CodexVisual.quietText)
-                            .lineLimit(1)
-                    }
-                    .padding(.top, 1)
-                }
-            }
-        }
-    }
-}
-
-struct ActionStripView: View {
-    @EnvironmentObject private var model: KeyFlowAppModel
     let openManagerWindow: () -> Void
 
     var body: some View {
-        HStack(spacing: 8) {
-            Button {
-                guard !model.isRefreshingAll, !model.hasBlockingOperation else { return }
-                Task { await model.refreshAll() }
-            } label: {
-                ZStack {
-                    if model.isRefreshingAll {
-                        ProgressView()
-                            .controlSize(.small)
-                            .scaleEffect(0.72)
-                    } else {
-                        Image(systemName: "arrow.clockwise")
-                            .font(.system(size: 12, weight: .semibold))
-                    }
+        let account = model.activeAccount
+
+        VStack(alignment: .leading, spacing: 14) {
+            // Header Bar (Active info + actions)
+            HStack(alignment: .center, spacing: 11) {
+                UserAvatarView(email: account?.displayName, size: 28)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(account?.displayName ?? "No active account")
+                        .font(.system(size: 14, weight: .bold))
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+
+                    Text(account?.subtitle ?? "Connect a Codex login")
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundStyle(CodexVisual.quietText)
+                        .lineLimit(1)
+                        .truncationMode(.middle)
                 }
-                .font(.system(size: 12, weight: .semibold))
-                .frame(width: 28, height: 28)
+
+                Spacer()
+
+                // Quick Actions
+                HStack(spacing: 6) {
+                    Button {
+                        guard !model.isRefreshingAll, !model.hasBlockingOperation else { return }
+                        Task { await model.refreshAll() }
+                    } label: {
+                        ZStack {
+                            if model.isRefreshingAll {
+                                ProgressView()
+                                    .controlSize(.small)
+                                    .scaleEffect(0.6)
+                            } else {
+                                Image(systemName: "arrow.clockwise")
+                                    .font(.system(size: 10, weight: .bold))
+                            }
+                        }
+                        .foregroundStyle(CodexVisual.quietText)
+                        .frame(width: 20, height: 20)
+                        .background(Color.primary.opacity(0.045))
+                        .clipShape(Circle())
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(model.isRefreshingAll || model.hasBlockingOperation)
+                    .help("Refresh all accounts")
+
+                    Button {
+                        model.openAddAccountFlow()
+                        openManagerWindow()
+                    } label: {
+                        Image(systemName: "plus")
+                            .font(.system(size: 10, weight: .bold))
+                            .foregroundStyle(CodexVisual.quietText)
+                            .frame(width: 20, height: 20)
+                            .background(Color.primary.opacity(0.045))
+                            .clipShape(Circle())
+                    }
+                    .buttonStyle(.plain)
+                    .help("Add account")
+
+                    Button {
+                        openManagerWindow()
+                    } label: {
+                        Image(systemName: "gearshape")
+                            .font(.system(size: 10, weight: .bold))
+                            .foregroundStyle(CodexVisual.quietText)
+                            .frame(width: 20, height: 20)
+                            .background(Color.primary.opacity(0.045))
+                            .clipShape(Circle())
+                    }
+                    .buttonStyle(.plain)
+                    .help("Manage settings")
+
+                    Button {
+                        NSApplication.shared.terminate(nil)
+                    } label: {
+                        Image(systemName: "power")
+                            .font(.system(size: 10, weight: .bold))
+                            .foregroundStyle(CodexVisual.criticalAccent)
+                            .frame(width: 20, height: 20)
+                            .background(CodexVisual.criticalAccent.opacity(0.08))
+                            .clipShape(Circle())
+                    }
+                    .buttonStyle(.plain)
+                    .help("Quit KeyFlow")
+                }
+            }
+
+            // If active account exists, show its metrics
+            if let account = account {
+                VStack(alignment: .leading, spacing: 10) {
+                    DualUsageView(
+                        fiveHour: account.fiveHourRemaining,
+                        weekly: account.weeklyRemaining,
+                        spacing: 8
+                    )
+
+                    HStack(alignment: .top, spacing: 10) {
+                        HeaderMetaItem(title: "Updated") {
+                            RelativeTimestampText(prefix: "", milliseconds: account.usage.updatedAt)
+                        }
+                        HeaderMetaItem(title: "5H Next") {
+                            Text(resetTime(from: account.usage.last5Hours.resetAt))
+                        }
+                        HeaderMetaItem(title: "WK Reset") {
+                            Text(resetDate(from: account.usage.weekly.resetAt))
+                        }
+                    }
+                    .padding(.top, 1)
+                }
+                .padding(12)
                 .background(
-                    Circle()
-                        .fill(Color.primary.opacity(0.055))
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .fill(Color.primary.opacity(0.025))
                         .overlay(
-                            Circle()
-                                .strokeBorder(Color.primary.opacity(0.07))
+                            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                .strokeBorder(Color.primary.opacity(0.045))
                         )
                 )
-                .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
-            .disabled(model.isRefreshingAll || model.hasBlockingOperation)
-            .help("Refresh all accounts")
-
-
-
-            IconCommandButton(title: "Add", systemImage: "plus") {
-                model.openAddAccountFlow()
-                openManagerWindow()
-            }
-            .disabled(model.hasBlockingOperation)
-
-            IconCommandButton(title: "Manage", systemImage: "slider.horizontal.3", isProminent: true) {
-                openManagerWindow()
             }
 
-            Spacer()
-
-            IconCommandButton(title: "Quit", systemImage: "power", role: .destructive) {
-                NSApplication.shared.terminate(nil)
+            if let operation = model.currentOperation {
+                HStack(spacing: 8) {
+                    ProgressView()
+                        .controlSize(.small)
+                        .scaleEffect(0.76)
+                    Text(operation.subtitle ?? operation.title)
+                        .font(.caption.weight(.medium))
+                        .foregroundStyle(CodexVisual.quietText)
+                        .lineLimit(1)
+                }
+                .padding(.top, 1)
             }
         }
     }
@@ -1193,13 +1200,11 @@ struct MenuContentView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             VStack(alignment: .leading, spacing: 13) {
-                MenuHeaderView()
+                MenuHeaderView(openManagerWindow: openManagerWindow)
 
                 if let banner = model.banner, banner.kind != .success {
                     BannerView(banner: banner)
                 }
-
-                ActionStripView(openManagerWindow: openManagerWindow)
 
                 SectionDivider()
 
@@ -1293,54 +1298,103 @@ struct ManagerWindowView: View {
                         VStack(alignment: .leading, spacing: 18) {
                             DetailHeaderView(account: account)
 
-                            LazyVGrid(
-                                columns: [
-                                    GridItem(.flexible(), spacing: 12),
-                                    GridItem(.flexible(), spacing: 12),
-                                ],
-                                spacing: 12
-                            ) {
-                                ManagerMetricCard(
-                                    title: "5H Remaining",
-                                    tint: statusColor(for: account),
-                                    valueContent: {
-                                        Text(percentString(account.fiveHourRemaining))
-                                    },
-                                    noteContent: {
-                                        Text("Resets at \(resetTime(from: account.usage.last5Hours.resetAt))")
+                            // Redesigned Unified Usage & Sessions Dashboard Card
+                            VStack(alignment: .leading, spacing: 14) {
+                                Text("Usage & Sessions")
+                                    .font(.subheadline.weight(.bold))
+                                    .foregroundStyle(CodexVisual.quietText)
+
+                                HStack(alignment: .top, spacing: 24) {
+                                    // Column 1: Limits & Progress bars
+                                    VStack(alignment: .leading, spacing: 14) {
+                                        // 5H
+                                        VStack(alignment: .leading, spacing: 5) {
+                                            HStack {
+                                                Text("5H Session")
+                                                    .font(.system(size: 11, weight: .semibold))
+                                                Spacer()
+                                                Text(percentString(account.fiveHourRemaining))
+                                                    .font(.system(size: 11, weight: .bold))
+                                                    .monospacedDigit()
+                                            }
+
+                                            GlowProgressBar(percent: account.fiveHourRemaining, color: statusColor(for: account), height: 5)
+
+                                            Text("Resets at \(resetTime(from: account.usage.last5Hours.resetAt))")
+                                                .font(.system(size: 9, weight: .medium))
+                                                .foregroundStyle(CodexVisual.quietText)
+                                        }
+
+                                        Divider().opacity(0.1)
+
+                                        // Weekly
+                                        VStack(alignment: .leading, spacing: 5) {
+                                            HStack {
+                                                Text("Weekly Quota")
+                                                    .font(.system(size: 11, weight: .semibold))
+                                                Spacer()
+                                                Text(percentString(account.weeklyRemaining))
+                                                    .font(.system(size: 11, weight: .bold))
+                                                    .monospacedDigit()
+                                            }
+
+                                            GlowProgressBar(percent: account.weeklyRemaining, color: CodexVisual.neutralAccent, height: 5)
+
+                                            Text("Resets \(resetDate(from: account.usage.weekly.resetAt))")
+                                                .font(.system(size: 9, weight: .medium))
+                                                .foregroundStyle(CodexVisual.quietText)
+                                        }
                                     }
-                                )
-                                ManagerMetricCard(
-                                    title: "Weekly Quota",
-                                    tint: CodexVisual.neutralAccent,
-                                    valueContent: {
-                                        Text(percentString(account.weeklyRemaining))
-                                    },
-                                    noteContent: {
-                                        Text("Resets \(resetDate(from: account.usage.weekly.resetAt))")
+                                    .frame(maxWidth: .infinity)
+
+                                    Divider()
+                                        .frame(height: 110)
+                                        .opacity(0.15)
+
+                                    // Column 2: System Metadata
+                                    VStack(alignment: .leading, spacing: 16) {
+                                        // Last Sync
+                                        VStack(alignment: .leading, spacing: 3) {
+                                            Text("LAST SYNC")
+                                                .font(.system(size: 9, weight: .bold))
+                                                .foregroundStyle(CodexVisual.quietText)
+
+                                            RelativeTimestampText(prefix: "", milliseconds: account.usage.updatedAt)
+                                                .font(.system(size: 13, weight: .semibold))
+                                                .foregroundStyle(.primary)
+
+                                            Text("Sync connection active")
+                                                .font(.system(size: 9, weight: .medium))
+                                                .foregroundStyle(CodexVisual.quietText)
+                                        }
+
+                                        // Account Plan
+                                        VStack(alignment: .leading, spacing: 3) {
+                                            Text("PLAN TYPE")
+                                                .font(.system(size: 9, weight: .bold))
+                                                .foregroundStyle(CodexVisual.quietText)
+
+                                            Text((account.usage.planType ?? "unknown").uppercased())
+                                                .font(.system(size: 13, weight: .bold))
+                                                .foregroundStyle(CodexVisual.neutralAccent)
+
+                                            Text("ChatGPT authenticated")
+                                                .font(.system(size: 9, weight: .medium))
+                                                .foregroundStyle(CodexVisual.quietText)
+                                        }
                                     }
-                                )
-                                ManagerMetricCard(
-                                    title: "Last Sync",
-                                    tint: CodexVisual.neutralAccent,
-                                    valueContent: {
-                                        RelativeTimestampText(prefix: "", milliseconds: account.usage.updatedAt)
-                                    },
-                                    noteContent: {
-                                        Text("Sync active")
-                                    }
-                                )
-                                ManagerMetricCard(
-                                    title: "Plan Type",
-                                    tint: CodexVisual.neutralAccent,
-                                    valueContent: {
-                                        Text((account.usage.planType ?? "unknown").uppercased())
-                                    },
-                                    noteContent: {
-                                        Text("ChatGPT account")
-                                    }
-                                )
+                                    .frame(width: 140, alignment: .leading)
+                                }
                             }
+                            .padding(16)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                    .fill(Color.primary.opacity(0.02))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                            .strokeBorder(Color.primary.opacity(0.045))
+                                    )
+                            )
 
                             // SECTION 1: Preferences & Actions
                             DetailSection(title: "Preferences", showSeparator: true) {
@@ -1455,29 +1509,40 @@ struct ManagerWindowView: View {
                                 }
 
                                 if let doctor = model.doctorReport {
-                                    LazyVGrid(
-                                        columns: [
-                                            GridItem(.flexible(), spacing: 20),
-                                            GridItem(.flexible(), spacing: 20),
-                                        ],
-                                        alignment: .leading,
-                                        spacing: 12
-                                    ) {
+                                    VStack(alignment: .leading, spacing: 8) {
                                         ForEach(doctor.checks) { check in
-                                            VStack(alignment: .leading, spacing: 4) {
-                                                HStack(spacing: 8) {
-                                                    StatusDot(color: check.ok ? CodexVisual.neutralAccent : CodexVisual.criticalAccent, size: 7)
+                                            HStack(alignment: .top, spacing: 12) {
+                                                Image(systemName: check.ok ? "checkmark.shield.fill" : "exclamationmark.shield.fill")
+                                                    .font(.system(size: 13))
+                                                    .foregroundStyle(check.ok ? CodexVisual.neutralAccent : CodexVisual.criticalAccent)
+                                                    .padding(.top, 1)
+
+                                                VStack(alignment: .leading, spacing: 2) {
                                                     Text(check.name)
-                                                        .font(.subheadline.weight(.semibold))
+                                                        .font(.system(size: 12, weight: .bold))
+                                                    Text(check.details)
+                                                        .font(.system(size: 10, weight: .medium, design: .monospaced))
+                                                        .foregroundStyle(CodexVisual.quietText)
+                                                        .textSelection(.enabled)
+                                                        .lineLimit(1)
                                                 }
-                                                Text(check.details)
-                                                    .font(.caption)
-                                                    .foregroundStyle(CodexVisual.quietText)
-                                                    .textSelection(.enabled)
-                                                    .lineLimit(1)
+                                            }
+                                            .padding(.vertical, 4)
+
+                                            if check.id != doctor.checks.last?.id {
+                                                Divider().opacity(0.06)
                                             }
                                         }
                                     }
+                                    .padding(14)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                            .fill(Color.primary.opacity(0.02))
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                                    .strokeBorder(Color.primary.opacity(0.045))
+                                            )
+                                    )
                                 } else {
                                     Text("Diagnostics have not been loaded yet.")
                                         .font(.caption)
