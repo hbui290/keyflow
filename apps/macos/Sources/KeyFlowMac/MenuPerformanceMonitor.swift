@@ -23,8 +23,8 @@ struct MenuPerformanceConfiguration {
 }
 
 final class MenuPerformanceMonitor: @unchecked Sendable {
-    private let logger = Logger(subsystem: "com.winston.csw", category: "performance")
-    private let stateQueue = DispatchQueue(label: "CSWMac.MenuPerformanceMonitor")
+    private let logger = Logger(subsystem: "com.winston.keyflow", category: "performance")
+    private let stateQueue = DispatchQueue(label: "KeyFlowMac.MenuPerformanceMonitor")
     private let configuration: MenuPerformanceConfiguration
 
     private var displayLink: CVDisplayLink?

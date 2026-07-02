@@ -176,7 +176,7 @@ async function main() {
     .command('remove')
     .description('Remove account metadata by id or exact label')
     .argument('<id-or-label>', 'Account id or exact label')
-    .option('--purge', 'Delete account profile folder under ~/.csw/profiles/<id>', false)
+    .option('--purge', 'Delete account profile folder under ~/.keyflow/profiles/<id>', false)
     .action(async (identifier: string, options: { purge: boolean }) => {
       const result = await ProfileService.removeAccount(identifier, options.purge)
       console.log(`Removed account: ${displayAccountName(result.removed)}`)

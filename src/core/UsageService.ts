@@ -48,7 +48,7 @@ export class UsageService {
       const headers: Record<string, string> = {
         Authorization: `Bearer ${tokens.accessToken}`,
         Accept: 'application/json',
-        'User-Agent': 'csw/1.0',
+        'User-Agent': 'keyflow/1.0',
       }
       if (tokens.accountId) headers['ChatGPT-Account-Id'] = tokens.accountId
 
