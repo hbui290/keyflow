@@ -1486,7 +1486,8 @@ struct ManagerWindowView: View {
                                             .padding(.vertical, 4)
                                         }
                                     }
-                                    .padding(14)
+                                    .padding(.horizontal, 22)
+                                    .padding(.vertical, 14)
                                     .background(
                                         RoundedRectangle(cornerRadius: 10, style: .continuous)
                                             .fill(Color.primary.opacity(0.02))
