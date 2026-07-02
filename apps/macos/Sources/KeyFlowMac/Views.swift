@@ -927,16 +927,30 @@ struct DetailHeaderView: View {
                 .foregroundStyle(CodexVisual.quietText)
                 .lineLimit(1)
 
-                HStack(spacing: 6) {
-                    Image(systemName: "folder")
-                        .font(.system(size: 10))
-                    Text(account.profileDir)
-                        .lineLimit(1)
-                        .truncationMode(.middle)
-                        .textSelection(.enabled)
+                Button {
+                    let url = URL(fileURLWithPath: account.profileDir)
+                    NSWorkspace.shared.open(url)
+                } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: "folder")
+                            .font(.system(size: 10))
+                            .foregroundStyle(CodexVisual.neutralAccent)
+                        Text(account.profileDir)
+                            .lineLimit(1)
+                            .truncationMode(.middle)
+                    }
+                    .font(.system(size: 10, weight: .medium))
+                    .foregroundStyle(CodexVisual.quietText)
                 }
-                .font(.system(size: 10, weight: .medium))
-                .foregroundStyle(CodexVisual.quietText)
+                .buttonStyle(.plain)
+                .help("Open profile folder in Finder")
+                .onHover { inside in
+                    if inside {
+                        NSCursor.pointingHand.push()
+                    } else {
+                        NSCursor.pop()
+                    }
+                }
                 .padding(.top, 2)
             }
 
