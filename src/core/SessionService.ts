@@ -229,9 +229,13 @@ export class SessionService {
       if (mode === 'device') args.push('--device-auth')
 
       const result = spawn(this.resolveCodexExecutable(), args, {
-        stdio: stdio === 'inherit' ? 'inherit' : ['ignore', 'pipe', 'pipe'],
+        stdio: stdio === 'inherit' ? 'inherit' : ['pipe', 'pipe', 'pipe'],
         env: { ...process.env, CODEX_HOME: profileDir },
       })
+
+      if (stdio !== 'inherit' && result.stdin) {
+        result.stdin.write('\n');
+      }
 
       let settled = false
       let closed = false
@@ -241,6 +245,7 @@ export class SessionService {
       let isPollingAuth = false
       let authPoll: NodeJS.Timeout | null = null
       let timeout: NodeJS.Timeout | null = null
+      let deviceAuthOpened = false
 
       const cleanup = () => {
         if (authPoll) clearInterval(authPoll)
@@ -273,7 +278,38 @@ export class SessionService {
       result.stdout?.setEncoding('utf8')
       result.stderr?.setEncoding('utf8')
       result.stdout?.on('data', (chunk) => {
-        stdout = (stdout + chunk).slice(-MAX_LOGIN_OUTPUT_CHARS)
+        const text = chunk.toString()
+        stdout = (stdout + text).slice(-MAX_LOGIN_OUTPUT_CHARS)
+
+        // Detect device authentication codes
+        if (mode === 'device' && !deviceAuthOpened) {
+          const codeMatch = text.match(/code:\s*([A-Z0-9]{4}-[A-Z0-9]{4})/i) || text.match(/([A-Z0-9]{4}-[A-Z0-9]{4})/);
+          const urlMatch = text.match(/(https:\/\/github\.com\/login\/device|https:\/\/\S+device\S*)/i);
+          
+          if (codeMatch) {
+            const code = codeMatch[1];
+            const url = urlMatch ? urlMatch[1] : 'https://github.com/login/device';
+            deviceAuthOpened = true;
+
+            // 1. Copy code to macOS Clipboard
+            try {
+              const pbcopy = spawn('pbcopy');
+              pbcopy.stdin.write(code);
+              pbcopy.stdin.end();
+            } catch (e) {}
+
+            // 2. Open login page in default browser
+            try {
+              spawn('open', [url]);
+            } catch (e) {}
+
+            // 3. Send system notification using AppleScript
+            try {
+              const appleScript = `display notification "Device Code [${code}] has been copied to your clipboard. Enter it in the opened browser window." with title "KeyFlow Authentication"`;
+              spawn('osascript', ['-e', appleScript]);
+            } catch (e) {}
+          }
+        }
       })
       result.stderr?.on('data', (chunk) => {
         stderr = (stderr + chunk).slice(-MAX_LOGIN_OUTPUT_CHARS)
