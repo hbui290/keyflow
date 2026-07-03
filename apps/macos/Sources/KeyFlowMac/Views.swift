@@ -176,7 +176,7 @@ func statusColor(for account: BridgeAccountSummary?) -> Color {
     case .stale:
         return CodexVisual.neutralAccent
     case .error, .reloginRequired:
-        return CodexVisual.neutralAccent
+        return CodexVisual.criticalAccent
     case .never:
         return CodexVisual.neutralAccent.opacity(0.42)
     }
@@ -988,15 +988,15 @@ struct DetailHeaderView: View {
                     .lineLimit(1)
                     .truncationMode(.tail)
 
-                let hasSubtitleContent = (!account.isActive && note != nil) || (account.email != nil && account.email != account.displayName)
+                let hasSubtitleContent = (note != nil) || (account.email != nil && account.email != account.displayName)
                 if hasSubtitleContent {
                     HStack(spacing: 8) {
-                        if !account.isActive, let note = note {
+                        if let note = note {
                             StatusDot(color: CodexVisual.criticalAccent, size: 7)
                             Text(note)
                         }
                         if let email = account.email, email != account.displayName {
-                            if !account.isActive && note != nil {
+                            if note != nil {
                                 Text("•")
                                     .foregroundStyle(Color.primary.opacity(0.24))
                             }

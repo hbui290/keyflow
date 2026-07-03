@@ -6,9 +6,8 @@
 
 Many developers own multiple ChatGPT accounts (Plus, Team, Enterprise) to optimize message rate limits. However, the official Codex Desktop app does not support account switching, forcing users to manually log out and log back in, which is highly disruptive to their workflow.
 
-**Codex Switch** addresses this pain point by providing a seamless, 1-click account switching mechanism accessible via three interfaces:
+**Codex Switch** addresses this pain point by providing a seamless, 1-click account switching mechanism accessible via two interfaces:
 * **CLI (Command Line Interface)**: For terminal-heavy developers who prefer quick commands.
-* **TUI (Terminal User Interface)**: An interactive terminal interface for browsing and switching profiles.
 * **Native macOS Status Bar App (KeyFlowMac)**: A premium macOS menu bar app that runs silently in the background, offering instant diagnostics and a fluid switching interface.
 
 ---

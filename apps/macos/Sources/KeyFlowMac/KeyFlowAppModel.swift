@@ -381,6 +381,12 @@ final class KeyFlowAppModel: ObservableObject {
     private func applyStatus(_ status: BridgeStatusPayload) {
         self.status = status
         selectValidAccount()
+
+        if status.codexLinked == false {
+            banner = BannerState(kind: .warning, message: "Codex unlinked — tap Sync to Codex")
+        } else if banner?.message == "Codex unlinked — tap Sync to Codex" {
+            banner = nil
+        }
     }
 
     private func selectValidAccount() {
@@ -435,6 +441,7 @@ final class KeyFlowAppModel: ObservableObject {
 
     private func clearNonSuccessBanner() {
         guard let banner, banner.kind != .success else { return }
+        if banner.message == "Codex unlinked — tap Sync to Codex" { return }
         self.banner = nil
     }
 
