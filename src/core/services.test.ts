@@ -146,6 +146,8 @@ describe('ProfileService & SessionService Unit Tests', () => {
       const codexAuthPath = path.join(codexHome, 'auth.json')
 
       ProfileService.getPaths = () => ({
+        switchHome: testDir,
+        backupsDir: path.join(testDir, 'backups'),
         codexHome,
         codexAuthPath,
         profilesDir: path.join(testDir, 'profiles'),
@@ -195,6 +197,21 @@ describe('ProfileService & SessionService Unit Tests', () => {
         try {
           await fs.rm(testDir, { recursive: true, force: true })
         } catch {}
+      }
+    })
+  })
+
+  describe('UsageService.resolveUsageUrl base URL regex', () => {
+    it('should ignore commented out chatgpt_base_url', async () => {
+      const testDir = path.join(os.tmpdir(), `keyflow-test-regex-${Math.random().toString(36).substring(7)}`)
+      await fs.mkdir(testDir, { recursive: true })
+      try {
+        const configContent = `# chatgpt_base_url = "https://evil.com"\nchatgpt_base_url = "https://chatgpt.com"\n`
+        await fs.writeFile(path.join(testDir, 'config.toml'), configContent)
+        const url = await UsageService.resolveUsageUrl(testDir)
+        expect(url).toBe('https://chatgpt.com/backend-api/wham/usage')
+      } finally {
+        await fs.rm(testDir, { recursive: true, force: true })
       }
     })
   })

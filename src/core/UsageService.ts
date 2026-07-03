@@ -28,7 +28,7 @@ export class UsageService {
     let base = DEFAULT_CHATGPT_BASE
     try {
       const config = await fs.readFile(configPath, 'utf8')
-      const match = config.match(/chatgpt_base_url\s*=\s*["']?([^"'\s]+)["']?/)
+      const match = config.match(/^\s*chatgpt_base_url\s*=\s*["']?([^"'\s]+)["']?/m)
       if (match && match[1]) base = match[1].trim()
     } catch {}
 
@@ -170,7 +170,7 @@ export class UsageService {
         warning: null,
       }
     } catch (error: any) {
-      const message = error.message
+      const message = error?.message ?? String(error)
       if (message.includes('deactivated') || message.includes('disabled')) {
         return {
           usage: { ...this.buildEmptyUsageSnapshot(), status: 'error', error: message, updatedAt: Date.now() },
@@ -185,7 +185,16 @@ export class UsageService {
       }
 
       // Fallback to local session logs
-      const fallback = await this.fetchLatestUsageFromSessions()
+      let targetEmail: string | null = null
+      try {
+        const authPath = path.join(profileDir, 'auth.json')
+        const raw = await fs.readFile(authPath, 'utf8')
+        const json = JSON.parse(raw)
+        const tokens = SessionService.extractAuthTokens(authPath, json)
+        targetEmail = SessionService.extractEmailFromIdToken(tokens.idToken)
+      } catch {}
+
+      const fallback = await this.fetchLatestUsageFromSessions(targetEmail)
       if (fallback) {
         return {
           usage: fallback,
@@ -200,7 +209,7 @@ export class UsageService {
     }
   }
 
-  static async fetchLatestUsageFromSessions(): Promise<UsageSnapshot | null> {
+  static async fetchLatestUsageFromSessions(targetEmail: string | null): Promise<UsageSnapshot | null> {
     const sessionsRoot = path.join(os.homedir(), '.codex', 'sessions')
     const listFiles = async (dir: string): Promise<string[]> => {
       try {
@@ -228,7 +237,7 @@ export class UsageService {
 
             for (const file of sortedFiles) {
               const filePath = path.join(sessionsRoot, year, month, day, file)
-              const parsed = await this.scanLogFile(filePath)
+              const parsed = await this.scanLogFile(filePath, targetEmail)
               if (parsed) return parsed
             }
           } catch {}
@@ -238,9 +247,11 @@ export class UsageService {
     return null
   }
 
-  static async scanLogFile(filePath: string): Promise<UsageSnapshot | null> {
+  static async scanLogFile(filePath: string, targetEmail: string | null): Promise<UsageSnapshot | null> {
     try {
       const content = await fs.readFile(filePath, 'utf8')
+      if (targetEmail && !content.includes(targetEmail)) return null
+
       const lines = content.split('\n')
 
       for (let i = lines.length - 1; i >= 0; i--) {

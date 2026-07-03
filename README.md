@@ -68,6 +68,8 @@ All compilation, testing, and packaging scripts are standardized directly inside
   bun run build
   ```
   *This compiles the TypeScript bridge and Xcode Swift sources into a standalone app bundle at `dist/KeyFlow.app`.*
+  > [!NOTE]
+  > The application is compiled with an ad-hoc codesign signature (`codesign -s -`). It runs locally out-of-the-box. If copied to another Mac, macOS Gatekeeper may block execution; you will need to allow it under Security & Privacy settings or sign it with a valid Apple Developer Account.
 
 * **Execute Unit Tests**:
   ```bash
@@ -93,6 +95,8 @@ The TypeScript engine can be run directly using the compiled binary `dist/kfl`:
 | `kfl add --label <name> --device-auth` | Headless login using device-code authentication. |
 | `kfl use <id-or-label>` | Hot-swaps Codex configuration files and restarts Codex Desktop. |
 | `kfl remove <id-or-label> [--purge]` | Deletes profile metadata and optionally purges auth files. |
+| `kfl relogin <id-or-label> [--device-auth]` | Re-runs ChatGPT browser login (or device auth) to refresh credentials. |
+| `kfl prime [--account <id-or-label>]` | Primes the 5-hour ChatGPT session by sending a minimal background message. |
 | `kfl status [--json]` | Prints active session health, plan type, and token validity. |
 | `kfl refresh [--all]` | Manually triggers rate-limit token refresh calls. |
 | `kfl doctor` | Runs diagnostics checks on directories, file permissions, and active configurations. |

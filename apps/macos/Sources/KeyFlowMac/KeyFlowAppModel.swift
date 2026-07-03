@@ -31,6 +31,16 @@ final class KeyFlowAppModel: ObservableObject {
     @Published var isAddAccountSheetPresented = false
     @Published var purgeProfileOnRemove = false
     @Published private(set) var openAtLogin = false
+    @Published var autoPrimeFlags: [String: Bool] = [:]
+
+    func autoPrime(for id: String) -> Bool {
+        autoPrimeFlags[id] ?? (UserDefaults.standard.object(forKey: "autoPrime_\(id)") as? Bool ?? true)
+    }
+
+    func setAutoPrime(_ v: Bool, for id: String) {
+        autoPrimeFlags[id] = v
+        UserDefaults.standard.set(v, forKey: "autoPrime_\(id)")
+    }
 
     let bridge: KeyFlowBridgeClient?
     private var refreshTimer: AnyCancellable?
@@ -91,6 +101,7 @@ final class KeyFlowAppModel: ObservableObject {
     }
 
     func cancelCurrentOperation() {
+        guard !hasBlockingOperation else { return } // ponytail: cancel thật cần bridge hỗ trợ kill — làm khi có yêu cầu
         currentOperation = nil
     }
 
@@ -381,12 +392,12 @@ final class KeyFlowAppModel: ObservableObject {
     }
 
     private func checkAndAutoPrime(account: BridgeAccountSummary) async {
-        let isAutoPrimeEnabled = UserDefaults.standard.object(forKey: "autoPrime_\(account.id)") as? Bool ?? true
+        let isAutoPrimeEnabled = autoPrime(for: account.id)
         guard isAutoPrimeEnabled else { return }
         guard account.usage.status != .reloginRequired && account.usage.status != .error else { return }
         guard !accountsBeingPrimed.contains(account.id) else { return }
 
-        let remaining = account.usage.last5Hours.remainingPercent ?? 0.0
+        guard let remaining = account.usage.last5Hours.remainingPercent else { return }
         if remaining <= 0.01 {
             let now = Date().timeIntervalSince1970
             let lastPrimed = UserDefaults.standard.double(forKey: "lastPrimed_\(account.id)")

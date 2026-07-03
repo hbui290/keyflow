@@ -112,7 +112,7 @@ struct UserAvatarView: View {
         let displayName = email ?? "K"
         let firstLetter = String(displayName.trimmingCharacters(in: .whitespacesAndNewlines).first ?? "K").uppercased()
 
-        let hash = displayName.hashValue
+        let hash = displayName.utf8.reduce(5381) { ($0 << 5) &+ $0 &+ Int($1) }
         let colors: [[Color]] = [
             [Color(red: 0.141, green: 0.353, blue: 0.824), Color(red: 0.224, green: 0.549, blue: 0.941)], // Blue gradient
             [Color(red: 0.055, green: 0.569, blue: 0.380), Color(red: 0.180, green: 0.773, blue: 0.510)], // Green gradient
@@ -626,11 +626,11 @@ struct BannerView: View {
         case .info:
             return CodexVisual.neutralAccent
         case .success:
-            return CodexVisual.neutralAccent
+            return Color.green
         case .warning:
-            return CodexVisual.neutralAccent
+            return Color.orange
         case .error:
-            return CodexVisual.neutralAccent
+            return Color.red
         }
     }
 
@@ -1051,7 +1051,7 @@ struct DetailHeaderView: View {
                     .fixedSize(horizontal: true, vertical: false)
                 }
 
-                let isUnlinked = account.isActive && model.banner?.message.contains("not logged in") == true
+                let isUnlinked = account.isActive && model.status?.codexLinked == false
                 Button {
                     Task { await model.switchAccount(id: account.id) }
                 } label: {
@@ -1225,7 +1225,7 @@ struct AddAccountSheet: View {
 
             HStack {
                 Spacer()
-                SheetActionButton(title: "Cancel") {
+                SheetActionButton(title: "Cancel", isDisabled: model.hasBlockingOperation) {
                     model.cancelCurrentOperation()
                     model.isAddAccountSheetPresented = false
                 }
@@ -1526,8 +1526,8 @@ struct ManagerWindowView: View {
                                  // Consolidated Preferences Toggles in HStack
                                  HStack(spacing: 24) {
                                      Toggle("Auto-prime (every 5h)", isOn: Binding(
-                                         get: { UserDefaults.standard.object(forKey: "autoPrime_\(account.id)") as? Bool ?? true },
-                                         set: { UserDefaults.standard.set($0, forKey: "autoPrime_\(account.id)") }
+                                         get: { model.autoPrime(for: account.id) },
+                                         set: { model.setAutoPrime($0, for: account.id) }
                                      ))
                                      .toggleStyle(.switch)
                                      .font(.system(size: 12, weight: .medium))

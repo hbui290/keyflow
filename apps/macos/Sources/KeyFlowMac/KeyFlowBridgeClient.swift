@@ -37,18 +37,16 @@ final class KeyFlowBridgeClient: @unchecked Sendable {
 
     init() throws {
         let environment = Self.buildBridgeEnvironment()
-        let bunURL = try Self.resolveBunExecutable(environment: environment)
-
         self.environment = environment
 
-        if let bundledBridge = Self.resolveBundledBridge(bunURL: bunURL) {
+        if let bundledBridge = Self.resolveBundledBridge() {
             self.initialCommand = bundledBridge
             return
         }
 
+        let bunURL = try Self.resolveBunExecutable(environment: environment)
         let repoCommand = try Self.resolveRepoBridge(bunURL: bunURL)
         self.initialCommand = repoCommand
-
     }
 
     func fetchStatus() async throws -> BridgeStatusPayload {
@@ -107,6 +105,23 @@ final class KeyFlowBridgeClient: @unchecked Sendable {
         return try await run(arguments, as: BridgeActionPayload.self)
     }
 
+    private final class DataAccumulator: @unchecked Sendable {
+        private var data = Data()
+        private let lock = NSLock()
+        
+        func append(_ newData: Data) {
+            lock.lock()
+            data.append(newData)
+            lock.unlock()
+        }
+        
+        func retrieve() -> Data {
+            lock.lock()
+            defer { lock.unlock() }
+            return data
+        }
+    }
+
     private func run<Payload: Decodable & Sendable>(_ arguments: [String], as type: Payload.Type) async throws -> Payload {
         let command = initialCommand
         return try await withCheckedThrowingContinuation { continuation in
@@ -123,9 +138,38 @@ final class KeyFlowBridgeClient: @unchecked Sendable {
             process.standardOutput = stdout
             process.standardError = stderr
 
+            let stdoutAccumulator = DataAccumulator()
+            let stderrAccumulator = DataAccumulator()
+            let stdoutHandle = stdout.fileHandleForReading
+            let stderrHandle = stderr.fileHandleForReading
+
+            stdoutHandle.readabilityHandler = { handle in
+                let data = handle.availableData
+                guard !data.isEmpty else { return }
+                stdoutAccumulator.append(data)
+            }
+
+            stderrHandle.readabilityHandler = { handle in
+                let data = handle.availableData
+                guard !data.isEmpty else { return }
+                stderrAccumulator.append(data)
+            }
+
             process.terminationHandler = { [decoder] process in
-                let stdoutData = stdout.fileHandleForReading.readDataToEndOfFile()
-                let stderrData = stderr.fileHandleForReading.readDataToEndOfFile()
+                stdoutHandle.readabilityHandler = nil
+                stderrHandle.readabilityHandler = nil
+
+                let remainingStdout = stdoutHandle.readDataToEndOfFile()
+                if !remainingStdout.isEmpty {
+                    stdoutAccumulator.append(remainingStdout)
+                }
+                let remainingStderr = stderrHandle.readDataToEndOfFile()
+                if !remainingStderr.isEmpty {
+                    stderrAccumulator.append(remainingStderr)
+                }
+
+                let stdoutData = stdoutAccumulator.retrieve()
+                let stderrData = stderrAccumulator.retrieve()
 
                 do {
                     if !stdoutData.isEmpty {
@@ -157,12 +201,14 @@ final class KeyFlowBridgeClient: @unchecked Sendable {
             do {
                 try process.run()
             } catch {
+                stdoutHandle.readabilityHandler = nil
+                stderrHandle.readabilityHandler = nil
                 continuation.resume(throwing: BridgeClientError.transport("Failed to launch bridge: \(error.localizedDescription)"))
             }
         }
     }
 
-    private static func resolveBundledBridge(bunURL: URL) -> BridgeCommand? {
+    private static func resolveBundledBridge() -> BridgeCommand? {
         guard
             let resourcesURL = Bundle.main.resourceURL,
             let bridgeDirectory = bundledBridgeDirectory(resourcesURL: resourcesURL)
@@ -247,33 +293,47 @@ final class KeyFlowBridgeClient: @unchecked Sendable {
         return environment
     }
 
+    nonisolated(unsafe) private static var cachedLoginShellPath: String = ""
+    nonisolated(unsafe) private static var isResolvingShellPath = false
+
     private static func resolveLoginShellPath() -> String {
-        let environment = ProcessInfo.processInfo.environment
-        let shellPath = environment["SHELL"].flatMap { $0.isEmpty ? nil : $0 } ?? "/bin/zsh"
-        guard FileManager.default.isExecutableFile(atPath: shellPath) else {
+        if !cachedLoginShellPath.isEmpty {
+            return cachedLoginShellPath
+        }
+        if isResolvingShellPath {
             return ""
         }
+        isResolvingShellPath = true
 
-        let process = Process()
-        let stdout = Pipe()
-        process.executableURL = URL(fileURLWithPath: shellPath)
-        process.arguments = ["-lc", "printf '%s' \"$PATH\""]
-        process.standardOutput = stdout
-        process.standardError = Pipe()
+        DispatchQueue.global(qos: .background).async {
+            let environment = ProcessInfo.processInfo.environment
+            let shellPath = environment["SHELL"].flatMap { $0.isEmpty ? nil : $0 } ?? "/bin/zsh"
+            guard FileManager.default.isExecutableFile(atPath: shellPath) else {
+                isResolvingShellPath = false
+                return
+            }
 
-        do {
-            try process.run()
-            process.waitUntilExit()
-        } catch {
-            return ""
+            let process = Process()
+            let stdout = Pipe()
+            process.executableURL = URL(fileURLWithPath: shellPath)
+            process.arguments = ["-lc", "printf '%s' \"$PATH\""]
+            process.standardOutput = stdout
+            process.standardError = Pipe()
+
+            do {
+                try process.run()
+                process.waitUntilExit()
+                if process.terminationStatus == 0 {
+                    let data = stdout.fileHandleForReading.readDataToEndOfFile()
+                    if let pathString = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) {
+                        cachedLoginShellPath = pathString
+                    }
+                }
+            } catch {}
+            isResolvingShellPath = false
         }
 
-        guard process.terminationStatus == 0 else {
-            return ""
-        }
-
-        let data = stdout.fileHandleForReading.readDataToEndOfFile()
-        return String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        return ""
     }
 
     private static func mergePathEntries(_ pathValues: [String]) -> String {

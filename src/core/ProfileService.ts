@@ -1,8 +1,9 @@
 import fs from 'node:fs/promises'
+import fsSync from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { createHash, randomUUID } from 'node:crypto'
-import type { Account, AppState, AuthTokens } from './types.js'
+import type { Account, AppState, AuthTokens, UsageSnapshot } from './types.js'
 import { SessionService } from './SessionService.js'
 import { UsageService } from './UsageService.js'
 
@@ -55,11 +56,42 @@ export class ProfileService {
   static async ensureSwitchDirs() {
     await this.ensurePrivateDir(SWITCH_HOME)
     await this.ensurePrivateDir(PROFILES_DIR)
-    await ensurePrivateDir(BACKUPS_DIR)
-    async function ensurePrivateDir(dirPath: string) {
-      await fs.mkdir(dirPath, { recursive: true, mode: PRIVATE_DIR_MODE })
-      await fs.chmod(dirPath, PRIVATE_DIR_MODE)
+    await this.ensurePrivateDir(BACKUPS_DIR)
+  }
+
+  static async acquireLock(retryMs = 100, timeoutMs = 5000): Promise<void> {
+    const start = Date.now()
+    const lockPath = path.join(SWITCH_HOME, 'state.lock')
+    while (true) {
+      try {
+        const handle = await fs.open(lockPath, 'wx')
+        await handle.close()
+        return
+      } catch (err: any) {
+        if (err?.code === 'EEXIST') {
+          try {
+            const stat = await fs.stat(lockPath)
+            if (Date.now() - stat.mtimeMs > 30000) {
+              await fs.unlink(lockPath)
+              continue
+            }
+          } catch {}
+          if (Date.now() - start > timeoutMs) {
+            throw new Error(`Lock acquisition timeout for state.json. Lock file exists at: ${lockPath}`)
+          }
+          await new Promise(r => setTimeout(r, retryMs))
+        } else {
+          throw err
+        }
+      }
     }
+  }
+
+  static async releaseLock(): Promise<void> {
+    const lockPath = path.join(SWITCH_HOME, 'state.lock')
+    try {
+      await fs.unlink(lockPath)
+    } catch {}
   }
 
   static buildEmptyState(): AppState {
@@ -78,15 +110,24 @@ export class ProfileService {
       } catch {}
       const json = JSON.parse(contents)
       return this.sanitizeState(json)
-    } catch {
-      return this.buildEmptyState()
+    } catch (err: any) {
+      if (err?.code === 'ENOENT') return this.buildEmptyState()
+      try {
+        await fs.copyFile(STATE_PATH, `${STATE_PATH}.corrupt-${Date.now()}`)
+      } catch {}
+      throw new Error(`state.json unreadable (${err.message}). Backup saved, refusing to overwrite.`)
     }
   }
 
   static async writeState(state: AppState) {
     await this.ensureSwitchDirs()
     const sanitized = this.sanitizeState(state)
-    await this.writePrivateFile(STATE_PATH, `${JSON.stringify(sanitized, null, 2)}\n`)
+    await this.acquireLock()
+    try {
+      await this.writePrivateFile(STATE_PATH, `${JSON.stringify(sanitized, null, 2)}\n`)
+    } finally {
+      await this.releaseLock()
+    }
   }
 
   static sanitizeState(raw: any): AppState {
@@ -169,6 +210,24 @@ export class ProfileService {
     return state.accounts.find((account: Account) => account.id === state.activeAccountId) ?? state.accounts[0]
   }
 
+  static isCodexLinkedSync(activeAccount: Account | null): boolean {
+    if (!activeAccount) return false
+    try {
+      const paths = this.getPaths()
+      if (!fsSync.existsSync(paths.codexAuthPath)) return false
+      const raw = fsSync.readFileSync(paths.codexAuthPath, 'utf8')
+      const json = JSON.parse(raw)
+      const tokens = SessionService.extractAuthTokens(paths.codexAuthPath, json)
+      const signature = this.computeAuthSignature(tokens)
+      const email = SessionService.extractEmailFromIdToken(tokens.idToken)
+      
+      if (email && activeAccount.email === email) return true
+      return activeAccount.authSignature === signature
+    } catch {
+      return false
+    }
+  }
+
   static formatStateSummary(state: AppState) {
     const active = this.getActiveAccount(state)
     return {
@@ -243,11 +302,14 @@ export class ProfileService {
         const state = await this.readState()
         if (state.activeAccountId) {
           const activeAcc = state.accounts.find((acc: Account) => acc.id === state.activeAccountId)
-          if (activeAcc && activeAcc.usage.status !== 'relogin_required') {
-            activeAcc.usage.status = 'relogin_required'
-            activeAcc.usage.error = 'Current Codex account is not logged in yet.'
-            activeAcc.updatedAt = Date.now()
-            await this.writeState(state)
+          if (activeAcc) {
+            const profileAuthOk = await fs.access(path.join(activeAcc.profileDir, 'auth.json')).then(() => true, () => false)
+            if (!profileAuthOk && activeAcc.usage.status !== 'relogin_required') {
+              activeAcc.usage.status = 'relogin_required'
+              activeAcc.usage.error = 'Profile credentials are missing or expired.'
+              activeAcc.updatedAt = Date.now()
+              await this.writeState(state)
+            }
           }
         }
       } catch (dbErr) {
@@ -372,20 +434,52 @@ export class ProfileService {
       SessionService.validateChatGptAuth(tokens)
       const usageResult = await UsageService.resolveUsageSnapshot(profileDir)
 
+      const email = SessionService.extractEmailFromIdToken(tokens.idToken)
+      const authSignature = this.computeAuthSignature(tokens)
+
       const account: Account = {
         id,
         label: trimmed,
-        email: SessionService.extractEmailFromIdToken(tokens.idToken),
+        email,
         profileDir,
-        authSignature: this.computeAuthSignature(tokens),
+        authSignature,
         createdAt: Date.now(),
         updatedAt: Date.now(),
         usage: usageResult.usage,
       }
 
+      // Re-read state right before writing to avoid lost updates due to race conditions
+      const freshState = await this.readState()
+
+      // BUG-13: De-duplicate account if email/signature matches an existing one
+      const existingAccount = freshState.accounts.find((acc: Account) => 
+        (acc.email && email && acc.email.toLowerCase() === email.toLowerCase()) ||
+        (acc.authSignature === authSignature)
+      )
+
+      if (existingAccount) {
+        const updatedAccount: Account = {
+          ...existingAccount,
+          updatedAt: Date.now(),
+          usage: usageResult.usage,
+          authSignature,
+          email: email ?? existingAccount.email,
+        }
+
+        // Copy auth.json to the old profile's directory and cleanup temp profile directory
+        await fs.copyFile(path.join(profileDir, 'auth.json'), path.join(existingAccount.profileDir, 'auth.json'))
+        await fs.rm(profileDir, { recursive: true, force: true })
+
+        await this.writeState({
+          activeAccountId: freshState.activeAccountId ?? existingAccount.id,
+          accounts: freshState.accounts.map(a => a.id === existingAccount.id ? updatedAccount : a),
+        })
+        return { account: updatedAccount, warning: usageResult.warning }
+      }
+
       await this.writeState({
-        activeAccountId: state.activeAccountId ?? id,
-        accounts: [...state.accounts, account],
+        activeAccountId: freshState.activeAccountId ?? id,
+        accounts: [...freshState.accounts, account],
       })
       return { account, warning: usageResult.warning }
     } catch (error) {
@@ -395,20 +489,23 @@ export class ProfileService {
   }
 
   static async removeAccount(identifier: string, purge = false) {
-    const state = await this.readState()
-    if (state.accounts.length === 0) throw new Error('No accounts to remove.')
-    const account = this.resolveAccountByIdentifier(state, identifier)
-    const nextAccounts = state.accounts.filter((acc: Account) => acc.id !== account.id)
-    const nextActiveId = state.activeAccountId === account.id ? nextAccounts[0]?.id ?? null : state.activeAccountId
+    const initialState = await this.readState()
+    const targetAccount = this.resolveAccountByIdentifier(initialState, identifier)
+
+    const freshState = await this.readState()
+    if (freshState.accounts.length === 0) throw new Error('No accounts to remove.')
+    const nextAccounts = freshState.accounts.filter((acc: Account) => acc.id !== targetAccount.id)
+    const nextActiveId = freshState.activeAccountId === targetAccount.id ? nextAccounts[0]?.id ?? null : freshState.activeAccountId
 
     await this.writeState({
       activeAccountId: nextActiveId,
       accounts: nextAccounts,
     })
     if (purge) {
-      await fs.rm(account.profileDir, { recursive: true, force: true })
+      await fs.rm(targetAccount.profileDir, { recursive: true, force: true })
+      console.warn(`[Warning] Purged profile directory for "${targetAccount.label}". Note: historical session backups under "${this.getPaths().backupsDir}" or the active configuration at "${this.getPaths().codexAuthPath}" may still retain rotated tokens.`)
     }
-    return { removed: account, activeAccountId: nextActiveId }
+    return { removed: targetAccount, activeAccountId: nextActiveId }
   }
 
   static async reloginAccount(identifier: string, options?: { loginMode?: 'browser' | 'device'; loginStdio?: 'inherit' | 'pipe' }) {
@@ -432,16 +529,17 @@ export class ProfileService {
       usage: usageResult.warning ? account.usage : usageResult.usage,
     }
 
-    const nextAccounts = state.accounts.map((acc: Account) => (acc.id === account.id ? nextAccount : acc))
+    const freshState = await this.readState()
+    const nextAccounts = freshState.accounts.map((acc: Account) => (acc.id === account.id ? nextAccount : acc))
     await this.writeState({
-      activeAccountId: state.activeAccountId,
+      activeAccountId: freshState.activeAccountId,
       accounts: nextAccounts,
     })
 
-    if (state.activeAccountId === account.id) {
+    if (freshState.activeAccountId === account.id) {
       await SessionService.switchToAccount(nextAccount)
     }
-    return { account: nextAccount, warning: usageResult.warning, switchedActive: state.activeAccountId === account.id }
+    return { account: nextAccount, warning: usageResult.warning, switchedActive: freshState.activeAccountId === account.id }
   }
 
   static async useAccount(identifier: string) {
@@ -451,7 +549,10 @@ export class ProfileService {
       throw new Error(`Account "${account.email ?? account.label}" is deactivated and cannot be used.`)
     }
     if (account.usage.status === 'relogin_required') {
-      throw new Error(`Account "${account.email ?? account.label}" requires login before use.`)
+      const ok = await fs.access(path.join(account.profileDir, 'auth.json')).then(() => true, () => false)
+      if (!ok) {
+        throw new Error(`Account "${account.email ?? account.label}" requires login before use.`)
+      }
     }
 
     const switchResult = await SessionService.switchToAccount(account)
@@ -525,6 +626,7 @@ export class ProfileService {
               updatedAt: Date.now(),
               last5Hours: acc.usage.last5Hours,
               weekly: acc.usage.weekly,
+              rateLimitResets: acc.usage.rateLimitResets ?? null,
             }
             return {
               ...acc,

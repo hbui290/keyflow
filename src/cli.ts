@@ -56,7 +56,9 @@ async function main() {
   const isDefaultMode = argv.length === 0
   const isBridgeMode = argv[0] === 'bridge'
 
-  if (!isHelpRequest && !isDefaultMode && !isBridgeMode) {
+  const readOnlyOrCleanupCmds = ['status', 'doctor', 'remove', 'help', 'bridge']
+  const shouldSkipLink = isHelpRequest || isDefaultMode || isBridgeMode || readOnlyOrCleanupCmds.includes(argv[0])
+  if (!shouldSkipLink) {
     await ProfileService.ensureCurrentCodexLinked()
   }
 

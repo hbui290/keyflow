@@ -27,6 +27,7 @@ export type BridgeStatusPayload = {
   totalAccounts: number
   activeAccount: BridgeAccountSummary | null
   accounts: BridgeAccountSummary[]
+  codexLinked: boolean
 }
 
 export type BridgeActionPayload = {
@@ -73,12 +74,16 @@ export function buildBridgeStatusPayload(state: AppState): BridgeStatusPayload {
   const summary = ProfileService.formatStateSummary(state)
   const active = summary.accounts.find((account) => account.isActive) ?? null
 
+  const activeRaw = active ? state.accounts.find(a => a.id === active.id) ?? null : null
+  const codexLinked = ProfileService.isCodexLinkedSync(activeRaw)
+
   return {
     generatedAt: Date.now(),
     activeAccountId: summary.activeAccountId,
     totalAccounts: summary.totalAccounts,
     activeAccount: active ? toBridgeAccountSummary(active as any, summary.activeAccountId) : null,
     accounts: summary.accounts.map((account) => toBridgeAccountSummary(account as any, summary.activeAccountId)),
+    codexLinked,
   }
 }
 

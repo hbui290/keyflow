@@ -59,6 +59,7 @@ struct BridgeStatusPayload: Codable, Sendable {
     let totalAccounts: Int
     let activeAccount: BridgeAccountSummary?
     let accounts: [BridgeAccountSummary]
+    let codexLinked: Bool
 }
 
 struct BridgeActionPayload: Codable, Sendable {

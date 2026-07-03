@@ -55,8 +55,8 @@ export class SessionService {
       process.on('close', (code) => {
         resolve({ status: code, stdout, stderr })
       })
-      process.on('error', () => {
-        resolve({ status: 1, stdout, stderr })
+      process.on('error', (e: any) => {
+        resolve({ status: 1, stdout, stderr: stderr || e?.message || String(e) })
       })
     })
   }
@@ -74,16 +74,53 @@ export class SessionService {
       return (result.status ?? 1) === 0
     }
 
-    if (await checkRunning()) {
-      await this.runProcessAsync('osascript', ['-e', 'tell application "Codex" to quit'])
-      await new Promise((r) => setTimeout(r, 900))
+    const waitDead = async (ms: number): Promise<boolean> => {
+      const deadline = Date.now() + ms
+      while (Date.now() < deadline) {
+        if (!(await checkRunning())) return true
+        await new Promise((r) => setTimeout(r, 200))
+      }
+      return false
+    }
 
-      if (await checkRunning()) {
+    const wasRunning = await checkRunning()
+    if (wasRunning) {
+      await this.runProcessAsync('osascript', ['-e', 'tell application "Codex" to quit'])
+      const quitOk = await waitDead(3000)
+
+      if (!quitOk && (await checkRunning())) {
         await this.runProcessAsync('pkill', ['-TERM', '-f', '/Applications/Codex.app'])
-        await new Promise((r) => setTimeout(r, 600))
+        await waitDead(2000)
       }
     }
-    spawn('open', ['-a', CODEX_APP_PATH], { stdio: 'ignore' }).unref()
+
+    if (wasRunning) {
+      spawn('open', ['-a', CODEX_APP_PATH], { stdio: 'ignore' }).unref()
+    }
+  }
+
+  static async pruneBackups(backupsDir: string) {
+    try {
+      const files = await fs.readdir(backupsDir)
+      const backupFiles = files
+        .filter(f => f.endsWith('-auth.json'))
+        .map(f => ({ name: f, path: path.join(backupsDir, f) }))
+      
+      if (backupFiles.length <= 10) return
+      
+      const filesWithTime = await Promise.all(
+        backupFiles.map(async f => {
+          const stat = await fs.stat(f.path)
+          return { ...f, mtime: stat.mtimeMs }
+        })
+      )
+      
+      filesWithTime.sort((a, b) => b.mtime - a.mtime)
+      const toDelete = filesWithTime.slice(10)
+      for (const f of toDelete) {
+        await fs.unlink(f.path)
+      }
+    } catch {}
   }
 
   static async switchToAccount(account: Account): Promise<SwitchResult> {
@@ -93,15 +130,15 @@ export class SessionService {
     await ProfileService.ensurePrivateDir(paths.codexHome)
     await ProfileService.ensurePrivateDir(paths.backupsDir)
     await ProfileService.ensurePrivateDir(account.profileDir)
-    await ProfileService.chmodPrivateFile(sourceAuth)
-
     await fs.access(sourceAuth)
+    await ProfileService.chmodPrivateFile(sourceAuth)
 
     let backupPath: string | null = null
     try {
       await fs.access(paths.codexAuthPath)
       backupPath = path.join(paths.backupsDir, `${new Date().toISOString().replace(/[:.]/g, '-')}-auth.json`)
       await ProfileService.copyPrivateFile(paths.codexAuthPath, backupPath)
+      await this.pruneBackups(paths.backupsDir)
     } catch {
       backupPath = null
     }
@@ -216,13 +253,34 @@ export class SessionService {
       last_refresh: new Date().toISOString(),
       tokens: nextTokens,
     }
-    await ProfileService.writePrivateFile(tokens.authPath, `${JSON.stringify(payload, null, 2)}\n`)
+    
+    const fileContent = `${JSON.stringify(payload, null, 2)}\n`
+    await ProfileService.writePrivateFile(tokens.authPath, fileContent)
+
+    try {
+      const state = await ProfileService.readState()
+      const activeAccount = state.accounts.find((acc) => acc.id === state.activeAccountId)
+      if (activeAccount) {
+        const profileAuthPath = path.join(activeAccount.profileDir, 'auth.json')
+        if (path.resolve(tokens.authPath) === path.resolve(profileAuthPath)) {
+          const paths = ProfileService.getPaths()
+          await ProfileService.writePrivateFile(paths.codexAuthPath, fileContent)
+        }
+      }
+    } catch {}
   }
 
-  static runCodexChatGptLogin(profileDir: string, options?: { mode?: 'browser' | 'device'; stdio?: 'inherit' | 'pipe'; timeoutMs?: number }) {
+  static async runCodexChatGptLogin(profileDir: string, options?: { mode?: 'browser' | 'device'; stdio?: 'inherit' | 'pipe'; timeoutMs?: number }) {
     const mode = options?.mode ?? 'browser'
     const stdio = options?.stdio ?? 'inherit'
     const timeoutMs = options?.timeoutMs ?? LOGIN_TIMEOUT_MS
+
+    const authPath = path.join(profileDir, 'auth.json')
+    let beforeMtime = 0
+    try {
+      const stat = await fs.stat(authPath)
+      beforeMtime = stat.mtimeMs
+    } catch {}
 
     return new Promise<void>((resolve, reject) => {
       const args = ['login', ...CHATGPT_LOGIN_CONFIG]
@@ -268,8 +326,8 @@ export class SessionService {
 
       const checkAuth = async () => {
         try {
-          await fs.access(path.join(profileDir, 'auth.json'))
-          return true
+          const stat = await fs.stat(authPath)
+          return stat.mtimeMs > beforeMtime
         } catch {
           return false
         }
@@ -284,7 +342,7 @@ export class SessionService {
         // Detect device authentication codes
         if (mode === 'device' && !deviceAuthOpened) {
           const codeMatch = text.match(/code:\s*([A-Z0-9]{4}-[A-Z0-9]{4})/i) || text.match(/([A-Z0-9]{4}-[A-Z0-9]{4})/);
-          const urlMatch = text.match(/(https:\/\/github\.com\/login\/device|https:\/\/\S+device\S*)/i);
+          const urlMatch = text.match(/(https?:\/\/github\.com\/login\/device\S*|https?:\/\/\S+device\S*|https?:\/\/\S+)/i);
           
           if (codeMatch) {
             const code = codeMatch[1];
