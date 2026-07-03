@@ -10,6 +10,7 @@ import {
   bridgeUse,
   bridgePrime,
   runBridgeCommand,
+  printBridgeResponse,
 } from './kfl-bridge.js'
 
 type ParsedCommand =
@@ -210,57 +211,68 @@ async function main() {
     return
   }
 
-  const command = parseCommand(argv)
+  try {
+    const command = parseCommand(argv)
 
-  switch (command.kind) {
-    case 'status':
-      await runBridgeCommand(() => bridgeStatus())
-      return
-    case 'link-current':
-      await runBridgeCommand(() => bridgeLinkCurrent())
-      return
-    case 'refresh':
-      await runBridgeCommand(() =>
-        bridgeRefresh({
-          active: command.active,
-          all: command.all,
-          accountId: command.accountId,
-        })
-      )
-      return
-    case 'use':
-      await runBridgeCommand(() => bridgeUse(command.accountId))
-      return
-    case 'add':
-      await runBridgeCommand(() =>
-        bridgeAddAccount({
-          label: command.label,
-          deviceAuth: command.deviceAuth,
-        })
-      )
-      return
-    case 'relogin':
-      await runBridgeCommand(() =>
-        bridgeReloginAccount({
-          accountId: command.accountId,
-          deviceAuth: command.deviceAuth,
-        })
-      )
-      return
-    case 'remove':
-      await runBridgeCommand(() =>
-        bridgeRemoveAccount({
-          accountId: command.accountId,
-          purge: command.purge,
-        })
-      )
-      return
-    case 'doctor':
-      await runBridgeCommand(() => bridgeDoctor())
-      return
-    case 'prime':
-      await runBridgeCommand(() => bridgePrime(command.accountId))
-      return
+    switch (command.kind) {
+      case 'status':
+        await runBridgeCommand(() => bridgeStatus())
+        return
+      case 'link-current':
+        await runBridgeCommand(() => bridgeLinkCurrent())
+        return
+      case 'refresh':
+        await runBridgeCommand(() =>
+          bridgeRefresh({
+            active: command.active,
+            all: command.all,
+            accountId: command.accountId,
+          })
+        )
+        return
+      case 'use':
+        await runBridgeCommand(() => bridgeUse(command.accountId))
+        return
+      case 'add':
+        await runBridgeCommand(() =>
+          bridgeAddAccount({
+            label: command.label,
+            deviceAuth: command.deviceAuth,
+          })
+        )
+        return
+      case 'relogin':
+        await runBridgeCommand(() =>
+          bridgeReloginAccount({
+            accountId: command.accountId,
+            deviceAuth: command.deviceAuth,
+          })
+        )
+        return
+      case 'remove':
+        await runBridgeCommand(() =>
+          bridgeRemoveAccount({
+            accountId: command.accountId,
+            purge: command.purge,
+          })
+        )
+        return
+      case 'doctor':
+        await runBridgeCommand(() => bridgeDoctor())
+        return
+      case 'prime':
+        await runBridgeCommand(() => bridgePrime(command.accountId))
+        return
+    }
+  } catch (error: any) {
+    printBridgeResponse<never>({
+      ok: false,
+      error: {
+        code: 'bridge_error',
+        message: error?.message ?? String(error),
+      },
+    })
+    process.exitCode = 1
   }
 }
 
