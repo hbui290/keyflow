@@ -61,7 +61,7 @@ final class KeyFlowMacTests: XCTestCase {
 
     func testMenuPerformanceMonitorCanBeEnabledFromEnvironment() {
         let configuration = MenuPerformanceConfiguration.fromEnvironment([
-            "CODEX_SWITCH_ENABLE_MENU_PERF_MONITOR": "true",
+            "CSW_ENABLE_MENU_PERF_MONITOR": "true",
         ])
 
         XCTAssertTrue(configuration.isEnabled)
@@ -177,7 +177,7 @@ final class KeyFlowMacTests: XCTestCase {
             try FileManager.default.createDirectory(at: bridgeDirectory, withIntermediateDirectories: true)
             FileManager.default.createFile(atPath: bridgeDirectory.appendingPathComponent("bridge-cli.js").path, contents: Data())
 
-            let resolved = CodexBridgeClient.bundledBridgeDirectory(resourcesURL: directory)
+            let resolved = KeyFlowBridgeClient.bundledBridgeDirectory(resourcesURL: directory)
 
             XCTAssertEqual(resolved, bridgeDirectory)
         }
@@ -190,7 +190,7 @@ final class KeyFlowMacTests: XCTestCase {
             try FileManager.default.createDirectory(at: bridgeDirectory, withIntermediateDirectories: true)
             FileManager.default.createFile(atPath: bridgeDirectory.appendingPathComponent("bridge-cli.js").path, contents: Data())
 
-            let resolved = CodexBridgeClient.bundledBridgeDirectory(resourcesURL: directory)
+            let resolved = KeyFlowBridgeClient.bundledBridgeDirectory(resourcesURL: directory)
 
             XCTAssertEqual(resolved, bridgeDirectory)
         }
@@ -200,6 +200,6 @@ final class KeyFlowMacTests: XCTestCase {
         let missingDirectory = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
 
-        XCTAssertNil(CodexBridgeClient.validatedWorkingDirectory(missingDirectory))
+        XCTAssertNil(KeyFlowBridgeClient.validatedWorkingDirectory(missingDirectory))
     }
 }
