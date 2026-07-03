@@ -7,7 +7,7 @@
 ███████║█████╗   ╚████╔╝ █████╗  ██║     ██║   ██║██║ █╗ ██║
 ██╔══██║██╔══╝    ╚██╔╝  ██╔══╝  ██║     ██║   ██║██║███╗██║
 ██║  ██║███████╗   ██║   ██║     ███████╗╚██████╔╝╚███╔███╔╝
-╚═╝  ╚═╝╚══════╝   ╚═╝   ╚═╝     ╚══════╝ ╚═════╝  ╚══╝╚══╝ 
+╚═╝  ╚═╝╚══════╝   ╚═╝   ╚═╝     ╚══════╝ ╚═════╝  ╚══╝╚══╝
   </pre>
 </p>
 
@@ -15,127 +15,123 @@
   <img src="https://img.shields.io/badge/platform-macOS-blue.svg?style=flat-square" alt="Platform: macOS" />
   <img src="https://img.shields.io/badge/runtime-Bun%20%3E%3D%201.2-orange.svg?style=flat-square" alt="Runtime: Bun" />
   <img src="https://img.shields.io/badge/license-MIT-green.svg?style=flat-square" alt="License: MIT" />
-  <img src="https://img.shields.io/badge/design-Google%20design.md%20compliant-blueviolet.svg?style=flat-square" alt="Design: design.md Compliant" />
 </p>
 
-KeyFlow is a premium, macOS-native utility designed to manage and hot-swap multiple OpenAI Codex credential profiles. It bridges a high-performance, asynchronous TypeScript CLI engine with a lightweight, semi-transparent SwiftUI Status Bar application to deliver seamless session management, real-time rate limit tracking, and automatic token refreshes.
+KeyFlow is a macOS-native utility for managing and hot-swapping multiple OpenAI Codex credential profiles. It pairs an asynchronous TypeScript/Bun CLI engine with a lightweight SwiftUI status bar app to deliver 1-click session switching, live rate-limit tracking, and automatic token refresh.
 
 ---
 
-## 🗺️ System Architecture
+## Why KeyFlow
 
-KeyFlow utilizes a robust IPC bridge pattern to isolate OS-level interface components from core credential operations:
+The official Codex Desktop app only supports one signed-in account at a time. Developers juggling multiple ChatGPT accounts (Plus, Team, Enterprise) to spread out rate limits have to manually log out and back in — disruptive and error-prone. KeyFlow keeps every account's credentials in an isolated local profile and hot-swaps the active one in a click, from either the CLI or the menu bar.
+
+---
+
+## System Architecture
 
 ```mermaid
 graph TD
-    A[macOS Status Bar App] -->|IPC Bridge Execution| B(kfl-bridge Binary)
-    B -->|Calls Service Layer| C[Profile & Session Services]
+    A[macOS Status Bar App] -->|IPC over stdio, JSON| B(kfl-bridge binary)
+    B -->|Calls service layer| C[Profile & Session Services]
     C -->|Read/Write 0600| D[~/.keyflow/state.json]
     C -->|Read/Write 0600| E[~/.keyflow/profiles/.../auth.json]
-    C -->|Hot Swap Session| F[~/.codex/auth.json]
-    C -->|Auto Refresh | G[OpenAI API Endpoint]
+    C -->|Hot-swap session| F[~/.codex/auth.json]
+    C -->|Refresh tokens / usage| G[OpenAI API]
 ```
+
+The Swift app never touches credentials directly — every read/write goes through the `kfl-bridge` binary over a JSON IPC contract, keeping the two codebases decoupled.
 
 ---
 
-## 🚀 Installation & Building
+## Installation & Building
 
 ### 1. Prerequisites
-KeyFlow requires **macOS**, **Xcode Command Line Tools** (for compiling the Swift frontend), and **Bun** (version 1.2+):
-```bash
-# Check Xcode developer command line tool
-xcode-select -p
 
-# Check Bun runtime
+macOS, Xcode Command Line Tools (for the Swift frontend), and Bun 1.2+:
+
+```bash
+xcode-select -p
 bun --version
 ```
 
+> [!NOTE]
+> Running the `apps/macos` test target (`swift test`) requires a full Xcode.app install, not just Command Line Tools — the `XCTest` module isn't bundled with CLT alone.
+
 ### 2. Development Setup
+
 ```bash
-# Clone the repository
 git clone https://github.com/hbui290/keyflow.git
 cd keyflow
-
-# Install node dependencies
 bun install
 ```
 
 ### 3. Unified Commands
-All compilation, testing, and packaging scripts are standardized directly inside `package.json`:
 
-* **Compile Codebases**:
-  ```bash
-  bun run build
-  ```
-  *This compiles the TypeScript bridge and Xcode Swift sources into a standalone app bundle at `dist/KeyFlow.app`.*
-  > [!NOTE]
-  > The application is compiled with an ad-hoc codesign signature (`codesign -s -`). It runs locally out-of-the-box. If copied to another Mac, macOS Gatekeeper may block execution; you will need to allow it under Security & Privacy settings or sign it with a valid Apple Developer Account.
+All compilation, testing, and packaging scripts are defined in `package.json`:
 
-* **Execute Unit Tests**:
-  ```bash
-  bun run test
-  ```
-  *Runs the Bun unit tests verifying credentials parsing, state sanitization, and JWT extraction.*
+| Script | What it does |
+| :--- | :--- |
+| `bun run build` | Compiles the TypeScript CLI/bridge and builds the Swift app bundle into `dist/KeyFlow.app`. |
+| `bun run test` | Runs the Bun unit tests (`src/core/services.test.ts`). |
+| `bun run pack` | Packages `dist/KeyFlow.app` into an installable `dist/KeyFlow.dmg`. |
 
-* **Build installer DMG**:
-  ```bash
-  bun run pack
-  ```
-  *Generates a shareable installation package disk image at `dist/KeyFlow.dmg`.*
+> [!NOTE]
+> The app is signed ad-hoc (`codesign -s -`). It runs locally out of the box; if copied to another Mac, Gatekeeper may block it until allowed under Security & Privacy, or the app is signed with a real Apple Developer certificate.
 
 ---
 
-## 💻 CLI Commands (`kfl`)
+## CLI Commands (`kfl`)
 
-The TypeScript engine can be run directly using the compiled binary `dist/kfl`:
+Run directly from the compiled binary at `dist/kfl`:
 
 | Command | Description |
 | :--- | :--- |
-| `kfl add --label <name>` | Initiates a direct browser login flow to capture OpenAI session credentials. |
-| `kfl add --label <name> --device-auth` | Headless login using device-code authentication. |
-| `kfl use <id-or-label>` | Hot-swaps Codex configuration files and restarts Codex Desktop. |
-| `kfl remove <id-or-label> [--purge]` | Deletes profile metadata and optionally purges auth files. |
-| `kfl relogin <id-or-label> [--device-auth]` | Re-runs ChatGPT browser login (or device auth) to refresh credentials. |
-| `kfl prime [--account <id-or-label>]` | Primes the 5-hour ChatGPT session by sending a minimal background message. |
-| `kfl status [--json]` | Prints active session health, plan type, and token validity. |
-| `kfl refresh [--all]` | Manually triggers rate-limit token refresh calls. |
-| `kfl doctor` | Runs diagnostics checks on directories, file permissions, and active configurations. |
-| `kfl link-current` | Automatically registers and backups the pre-existing `~/.codex/auth.json`. |
+| `kfl add --label <name> [--device-auth]` | Adds an account via browser login, or headless device-code auth with `--device-auth`. |
+| `kfl use <id-or-label>` | Hot-swaps Codex's credentials to this account and restarts Codex Desktop. |
+| `kfl relogin <id-or-label> [--device-auth]` | Re-authenticates an account whose token has expired. |
+| `kfl remove <id-or-label> [--purge]` | Removes an account; `--purge` also deletes its cached profile directory. |
+| `kfl prime [--account <id-or-label>]` | Sends a minimal background message to keep the 5-hour session window active. |
+| `kfl status [--json]` | Prints active account, usage, and link health. |
+| `kfl refresh [--all]` | Manually refreshes usage/rate-limit data for the active account, or all of them. |
+| `kfl doctor` | Runs environment diagnostics (Codex install, directory permissions, active links). |
+| `kfl link-current` | Imports whatever account is currently logged into `~/.codex/auth.json` as a new profile. |
 
 ---
 
-## 🔒 Storage & Security (POSIX Compliance)
+## Storage & Security
 
-KeyFlow takes security seriously and isolates profiles strictly inside the user's home directory:
-* **Storage Root**: `~/.keyflow/` (Created with **`0700`** directory permissions to deny external group reads).
-* **Metadata State**: `~/.keyflow/state.json` (Stores local credentials metadata, written using **`0600`** permissions).
-* **Backups**: `~/.keyflow/backups/` (Hosts encrypted Codex session history backups).
+KeyFlow keeps every credential inside the user's home directory, never in the repo or a shared location:
 
-*Never commit directories under `~/.keyflow/` or any generated `auth.json` files to Git.*
+* **`~/.keyflow/`** — root directory, created with `0700` permissions (owner-only access).
+* **`~/.keyflow/state.json`** — account metadata, written with `0600` permissions.
+* **`~/.keyflow/profiles/<id>/auth.json`** — per-account credentials, `0600`.
+* **`~/.keyflow/backups/`** — timestamped snapshots of Codex's active `auth.json`, taken before every switch. These are plain files protected by filesystem permissions, not encrypted — treat the directory itself as sensitive.
 
----
-
-## 🎨 Visual Identity
-
-The interface is engineered to adhere to Apple's Human Interface Guidelines (HIG):
-* **Monochrome Stencil Icon**: Uses a solid rounded rectangle with a `.destinationOut` blend mask đục lỗ to let macOS background gradients shine through the logo glyph.
-* **Frosty Glasspopover**: Displays metadata lists using a `0.75` opacity native translucent surface.
-* **GlowProgressBar**: Reflects weekly usage percent using glow effect progress bars matching account plan tiers.
-
-Contrast parameters are validated to be **WCAG AA Compliant** (`warnings: 0`) using the Google Labs Design Linter.
+Never commit anything under `~/.keyflow/`, or any `auth.json`/`state.json`, to version control.
 
 ---
 
-## 📖 Specifications Index
+## Visual Identity
 
-For complete developer specs and architectural decisions, explore:
-* [**`docs/PRODUCT.md`**](docs/PRODUCT.md): Detailed product statement, persona definitions, and design goals.
-* [**`docs/USERFLOW.md`**](docs/USERFLOW.md): Sequence diagrams mapping Add, Switch, Sync, and Quota Refresh operations.
-* [**`docs/DESIGN.md`**](docs/DESIGN.md): Normalized design tokens, layouts, colors, and typography rules.
-* [**`AGENTS.md`**](AGENTS.md): Repository instructions and constraints for developer AI agents.
+The interface follows Apple's Human Interface Guidelines for status bar apps:
+
+* **Monochrome stencil icon** — a solid rounded rectangle with a `.destinationOut` blend mask cutting out the glyph, so the menu bar's own background shows through instead of a hardcoded color.
+* **Translucent popover** — metadata lists sit on a `0.75`-opacity native vibrancy surface.
+* **Glow progress bars** — usage meters render with a soft glow, colored by plan tier and remaining quota.
+
+Full design tokens (colors, type scale, spacing, component specs) live in [`docs/DESIGN.md`](docs/DESIGN.md).
 
 ---
 
-## 📄 License
+## Documentation
+
+* [`docs/PRODUCT.md`](docs/PRODUCT.md) — product vision, target users, architecture, feature set.
+* [`docs/USERFLOW.md`](docs/USERFLOW.md) — sequence diagrams for Add, Switch, Sync, Re-login, and Usage Refresh.
+* [`docs/DESIGN.md`](docs/DESIGN.md) — design tokens: colors, typography, spacing, component rules.
+* [`AGENTS.md`](AGENTS.md) — build/test/validation rules for anyone (human or AI) contributing code.
+
+---
+
+## License
 
 KeyFlow is distributed under the MIT License. See [LICENSE](LICENSE) for details.

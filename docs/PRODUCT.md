@@ -1,89 +1,80 @@
-# Product Requirement Document (PRD) - Codex Switch (KeyFlow)
+# Product Overview — KeyFlow
 
 ## 1. Overview & Vision
 
-**Codex Switch** (commercially branded as **KeyFlow**) is a professional multi-account management solution built for developers using the Codex Desktop app (ChatGPT client) on macOS.
+**KeyFlow** is a multi-account credential manager for the Codex Desktop app (ChatGPT client) on macOS.
 
-Many developers own multiple ChatGPT accounts (Plus, Team, Enterprise) to optimize message rate limits. However, the official Codex Desktop app does not support account switching, forcing users to manually log out and log back in, which is highly disruptive to their workflow.
+Developers who own multiple ChatGPT accounts (Plus, Team, Enterprise) to spread out message rate limits run into a hard limitation: Codex Desktop only supports one signed-in account at a time, forcing a manual log-out/log-back-in cycle every time they want to switch — disruptive and easy to get wrong.
 
-**Codex Switch** addresses this pain point by providing a seamless, 1-click account switching mechanism accessible via two interfaces:
-* **CLI (Command Line Interface)**: For terminal-heavy developers who prefer quick commands.
-* **Native macOS Status Bar App (KeyFlowMac)**: A premium macOS menu bar app that runs silently in the background, offering instant diagnostics and a fluid switching interface.
+KeyFlow solves this with a 1-click account-switching mechanism, accessible through two interfaces:
+
+* **CLI (`kfl`)** — for terminal-first workflows.
+* **Native macOS status bar app (KeyFlowMac)** — runs silently in the background, offering at-a-glance diagnostics and one-click switching.
 
 ---
 
 ## 2. Target Users & Use Cases
 
-* **Target Audience**: Software engineers and developers who heavily rely on ChatGPT/Codex in their daily macOS workflow and manage two or more accounts to bypass rate limits.
-* **Core Goals**:
-  * Identify which account is active (**In use**) and check its message quota (5H, Weekly) at a single glance.
-  * Switch accounts safely without losing the current session.
-  * Force-sync credentials from KeyFlow back to Codex when Codex gets logged out.
-  * Highlight account errors and request a **Re-login** visually and intuitively.
+* **Audience**: developers who rely on ChatGPT/Codex daily on macOS and manage two or more accounts to work around rate limits.
+* **Core goals**:
+  * See which account is active and its remaining quota (5-hour and weekly) at a glance.
+  * Switch accounts without losing the current session's other state.
+  * Force-resync credentials from KeyFlow back into Codex when Codex gets logged out from under it.
+  * Get a clear, visible warning when an account needs re-login, not a silent failure.
 
 ---
 
-## 3. Product Architecture & Core Tech Stack
+## 3. Architecture & Core Stack
 
-The project is split into two main layers connected via Inter-Process Communication (IPC):
+Two layers connected over a JSON IPC bridge:
 
-### 3.1 Backend Core (TypeScript / Bun)
-Handles system logic, file system operations, and OpenAI API endpoint interactions.
-* **ProfileService**: 
-  * Manages global app state in `state.json`.
-  * Sanitizes data structures via `sanitizeState()` to preserve new properties such as `rateLimitResets`.
-  * Manages isolated profile directories to store cookies and authentications.
-* **SessionService**:
-  * Overwrites Codex's active credentials in `auth.json` to swap sessions.
-  * Uses AppleScript to terminate and relaunch the Codex Desktop application (`restartCodexDesktopApp`) to immediately apply the new cached session on RAM.
-* **UsageService**:
-  * Fetches 5-hour and Weekly message usage snapshots in parallel.
-  * Queries OpenAI's `/backend-api/wham/rate-limit-reset-credits` endpoint to retrieve available rate limit reset credits (`rateLimitResets`).
+### 3.1 Backend (TypeScript / Bun)
 
-### 3.2 Frontend Layer (Swift / SwiftUI - KeyFlowMac)
-A native macOS status bar app:
-* **KeyFlowBridgeClient**: Handles IPC communications to execute the Bun CLI and parse returning JSON payloads.
-* **Popover View**: 
-  * **MenuHeaderView**: The top panel displaying the active account, email, **`In use`** status, and available **`resets`**. Contains quick action buttons (Refresh, Add, Settings, Power).
-  * **Usage Section**: Renders two glowing progress bars representing 5H and Weekly usage quotas along with precise reset timestamps.
-  * **Metadata Section**: A clean, balanced key-value grid showing synchronization time (`SYNCED`), account plan (`PLAN`), and rate limit credits (`RESETS`).
-  * **ScrollView List**: Lists inactive accounts for quick switching. Automatically hides in single-account mode to keep the interface compact.
-* **Manager Window**: A full management interface featuring an account list sidebar and a detailed Diagnostics view (network checks, token health, Codex linkage status, etc.).
+Owns all filesystem and OpenAI API interaction.
+
+* **ProfileService** — manages global state (`state.json`) behind a file lock (`state.lock`) to prevent concurrent writers (CLI + background app timer) from corrupting it; sanitizes every read/write through `sanitizeState()`.
+* **SessionService** — overwrites Codex's active `auth.json` to switch sessions, then quits and relaunches Codex Desktop via AppleScript so the new session loads into memory. Takes a timestamped backup of the previous `auth.json` before every overwrite.
+* **UsageService** — fetches 5-hour and weekly usage in a single request to OpenAI's usage endpoint, then makes a second request to `/backend-api/wham/rate-limit-reset-credits` for available rate-limit reset credits.
+
+### 3.2 Frontend (Swift / SwiftUI — KeyFlowMac)
+
+* **KeyFlowBridgeClient** — spawns the `kfl-bridge` binary per request and decodes its JSON response; never talks to the filesystem or OpenAI directly.
+* **Popover** (`MenuHeaderView` + `AccountRowView`) — shows the active account, its "In use" status, remaining resets, and two glow progress bars for 5H/weekly usage, plus quick actions (Refresh, Add, Settings, Quit). Inactive accounts list below, hidden entirely in single-account mode.
+* **Manager window** — full account list with a detail pane covering usage, plan, reset credits, and a diagnostics report (Codex binary presence, directory permissions, link health).
 
 ---
 
 ## 4. Key Product Features
 
-### 4.1 Multi-profile Management
-* Add new accounts via standard cookie extraction or advanced Device Authentication.
-* Assign custom labels to profiles for easy identification.
-* Automatically generate unique signatures (`authSignature`) based on login tokens to prevent duplicate profiles.
+### 4.1 Multi-profile management
 
-### 4.2 1-Click Fast Switching
-* Clicking an inactive account in the Popover or Manager triggers a background session swap and restarts Codex.app.
-* Disables interaction buttons during transit to ensure asynchronous background operations complete safely without file conflicts.
+Add accounts via browser login or device-code auth; assign custom labels; each account gets a unique `authSignature` computed from its token, so logging the same account in twice updates the existing profile instead of creating a duplicate.
 
-### 4.3 Active Codex Syncing (Sync to Codex)
-* Detects when Codex gets logged out (missing `auth.json`) and presents a prominent warning banner or upgrades the switch button to **`Sync to Codex`**.
-* Restores Codex credentials instantly with one click, without requiring the user to re-enter credentials.
+### 4.2 1-click switching
 
-### 4.4 Diagnostics & Re-login
-* Marks profiles as `relogin_required` immediately upon detecting expired tokens, revoked cookies, or invalid sessions.
-* Displays a warning banner with a **`Re-login`** button, prompting the user to complete authentication in a browser or terminal window.
+Clicking an inactive account swaps the session in the background and restarts Codex. UI interactions are disabled for the duration of the switch to avoid overlapping file operations.
 
-### 4.5 Rate-limit Reset Credits Tracking
-* Tracks and displays available rate limit reset credits (e.g., "2 resets").
-* Allows users to make informed switching decisions before current account limits are reached.
+### 4.3 Sync to Codex
+
+If Codex loses its credentials (its `auth.json` goes missing or stops matching KeyFlow's active account) while KeyFlow still holds a valid session for that account, the active row surfaces a critical-accent warning and its action button becomes **Sync to Codex** — restoring the session with one click, no re-authentication needed.
+
+### 4.4 Diagnostics & re-login
+
+An account is marked `relogin_required` as soon as its token is detected as expired or revoked. The UI surfaces this with a warning color and a **Re-login** action that opens a browser or device-code flow.
+
+### 4.5 Rate-limit reset tracking
+
+Displays available rate-limit reset credits (e.g. "2 resets") so users can decide whether to switch accounts or spend a reset before hitting a wall.
 
 ---
 
 ## 5. Do's and Don'ts
 
-* **Do's**:
-  * Prioritize "Glanceability". The menu bar UI should display core usage data clearly and concisely.
-  * Maintain clean state file writing; always filter properties using `sanitizeState()`.
-  * Ensure session syncing is safe; always create a backup (`backupPath`) before overwriting Codex's credentials.
-* **Don'ts**:
-  * Do not display redundant information (such as duplicate emails on adjacent lines).
-  * Do not leave irregular empty spaces between labels and values; align elements left-justified in a clean column.
-  * Do not leak sensitive tokens or account keys in logs or public interfaces.
+* **Do**
+  * Prioritize glanceability — the popover should communicate account health at a glance, not require reading.
+  * Route every state mutation through `sanitizeState()` so unknown/legacy fields don't silently corrupt the store.
+  * Back up (`backupPath`) before overwriting Codex's live credentials.
+* **Don't**
+  * Show redundant information (e.g. the same email twice on adjacent lines).
+  * Leave inconsistent spacing between labels and values — keep metadata columns left-aligned and fixed-width.
+  * Log or display tokens, cookies, or other credential material anywhere in the UI or console output.
