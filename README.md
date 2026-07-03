@@ -129,9 +129,9 @@ Contrast parameters are validated to be **WCAG AA Compliant** (`warnings: 0`) us
 ## 📖 Specifications Index
 
 For complete developer specs and architectural decisions, explore:
-* [**`PRODUCT.md`**](PRODUCT.md): Detailed product statement, persona definitions, and design goals.
-* [**`USERFLOW.md`**](USERFLOW.md): Sequence diagrams mapping Add, Switch, Sync, and Quota Refresh operations.
-* [**`DESIGN.md`**](DESIGN.md): Normalized design tokens, layouts, colors, and typography rules.
+* [**`docs/PRODUCT.md`**](docs/PRODUCT.md): Detailed product statement, persona definitions, and design goals.
+* [**`docs/USERFLOW.md`**](docs/USERFLOW.md): Sequence diagrams mapping Add, Switch, Sync, and Quota Refresh operations.
+* [**`docs/DESIGN.md`**](docs/DESIGN.md): Normalized design tokens, layouts, colors, and typography rules.
 * [**`AGENTS.md`**](AGENTS.md): Repository instructions and constraints for developer AI agents.
 
 ---

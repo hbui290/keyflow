@@ -51,9 +51,9 @@ To keep the repository clean and secure, strictly follow these constraints:
 
 ## 5. Design & Flow Alignment
 
-* **UI Consistency**: Every UI modification in the SwiftUI layout MUST adhere to tokens defined in [**`DESIGN.md`**](DESIGN.md).
+* **UI Consistency**: Every UI modification in the SwiftUI layout MUST adhere to tokens defined in [**`docs/DESIGN.md`**](docs/DESIGN.md).
 * **WCAG AA Compliance**: Keep contrast ratios between background and text colors above `4.5:1` as validated by the Google Labs `design.md` linter:
   ```bash
-  npx @google/design.md lint DESIGN.md
+  npx @google/design.md lint docs/DESIGN.md
   ```
-* **User Flows**: Ensure any modifications to account additions, switches, or recovery sequences conform to the Mermaid specifications documented in [**`USERFLOW.md`**](USERFLOW.md).
+* **User Flows**: Ensure any modifications to account additions, switches, or recovery sequences conform to the Mermaid specifications documented in [**`docs/USERFLOW.md`**](docs/USERFLOW.md).

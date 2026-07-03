@@ -5,6 +5,7 @@ node_modules/
 dist/
 
 # Local agents and config
+.agents
 .agents/
 .depwire/
 scratch/
