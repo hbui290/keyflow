@@ -64,7 +64,7 @@ components:
     rounded: "{rounded.sm}"
 ---
 
-# Design Specification - KeyFlow (Codex Switch)
+# Design Specification — KeyFlow
 
 ## Overview
 
@@ -84,7 +84,9 @@ Colors adapt dynamically between macOS **Light Mode** and **Dark Mode**:
 * **Critical Accent (`criticalAccent` / `#F87171`):** A warning red tone indicating unlinked configurations.
 * **Critical Dark (`criticalAccent-dark` / `#DC2626`):** Solid red background fill for high contrast layouts.
 * **Quiet Text (`quietText` / `#8E8E93`):** Neutral gray tones designated for uppercase labels and supplementary notes.
-* **Surface (`surface`):** Translucent background overlays representing standard macOS popover canvases.
+* **Surface (`surface`):** Translucent background overlays representing standard macOS popover canvases. In implementation this resolves to the system's dynamic `windowBackgroundColor` rather than the static `#1E1E1E` token, so it adapts automatically between Light and Dark Mode — the token value documents the dark-mode baseline this was designed against.
+
+> **Note on accent hues**: `KeyFlowBridgeClient`/`Views.swift` render `primary` and `primary-dark` using `NSColor` matched against the system appearance (Apple's system blue, `#007AFF`/`#0A84FF`) rather than these exact hex values. The two are visually near-identical; the tokens above capture design intent, not a pixel-exact runtime guarantee.
 
 ---
 
