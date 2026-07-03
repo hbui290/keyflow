@@ -94,7 +94,7 @@ if [[ ! -x "$BRIDGE_DIR/kfl-bridge" ]]; then
 fi
 
 if command -v codesign >/dev/null 2>&1; then
-  codesign --force --deep --sign - "$APP_BUNDLE" >/dev/null 2>&1 || echo "[warn] codesign ad-hoc failed — app vẫn chạy local, Gatekeeper có thể chặn khi copy máy khác"
+  codesign --force --deep --sign - "$APP_BUNDLE" >/dev/null 2>&1 || echo "[warn] ad-hoc codesign failed — the app still runs locally, but Gatekeeper may block it on other machines"
 fi
 
 # Clean up temporary icon build directory

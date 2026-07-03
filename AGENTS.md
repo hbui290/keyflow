@@ -44,7 +44,7 @@ Before considering any implementation complete, verify with the test suites:
 ## 4. Repository Hygiene
 
 * **Never commit**: build outputs or caches (`dist/`, `node_modules/`, `.build/`), generated `.dmg`/`.app` bundles, or anything containing real credentials (`auth.json`, `state.json`, real profile directories).
-* **Mock data**: use artificial tokens and email templates (e.g. `allfr.esh2132@gmail.com`) in all test fixtures — never real accounts.
+* **Mock data**: use artificial tokens and `@example.com` email addresses (e.g. `mock@example.com`) in all test fixtures — never real accounts.
 * **Docs**: product/UX/design specs live under `docs/`; `AGENTS.md` and `README.md` stay at the repo root by convention (agent tooling and GitHub both expect them there).
 
 ---

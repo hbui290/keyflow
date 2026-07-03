@@ -74,6 +74,6 @@ The Swift app never touches credentials directly — every read/write goes throu
 
 ## Releasing
 
-1. `bun run build && bun run pack` — produces `dist/KeyFlow.dmg`.
-2. Create a GitHub Release and attach the DMG as an asset — build outputs are gitignored and never committed.
-3. Follow [`GITHUB_RELEASE.md`](GITHUB_RELEASE.md) for release-notes content and repository metadata.
+1. Bump `CFBundleShortVersionString` in `apps/macos/Info.plist` and `version` in `package.json` to the new release version.
+2. `bun run build && bun run pack` — produces `dist/KeyFlow.dmg`.
+3. Create a GitHub Release for the version tag and attach the DMG as an asset — build outputs are gitignored and never committed.
