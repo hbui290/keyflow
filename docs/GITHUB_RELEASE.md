@@ -35,7 +35,7 @@ We are excited to announce the initial release of **KeyFlow** (Codex Switch), a 
 - **Fluid Status Bar App**: Runs silently in the macOS menu bar, showing active account usage metrics at a glance.
 - **Fast CLI Command (`kfl`)**: Quick profile switching and session refresh commands designed for terminal-heavy workflows.
 - **Automatic Token Rotation**: Automatically rotates expired tokens and syncs credentials back to Codex.
-- **Auto-Priming Engine**: Bypasses the ChatGPT Pro 5-hour rate limits automatically with a background request loop.
+- **Auto-Priming Engine**: Keeps the 5-hour ChatGPT session window active by sending a minimal background message when the quota resets.
 - **Zero-Dependency Bundle**: App installer DMG comes bundled with all necessary binaries. No Node.js or Bun installation is required on the user's system.
 - **POSIX Compliant Security**: Restricts directory and configuration permissions (`0700` and `0600`) to guarantee data safety.
 
