@@ -30,7 +30,11 @@ export class UsageService {
       const config = await fs.readFile(configPath, 'utf8')
       const match = config.match(/^\s*chatgpt_base_url\s*=\s*["']?([^"'\s]+)["']?/m)
       if (match && match[1]) base = match[1].trim()
-    } catch {}
+    } catch (err: any) {
+      if (err?.code !== 'ENOENT') {
+        console.warn(`[keyflow] Could not read config.toml for usage URL: ${err?.message ?? err}`)
+      }
+    }
 
     let trimmed = base.trim()
     while (trimmed.endsWith('/')) trimmed = trimmed.slice(0, -1)
@@ -86,8 +90,8 @@ export class UsageService {
       if (tokens.refreshToken && (ageMs > 45 * 60 * 1000 || !tokens.lastRefresh)) {
         try {
           tokens = await SessionService.refreshTokens(tokens)
-        } catch (e: any) {
-          // Silent catch to fallback to old token if network is temporarily down
+        } catch (refreshErr: any) {
+          console.warn(`[keyflow] Token refresh failed, proceeding with current token: ${refreshErr?.message ?? refreshErr}`)
         }
       }
 
@@ -192,7 +196,9 @@ export class UsageService {
         const json = JSON.parse(raw)
         const tokens = SessionService.extractAuthTokens(authPath, json)
         targetEmail = SessionService.extractEmailFromIdToken(tokens.idToken)
-      } catch {}
+      } catch (emailErr: any) {
+        console.warn(`[keyflow] Could not extract email for session log fallback: ${emailErr?.message ?? emailErr}`)
+      }
 
       const fallback = await this.fetchLatestUsageFromSessions(targetEmail)
       if (fallback) {
@@ -218,7 +224,10 @@ export class UsageService {
           .filter((e) => e.isDirectory())
           .map((e) => e.name)
           .sort((a, b) => b.localeCompare(a, 'en'))
-      } catch {
+      } catch (err: any) {
+        if (err?.code !== 'ENOENT') {
+          console.warn(`[keyflow] Failed to list session directory ${dir}: ${err?.message ?? err}`)
+        }
         return []
       }
     }
@@ -240,7 +249,9 @@ export class UsageService {
               const parsed = await this.scanLogFile(filePath, targetEmail)
               if (parsed) return parsed
             }
-          } catch {}
+          } catch (err: any) {
+            console.warn(`[keyflow] Failed to read session day directory ${path.join(sessionsRoot, year, month, day)}: ${err?.message ?? err}`)
+          }
         }
       }
     }
@@ -291,10 +302,16 @@ export class UsageService {
                 },
               }
             }
-          } catch {}
+          } catch (parseErr: any) {
+              console.warn(`[keyflow] Failed to parse session log entry in ${filePath}: ${parseErr?.message ?? parseErr}`)
+            }
         }
       }
-    } catch {}
+    } catch (err: any) {
+      if (err?.code !== 'ENOENT') {
+        console.warn(`[keyflow] Failed to scan session log file ${filePath}: ${err?.message ?? err}`)
+      }
+    }
     return null
   }
 }

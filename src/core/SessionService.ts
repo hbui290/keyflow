@@ -120,7 +120,11 @@ export class SessionService {
       for (const f of toDelete) {
         await fs.unlink(f.path)
       }
-    } catch {}
+    } catch (err: any) {
+      if (err?.code !== 'ENOENT') {
+        console.warn(`[keyflow] Failed to prune backups: ${err?.message ?? err}`)
+      }
+    }
   }
 
   static async switchToAccount(account: Account): Promise<SwitchResult> {
@@ -139,7 +143,10 @@ export class SessionService {
       backupPath = path.join(paths.backupsDir, `${new Date().toISOString().replace(/[:.]/g, '-')}-auth.json`)
       await ProfileService.copyPrivateFile(paths.codexAuthPath, backupPath)
       await this.pruneBackups(paths.backupsDir)
-    } catch {
+    } catch (err: any) {
+      if (err?.code !== 'ENOENT') {
+        console.warn(`[keyflow] Failed to back up current auth before switch: ${err?.message ?? err}`)
+      }
       backupPath = null
     }
 
@@ -267,7 +274,9 @@ export class SessionService {
           await ProfileService.writePrivateFile(paths.codexAuthPath, fileContent)
         }
       }
-    } catch {}
+    } catch (err: any) {
+      console.warn(`[keyflow] Failed to sync refreshed tokens to Codex auth: ${err?.message ?? err}`)
+    }
   }
 
   static async runCodexChatGptLogin(profileDir: string, options?: { mode?: 'browser' | 'device'; stdio?: 'inherit' | 'pipe'; timeoutMs?: number }) {

@@ -75,7 +75,11 @@ export class ProfileService {
               await fs.unlink(lockPath)
               continue
             }
-          } catch {}
+          } catch (staleErr: any) {
+            if (staleErr?.code !== 'ENOENT') {
+              console.warn(`[keyflow] Could not inspect stale lock file: ${staleErr?.message ?? staleErr}`)
+            }
+          }
           if (Date.now() - start > timeoutMs) {
             throw new Error(`Lock acquisition timeout for state.json. Lock file exists at: ${lockPath}`)
           }
@@ -91,7 +95,11 @@ export class ProfileService {
     const lockPath = path.join(SWITCH_HOME, 'state.lock')
     try {
       await fs.unlink(lockPath)
-    } catch {}
+    } catch (err: any) {
+      if (err?.code !== 'ENOENT') {
+        console.warn(`[keyflow] Failed to release lock file: ${err?.message ?? err}`)
+      }
+    }
   }
 
   static buildEmptyState(): AppState {
@@ -107,14 +115,18 @@ export class ProfileService {
       const contents = await fs.readFile(STATE_PATH, 'utf8')
       try {
         await this.chmodPrivateFile(STATE_PATH)
-      } catch {}
+      } catch (chmodErr: any) {
+        console.warn(`[keyflow] Could not set permissions on state file: ${chmodErr?.message ?? chmodErr}`)
+      }
       const json = JSON.parse(contents)
       return this.sanitizeState(json)
     } catch (err: any) {
       if (err?.code === 'ENOENT') return this.buildEmptyState()
       try {
         await fs.copyFile(STATE_PATH, `${STATE_PATH}.corrupt-${Date.now()}`)
-      } catch {}
+      } catch (backupErr: any) {
+        console.warn(`[keyflow] Failed to back up corrupt state file: ${backupErr?.message ?? backupErr}`)
+      }
       throw new Error(`state.json unreadable (${err.message}). Backup saved, refusing to overwrite.`)
     }
   }
@@ -223,7 +235,8 @@ export class ProfileService {
       
       if (email && activeAccount.email === email) return true
       return activeAccount.authSignature === signature
-    } catch {
+    } catch (err: any) {
+      console.warn(`[keyflow] Codex link check failed: ${err?.message ?? err}`)
       return false
     }
   }
@@ -281,7 +294,11 @@ export class ProfileService {
     await this.copyPrivateFile(paths.codexAuthPath, profileAuthPath)
     try {
       await this.copyPrivateFile(sourceConfigPath, profileConfigPath)
-    } catch {}
+    } catch (err: any) {
+      if (err?.code !== 'ENOENT') {
+        console.warn(`[keyflow] Failed to copy config.toml to profile: ${err?.message ?? err}`)
+      }
+    }
   }
 
   static async ensureCurrentCodexLinked(preferredLabel = 'Current Codex', options?: { refreshUsage?: boolean }) {
@@ -297,7 +314,12 @@ export class ProfileService {
       const json = JSON.parse(raw)
       tokens = SessionService.extractAuthTokens(paths.codexAuthPath, json)
       SessionService.validateChatGptAuth(tokens)
-    } catch {
+    } catch (authReadErr: any) {
+      const isFileMissing = authReadErr?.code === 'ENOENT'
+      if (!isFileMissing) {
+        console.warn(`[keyflow] Codex auth read failed (not ENOENT): ${authReadErr?.message ?? authReadErr}`)
+      }
+
       try {
         const state = await this.readState()
         if (state.activeAccountId) {
@@ -312,15 +334,17 @@ export class ProfileService {
             }
           }
         }
-      } catch (dbErr) {
-        console.error('Failed to update active account status on auth read failure:', dbErr)
+      } catch (dbErr: any) {
+        console.error(`[keyflow] Failed to update active account status on auth read failure: ${dbErr?.message ?? dbErr}`)
       }
 
       return {
         linked: false,
         created: false,
         account: null,
-        warning: 'Current Codex account is not logged in yet.',
+        warning: isFileMissing
+          ? 'Current Codex account is not logged in yet.'
+          : `Codex auth file could not be read: ${authReadErr?.message ?? authReadErr}`,
       }
     }
 
