@@ -3,19 +3,27 @@ node_modules/
 
 # Build outputs
 dist/
+*.dmg
+*.app
 
-# Local agents and config
-.agents
-.agents/
-.depwire/
-scratch/
+# SwiftPM / Xcode
+.build/
+.swiftpm/
+.icon-build/
+xcuserdata/
+DerivedData/
+
+# Credentials & local state — never commit (see AGENTS.md)
+auth.json
+state.json
 .env
 .env.*
 
-# Logs and OS files
-*.log
-**/.DS_Store
+# Local tooling & scratch
+.agents
+.depwire/
+scratch/
 
-# SwiftPM / macOS build outputs
-.build/
-.icon-build/
+# Logs & OS files
+*.log
+.DS_Store
