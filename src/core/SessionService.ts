@@ -222,7 +222,8 @@ export class SessionService {
 
     if (!response.ok) {
       const body = await response.text()
-      throw new Error(`OAuth refresh failed (${response.status}): ${body}`)
+      const sanitizedBody = body.slice(0, 200).replace(/"access_token"\s*:\s*"[^"]*"/g, '"access_token":"[REDACTED]"').replace(/"refresh_token"\s*:\s*"[^"]*"/g, '"refresh_token":"[REDACTED]"')
+      throw new Error(`OAuth refresh failed (${response.status}): ${sanitizedBody}`)
     }
 
     const payload = (await response.json()) as Record<string, any>
@@ -346,8 +347,14 @@ export class SessionService {
           
           if (codeMatch) {
             const code = codeMatch[1];
-            const url = urlMatch ? urlMatch[1] : 'https://github.com/login/device';
+            const rawUrl = urlMatch ? urlMatch[1] : 'https://github.com/login/device';
             deviceAuthOpened = true;
+
+            // Validate code contains only expected characters (defense-in-depth)
+            if (!/^[A-Z0-9]{4}-[A-Z0-9]{4}$/i.test(code)) return;
+
+            // Validate URL scheme before opening (only allow https)
+            const url = rawUrl.startsWith('https://') ? rawUrl : 'https://github.com/login/device';
 
             // 1. Copy code to macOS Clipboard
             try {
@@ -361,9 +368,10 @@ export class SessionService {
               spawn('open', [url]);
             } catch (e) {}
 
-            // 3. Send system notification using AppleScript
+            // 3. Send system notification using AppleScript (escape to prevent injection)
             try {
-              const appleScript = `display notification "Device Code [${code}] has been copied to your clipboard. Enter it in the opened browser window." with title "KeyFlow Authentication"`;
+              const escapedCode = code.replace(/[\\"/]/g, '')
+              const appleScript = `display notification "Device Code [${escapedCode}] has been copied to your clipboard. Enter it in the opened browser window." with title "KeyFlow Authentication"`;
               spawn('osascript', ['-e', appleScript]);
             } catch (e) {}
           }

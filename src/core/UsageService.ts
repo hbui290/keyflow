@@ -56,14 +56,15 @@ export class UsageService {
       const response = await fetch(usageUrl, { headers, signal: controller.signal })
       if (!response.ok) {
         const body = await response.text()
+        const sanitizedBody = body.slice(0, 200).replace(/"access_token"\s*:\s*"[^"]*"/g, '"access_token":"[REDACTED]"').replace(/"refresh_token"\s*:\s*"[^"]*"/g, '"refresh_token":"[REDACTED]"')
         const isDeactivated = body.toLowerCase().includes('deactivated') || body.toLowerCase().includes('disabled')
         if (isDeactivated) {
-          throw new Error(`Account deactivated: ${body.slice(0, 200)}`)
+          throw new Error(`Account deactivated: ${sanitizedBody}`)
         }
         if (response.status === 401 || response.status === 403) {
           throw new Error('ChatGPT token expired or invalid. Re-login required.')
         }
-        throw new Error(`Usage API error (${response.status}): ${body.slice(0, 200)}`)
+        throw new Error(`Usage API error (${response.status}): ${sanitizedBody}`)
       }
 
       return (await response.json()) as UsageApiResponse

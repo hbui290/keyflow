@@ -130,6 +130,13 @@ export class ProfileService {
     }
   }
 
+  static isProfileDirSafe(profileDir: string): boolean {
+    if (!profileDir) return false
+    const normalized = path.normalize(profileDir)
+    if (normalized.includes('..') || normalized.includes('\0')) return false
+    return path.isAbsolute(normalized)
+  }
+
   static sanitizeState(raw: any): AppState {
     if (!raw || typeof raw !== 'object') return this.buildEmptyState()
     const candidate = raw as Partial<AppState>
@@ -192,7 +199,7 @@ export class ProfileService {
           },
         }
       })
-      .filter((account: Account) => Boolean(account.profileDir))
+      .filter((account: Account) => Boolean(account.profileDir) && this.isProfileDirSafe(account.profileDir))
 
     let activeAccountId = typeof candidate.activeAccountId === 'string' ? candidate.activeAccountId : null
     if (activeAccountId && !accounts.find((account: Account) => account.id === activeAccountId)) {
