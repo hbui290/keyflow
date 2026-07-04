@@ -27,3 +27,6 @@ scratch/
 # Logs & OS files
 *.log
 .DS_Store
+
+# Local superpowers planning
+docs/superpowers/
