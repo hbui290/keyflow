@@ -11,7 +11,6 @@ final class StatusBarController: NSObject, NSPopoverDelegate {
     private let openManager: @MainActor () -> Void
     private let hostingView: NSHostingView<AnyView>
     private let statusMenu: NSMenu
-    private let performanceMonitor = MenuPerformanceMonitor()
     private var openAtLoginMenuItem: NSMenuItem?
     private var localEventMonitor: Any?
     private var globalEventMonitor: Any?
@@ -41,7 +40,6 @@ final class StatusBarController: NSObject, NSPopoverDelegate {
             return
         }
 
-        performanceMonitor.markOpenRequested()
         updatePopoverContentSize()
 
         let anchorRect = NSRect(
@@ -171,9 +169,7 @@ final class StatusBarController: NSObject, NSPopoverDelegate {
                 openManagerWindow: { [weak self] in
                     self?.openManagerWindow(nil)
                 },
-                onAppear: { [weak self] in
-                    self?.performanceMonitor.menuContentDidAppear()
-                }
+                onAppear: {}
             )
             .environmentObject(model)
         )
@@ -253,16 +249,11 @@ final class StatusBarController: NSObject, NSPopoverDelegate {
 
     func popoverWillShow(_ notification: Notification) {
         updatePopoverContentSize()
-        performanceMonitor.menuWillShow()
     }
 
-    func popoverDidShow(_ notification: Notification) {
-        performanceMonitor.menuDidShow()
-    }
+    func popoverDidShow(_ notification: Notification) {}
 
-    func popoverWillClose(_ notification: Notification) {
-        performanceMonitor.menuWillClose()
-    }
+    func popoverWillClose(_ notification: Notification) {}
 }
 
 extension StatusBarController: NSMenuDelegate {

@@ -52,20 +52,7 @@ final class KeyFlowMacTests: XCTestCase {
         XCTAssertEqual(timeRemaining(until: now.addingTimeInterval(-30).timeIntervalSince1970, now: now), "now")
     }
 
-    func testMenuPerformanceMonitorIsDisabledByDefault() {
-        let configuration = MenuPerformanceConfiguration.fromEnvironment([:])
 
-        XCTAssertFalse(configuration.isEnabled)
-        XCTAssertEqual(configuration.mainThreadPingIntervalTicks, 8)
-    }
-
-    func testMenuPerformanceMonitorCanBeEnabledFromEnvironment() {
-        let configuration = MenuPerformanceConfiguration.fromEnvironment([
-            "CSW_ENABLE_MENU_PERF_MONITOR": "true",
-        ])
-
-        XCTAssertTrue(configuration.isEnabled)
-    }
 
     func testAppLaunchPolicyKeepsDockHiddenForStatusBarOnlyApp() {
         XCTAssertEqual(appLaunchActivationPolicy(), .accessory)
