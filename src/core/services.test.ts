@@ -43,7 +43,7 @@ describe('ProfileService & SessionService Unit Tests', () => {
     })
   })
 
-  describe('ProfileService.computeAuthSignature', () => {
+  describe('ProfileService.fingerprintAuth', () => {
     it('should compute stable signature based on idToken / email', () => {
       const tokens1 = {
         accessToken: 'access-1',
@@ -67,8 +67,8 @@ describe('ProfileService & SessionService Unit Tests', () => {
         raw: {},
       }
 
-      const sig1 = ProfileService.computeAuthSignature(tokens1)
-      const sig2 = ProfileService.computeAuthSignature(tokens2)
+      const sig1 = ProfileService.fingerprintAuth(tokens1)
+      const sig2 = ProfileService.fingerprintAuth(tokens2)
       expect(sig1).toBe(sig2) // Should match because email & accountId & authMode match
     })
   })
@@ -87,10 +87,10 @@ describe('ProfileService & SessionService Unit Tests', () => {
     })
   })
 
-  describe('SessionService.primeAccount', () => {
+  describe('SessionService.warmUpAccount', () => {
     it('should return success response when priming account', async () => {
-      const originalPrime = SessionService.primeAccount
-      SessionService.primeAccount = async (account) => ({
+      const originalPrime = SessionService.warmUpAccount
+      SessionService.warmUpAccount = async (account) => ({
         success: true,
         message: `Successfully primed session for account ${account.email ?? account.id}.`,
       })
@@ -103,21 +103,21 @@ describe('ProfileService & SessionService Unit Tests', () => {
       }
 
       try {
-        const result = await SessionService.primeAccount(mockAccount)
+        const result = await SessionService.warmUpAccount(mockAccount)
         expect(result.success).toBe(true)
         expect(result.message).toContain('Successfully primed session for account mock@example.com')
       } finally {
-        SessionService.primeAccount = originalPrime
+        SessionService.warmUpAccount = originalPrime
       }
     })
   })
 
-  describe('ProfileService.ensureCurrentCodexLinked matching logic', () => {
+  describe('ProfileService.reconcileActiveCodex matching logic', () => {
     it('should match existing account by email even if authSignature is different', async () => {
       const originalReadState = ProfileService.readState
       const originalWriteState = ProfileService.writeState
       const originalGetPaths = ProfileService.getPaths
-      const originalSync = ProfileService.syncCurrentCodexFilesToProfile
+      const originalSync = ProfileService.syncCodexProfile
       const originalReadAuth = SessionService.readAuthFile
       const originalResolve = UsageService.resolveUsageSnapshot
 
@@ -154,7 +154,7 @@ describe('ProfileService & SessionService Unit Tests', () => {
         statePath: path.join(testDir, 'state.json'),
       })
 
-      ProfileService.syncCurrentCodexFilesToProfile = async () => {}
+      ProfileService.syncCodexProfile = async () => {}
 
       SessionService.readAuthFile = async () => ({
         authPath: codexAuthPath,
@@ -180,7 +180,7 @@ describe('ProfileService & SessionService Unit Tests', () => {
           }
         }))
 
-        const result = await ProfileService.ensureCurrentCodexLinked()
+        const result = await ProfileService.reconcileActiveCodex()
         expect(result.linked).toBe(true)
         expect(result.created).toBe(false)
         expect(result.account?.id).toBe('acc-old')
@@ -191,7 +191,7 @@ describe('ProfileService & SessionService Unit Tests', () => {
         ProfileService.readState = originalReadState
         ProfileService.writeState = originalWriteState
         ProfileService.getPaths = originalGetPaths
-        ProfileService.syncCurrentCodexFilesToProfile = originalSync
+        ProfileService.syncCodexProfile = originalSync
         SessionService.readAuthFile = originalReadAuth
         UsageService.resolveUsageSnapshot = originalResolve
         try {

@@ -8,8 +8,8 @@ const REFRESH_ENDPOINT = 'https://auth.openai.com/oauth/token'
 const REFRESH_CLIENT_ID = 'app_EMoamEEZ73f0CkXaXp7hrann'
 const CHATGPT_LOGIN_CONFIG = ['-c', 'forced_login_method="chatgpt"', '-c', 'cli_auth_credentials_store="file"'] as const
 const LOGIN_TIMEOUT_MS = 2 * 60 * 1000
-const LOGIN_AUTH_POLL_MS = 500
-const MAX_LOGIN_OUTPUT_CHARS = 20_000
+const LOGIN_POLL_MS = 500
+const LOGIN_MAX_CHARS = 20_000
 const CODEX_APP_PATH = '/Applications/Codex.app'
 const MACOS_CODEX_EXECUTABLE = '/Applications/Codex.app/Contents/Resources/codex'
 
@@ -24,7 +24,7 @@ export class SessionService {
     }
   }
 
-  static resolveCodexExecutable(env: NodeJS.ProcessEnv = process.env): string {
+  static locateCodex(env: NodeJS.ProcessEnv = process.env): string {
     const explicitPath = (env.KEYFLOW_CODEX_PATH || env.KFL_CODEX_PATH)?.trim()
     if (explicitPath && this.isExecutable(explicitPath)) return explicitPath
 
@@ -61,7 +61,7 @@ export class SessionService {
     })
   }
 
-  static async restartCodexDesktopApp() {
+  static async relaunchCodexApp() {
     if (process.platform !== 'darwin') return
     try {
       await fs.access(CODEX_APP_PATH)
@@ -144,9 +144,9 @@ export class SessionService {
     }
 
     await ProfileService.copyPrivateFile(sourceAuth, paths.codexAuthPath)
-    await this.restartCodexDesktopApp()
+    await this.relaunchCodexApp()
 
-    const statusResult = await this.runProcessAsync(this.resolveCodexExecutable(), ['login', 'status'])
+    const statusResult = await this.runProcessAsync(this.locateCodex(), ['login', 'status'])
     return {
       backupPath,
       codexStatusExitCode: statusResult.status ?? 1,
@@ -270,7 +270,7 @@ export class SessionService {
     } catch {}
   }
 
-  static async runCodexChatGptLogin(profileDir: string, options?: { mode?: 'browser' | 'device'; stdio?: 'inherit' | 'pipe'; timeoutMs?: number }) {
+  static async startCodexLogin(profileDir: string, options?: { mode?: 'browser' | 'device'; stdio?: 'inherit' | 'pipe'; timeoutMs?: number }) {
     const mode = options?.mode ?? 'browser'
     const stdio = options?.stdio ?? 'inherit'
     const timeoutMs = options?.timeoutMs ?? LOGIN_TIMEOUT_MS
@@ -286,7 +286,7 @@ export class SessionService {
       const args = ['login', ...CHATGPT_LOGIN_CONFIG]
       if (mode === 'device') args.push('--device-auth')
 
-      const result = spawn(this.resolveCodexExecutable(), args, {
+      const result = spawn(this.locateCodex(), args, {
         stdio: stdio === 'inherit' ? 'inherit' : ['pipe', 'pipe', 'pipe'],
         env: { ...process.env, CODEX_HOME: profileDir },
       })
@@ -337,7 +337,7 @@ export class SessionService {
       result.stderr?.setEncoding('utf8')
       result.stdout?.on('data', (chunk) => {
         const text = chunk.toString()
-        stdout = (stdout + text).slice(-MAX_LOGIN_OUTPUT_CHARS)
+        stdout = (stdout + text).slice(-LOGIN_MAX_CHARS)
 
         // Detect device authentication codes
         if (mode === 'device' && !deviceAuthOpened) {
@@ -370,7 +370,7 @@ export class SessionService {
         }
       })
       result.stderr?.on('data', (chunk) => {
-        stderr = (stderr + chunk).slice(-MAX_LOGIN_OUTPUT_CHARS)
+        stderr = (stderr + chunk).slice(-LOGIN_MAX_CHARS)
       })
 
       result.on('error', (err) => {
@@ -399,7 +399,7 @@ export class SessionService {
             isPollingAuth = false
           }
         })()
-      }, LOGIN_AUTH_POLL_MS)
+      }, LOGIN_POLL_MS)
 
       timeout = setTimeout(() => {
         void (async () => {
@@ -431,8 +431,8 @@ export class SessionService {
     }
   }
 
-  static async primeAccount(account: Account): Promise<{ success: boolean; message: string }> {
-    const codexExecutable = this.resolveCodexExecutable()
+  static async warmUpAccount(account: Account): Promise<{ success: boolean; message: string }> {
+    const codexExecutable = this.locateCodex()
     const args = ['exec', '--ephemeral', '--skip-git-repo-check', '--cd', '/tmp', 'echo']
 
     return new Promise((resolve, reject) => {

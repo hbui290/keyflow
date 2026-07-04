@@ -14,8 +14,8 @@ const BACKUPS_DIR = path.join(KEYFLOW_HOME, 'backups')
 const CODEX_HOME = path.join(os.homedir(), '.codex')
 const CODEX_AUTH_PATH = path.join(CODEX_HOME, 'auth.json')
 
-export const PRIVATE_DIR_MODE = 0o700
-export const PRIVATE_FILE_MODE = 0o600
+export const MODE_DIR_PRIVATE = 0o700
+export const MODE_FILE_PRIVATE = 0o600
 
 export class ProfileService {
   static getPaths() {
@@ -30,18 +30,18 @@ export class ProfileService {
   }
 
   static async ensurePrivateDir(dirPath: string) {
-    await fs.mkdir(dirPath, { recursive: true, mode: PRIVATE_DIR_MODE })
-    await fs.chmod(dirPath, PRIVATE_DIR_MODE)
+    await fs.mkdir(dirPath, { recursive: true, mode: MODE_DIR_PRIVATE })
+    await fs.chmod(dirPath, MODE_DIR_PRIVATE)
   }
 
   static async chmodPrivateFile(filePath: string) {
-    await fs.chmod(filePath, PRIVATE_FILE_MODE)
+    await fs.chmod(filePath, MODE_FILE_PRIVATE)
   }
 
   static async writePrivateFile(filePath: string, contents: string) {
     await this.ensurePrivateDir(path.dirname(filePath))
     const tmpPath = `${filePath}.${process.pid}.${randomUUID()}.tmp`
-    await fs.writeFile(tmpPath, contents, { mode: PRIVATE_FILE_MODE })
+    await fs.writeFile(tmpPath, contents, { mode: MODE_FILE_PRIVATE })
     await this.chmodPrivateFile(tmpPath)
     await fs.rename(tmpPath, filePath)
     await this.chmodPrivateFile(filePath)
@@ -53,7 +53,7 @@ export class ProfileService {
     await this.chmodPrivateFile(destinationPath)
   }
 
-  static async ensureSwitchDirs() {
+  static async ensureKeyFlowDirs() {
     await this.ensurePrivateDir(KEYFLOW_HOME)
     await this.ensurePrivateDir(PROFILES_DIR)
     await this.ensurePrivateDir(BACKUPS_DIR)
@@ -102,7 +102,7 @@ export class ProfileService {
   }
 
   static async readState(): Promise<AppState> {
-    await this.ensureSwitchDirs()
+    await this.ensureKeyFlowDirs()
     try {
       const contents = await fs.readFile(STATE_PATH, 'utf8')
       try {
@@ -120,7 +120,7 @@ export class ProfileService {
   }
 
   static async writeState(state: AppState) {
-    await this.ensureSwitchDirs()
+    await this.ensureKeyFlowDirs()
     const sanitized = this.sanitizeState(state)
     await this.acquireLock()
     try {
@@ -210,7 +210,7 @@ export class ProfileService {
     return state.accounts.find((account: Account) => account.id === state.activeAccountId) ?? state.accounts[0]
   }
 
-  static isCodexLinkedSync(activeAccount: Account | null): boolean {
+  static isCodexLinked(activeAccount: Account | null): boolean {
     if (!activeAccount) return false
     try {
       const paths = this.getPaths()
@@ -218,7 +218,7 @@ export class ProfileService {
       const raw = fsSync.readFileSync(paths.codexAuthPath, 'utf8')
       const json = JSON.parse(raw)
       const tokens = SessionService.extractAuthTokens(paths.codexAuthPath, json)
-      const signature = this.computeAuthSignature(tokens)
+      const signature = this.fingerprintAuth(tokens)
       const email = SessionService.extractEmailFromIdToken(tokens.idToken)
       
       if (email && activeAccount.email === email) return true
@@ -262,16 +262,16 @@ export class ProfileService {
     throw new Error(`Account "${identifier}" not found.`)
   }
 
-  static computeAuthSignature(tokens: AuthTokens) {
+  static fingerprintAuth(tokens: AuthTokens) {
     const email = SessionService.extractEmailFromIdToken(tokens.idToken)
-    const hasStableIdentity = Boolean(tokens.accountId || email)
-    const seed = hasStableIdentity
+    const isIdentityPinned = Boolean(tokens.accountId || email)
+    const seed = isIdentityPinned
       ? [tokens.authMode ?? '', tokens.accountId ?? '', email ?? ''].join('\n')
       : [tokens.authMode ?? '', tokens.accessToken].join('\n')
     return createHash('sha256').update(seed).digest('hex')
   }
 
-  static async syncCurrentCodexFilesToProfile(profileDir: string) {
+  static async syncCodexProfile(profileDir: string) {
     const paths = this.getPaths()
     const profileAuthPath = path.join(profileDir, 'auth.json')
     const profileConfigPath = path.join(profileDir, 'config.toml')
@@ -284,8 +284,8 @@ export class ProfileService {
     } catch {}
   }
 
-  static async ensureCurrentCodexLinked(preferredLabel = 'Current Codex', options?: { refreshUsage?: boolean }) {
-    await this.ensureSwitchDirs()
+  static async reconcileActiveCodex(preferredLabel = 'Current Codex', options?: { refreshUsage?: boolean }) {
+    await this.ensureKeyFlowDirs()
     const refreshUsage = options?.refreshUsage ?? true
 
     let tokens: AuthTokens
@@ -324,7 +324,7 @@ export class ProfileService {
       }
     }
 
-    const signature = this.computeAuthSignature(tokens)
+    const signature = this.fingerprintAuth(tokens)
     const email = SessionService.extractEmailFromIdToken(tokens.idToken)
     const state = await this.readState()
     const matched = state.accounts.find((account: Account) => {
@@ -333,7 +333,7 @@ export class ProfileService {
     })
 
     if (matched) {
-      await this.syncCurrentCodexFilesToProfile(matched.profileDir)
+      await this.syncCodexProfile(matched.profileDir)
       const usageResult = refreshUsage
         ? await UsageService.resolveUsageSnapshot(matched.profileDir)
         : { usage: matched.usage, warning: null }
@@ -345,11 +345,11 @@ export class ProfileService {
         newUsage.planType = matched.usage.planType ?? newUsage.planType
       }
 
-      const shouldPromoteLabel = matched.label === 'Current Codex' || matched.label === matched.email
+      const canAdoptLabel = matched.label === 'Current Codex' || matched.label === matched.email
       const nextMatched: Account = {
         ...matched,
         email: email ?? matched.email ?? null,
-        label: email && shouldPromoteLabel ? email : matched.label,
+        label: email && canAdoptLabel ? email : matched.label,
         authSignature: signature, // Update to the latest signature to prevent future mismatches
         updatedAt: refreshUsage ? Date.now() : matched.updatedAt,
         usage: newUsage,
@@ -374,7 +374,7 @@ export class ProfileService {
     const id = `${preferred.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${randomUUID().slice(0, 8)}`
     const profileDir = path.join(this.getPaths().profilesDir, id)
 
-    await this.syncCurrentCodexFilesToProfile(profileDir)
+    await this.syncCodexProfile(profileDir)
     const usageResult = refreshUsage
       ? await UsageService.resolveUsageSnapshot(profileDir)
       : { usage: UsageService.buildEmptyUsageSnapshot(), warning: null }
@@ -417,7 +417,7 @@ export class ProfileService {
     const trimmed = label.trim()
     if (!trimmed) throw new Error('Label is required.')
 
-    await this.ensureSwitchDirs()
+    await this.ensureKeyFlowDirs()
     const state = await this.readState()
     if (state.accounts.some((acc: Account) => acc.label.toLowerCase() === trimmed.toLowerCase())) {
       throw new Error(`An account with label "${trimmed}" already exists.`)
@@ -428,14 +428,14 @@ export class ProfileService {
     await this.ensurePrivateDir(profileDir)
 
     try {
-      await SessionService.runCodexChatGptLogin(profileDir, { mode: options?.loginMode, stdio: options?.loginStdio })
+      await SessionService.startCodexLogin(profileDir, { mode: options?.loginMode, stdio: options?.loginStdio })
       const { json } = await SessionService.readAuthFile(profileDir)
       const tokens = SessionService.extractAuthTokens(path.join(profileDir, 'auth.json'), json)
       SessionService.validateChatGptAuth(tokens)
       const usageResult = await UsageService.resolveUsageSnapshot(profileDir)
 
       const email = SessionService.extractEmailFromIdToken(tokens.idToken)
-      const authSignature = this.computeAuthSignature(tokens)
+      const authSignature = this.fingerprintAuth(tokens)
 
       const account: Account = {
         id,
@@ -515,7 +515,7 @@ export class ProfileService {
       throw new Error(`Account "${account.email ?? account.label}" is deactivated and cannot be re-logged in.`)
     }
 
-    await SessionService.runCodexChatGptLogin(account.profileDir, { mode: options?.loginMode, stdio: options?.loginStdio })
+    await SessionService.startCodexLogin(account.profileDir, { mode: options?.loginMode, stdio: options?.loginStdio })
     const { json } = await SessionService.readAuthFile(account.profileDir)
     const tokens = SessionService.extractAuthTokens(path.join(account.profileDir, 'auth.json'), json)
     SessionService.validateChatGptAuth(tokens)
@@ -524,7 +524,7 @@ export class ProfileService {
     const nextAccount: Account = {
       ...account,
       email: SessionService.extractEmailFromIdToken(tokens.idToken) ?? account.email,
-      authSignature: this.computeAuthSignature(tokens),
+      authSignature: this.fingerprintAuth(tokens),
       updatedAt: Date.now(),
       usage: usageResult.warning ? account.usage : usageResult.usage,
     }

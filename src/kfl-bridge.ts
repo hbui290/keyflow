@@ -75,7 +75,7 @@ export function buildBridgeStatusPayload(state: AppState): BridgeStatusPayload {
   const active = summary.accounts.find((account) => account.isActive) ?? null
 
   const activeRaw = active ? state.accounts.find(a => a.id === active.id) ?? null : null
-  const codexLinked = ProfileService.isCodexLinkedSync(activeRaw)
+  const codexLinked = ProfileService.isCodexLinked(activeRaw)
 
   return {
     generatedAt: Date.now(),
@@ -111,7 +111,7 @@ export async function bridgeStatus(): Promise<BridgeStatusPayload> {
 }
 
 export async function bridgeLinkCurrent(): Promise<BridgeLinkCurrentPayload> {
-  const result = await ProfileService.ensureCurrentCodexLinked()
+  const result = await ProfileService.reconcileActiveCodex()
   const state = await ProfileService.readState()
   const displayName = result.account?.email ?? result.account?.label ?? 'Current Codex'
 
@@ -136,7 +136,7 @@ export async function bridgeRefresh(options?: {
   all?: boolean
   accountId?: string
 }): Promise<BridgeActionPayload> {
-  const linkResult = await ProfileService.ensureCurrentCodexLinked(undefined, { refreshUsage: false })
+  const linkResult = await ProfileService.reconcileActiveCodex(undefined, { refreshUsage: false })
   const syncWarning = linkResult.warning
   let targetAccountId = options?.active ? undefined : options?.accountId
 
@@ -245,7 +245,7 @@ export async function bridgePrime(accountId?: string): Promise<BridgeActionPaylo
     throw new Error('No active account configured.')
   }
 
-  const result = await SessionService.primeAccount(targetAccount)
+  const result = await SessionService.warmUpAccount(targetAccount)
   const { state: nextState } = await ProfileService.refreshUsage({ accountId: targetAccount.id })
 
   return buildActionPayload(nextState, {

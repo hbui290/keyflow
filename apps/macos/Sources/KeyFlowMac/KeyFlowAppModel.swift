@@ -217,7 +217,7 @@ final class KeyFlowAppModel: ObservableObject {
         }
     }
 
-    func primeAccount(id: String) async {
+    func warmUpAccount(id: String) async {
         guard let bridge else { return }
         guard currentOperation == nil else { return }
         guard !accountsBeingPrimed.contains(id) else { return }
@@ -230,7 +230,7 @@ final class KeyFlowAppModel: ObservableObject {
         defer { currentOperation = nil }
 
         do {
-            let result = try await bridge.primeAccount(id: id)
+            let result = try await bridge.warmUpAccount(id: id)
             UserDefaults.standard.set(Date().timeIntervalSince1970, forKey: "lastPrimed_\(id)")
             applyStatus(result.state)
             if let warning = result.warning {
@@ -421,7 +421,7 @@ final class KeyFlowAppModel: ObservableObject {
                 )
                 
                 do {
-                    if let result = try await bridge?.primeAccount(id: account.id) {
+                    if let result = try await bridge?.warmUpAccount(id: account.id) {
                         applyStatus(result.state)
                         NotificationManager.shared.sendNotification(
                             title: "KeyFlow Auto-Primed", 

@@ -7,7 +7,7 @@ export async function runDoctor(): Promise<DoctorReport> {
   const checks: DoctorCheck[] = []
   const paths = ProfileService.getPaths()
 
-  const codexVersion = await SessionService.runProcessAsync(SessionService.resolveCodexExecutable(), ['--version'])
+  const codexVersion = await SessionService.runProcessAsync(SessionService.locateCodex(), ['--version'])
 
   checks.push({
     name: 'Codex Engine',
@@ -19,7 +19,7 @@ export async function runDoctor(): Promise<DoctorReport> {
   })
 
   try {
-    await ProfileService.ensureSwitchDirs()
+    await ProfileService.ensureKeyFlowDirs()
     checks.push({
       name: 'KeyFlow Data Dir',
       ok: true,

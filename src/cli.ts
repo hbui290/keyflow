@@ -59,7 +59,7 @@ async function main() {
   const readOnlyOrCleanupCmds = ['status', 'doctor', 'remove', 'help', 'bridge']
   const shouldSkipLink = isHelpRequest || isDefaultMode || isBridgeMode || readOnlyOrCleanupCmds.includes(argv[0])
   if (!shouldSkipLink) {
-    await ProfileService.ensureCurrentCodexLinked()
+    await ProfileService.reconcileActiveCodex()
   }
 
   if (isDefaultMode) {
@@ -253,7 +253,7 @@ async function main() {
       }
       console.log(`Sending priming request for ${displayAccountName(targetAccount)}...`)
       try {
-        const result = await SessionService.primeAccount(targetAccount)
+        const result = await SessionService.warmUpAccount(targetAccount)
         console.log(result.message)
       } catch (err: any) {
         console.error(`Error: ${err.message}`)
@@ -321,7 +321,7 @@ async function main() {
     .command('link-current')
     .description('Link currently logged-in Codex account from ~/.codex/auth.json')
     .action(async () => {
-      const result = await ProfileService.ensureCurrentCodexLinked()
+      const result = await ProfileService.reconcileActiveCodex()
       if (!result.linked || !result.account) {
         console.log(result.warning ?? 'Current Codex account is not available.')
         return

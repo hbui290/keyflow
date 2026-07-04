@@ -97,7 +97,7 @@ final class KeyFlowBridgeClient: @unchecked Sendable {
         try await run(["doctor"], as: BridgeDoctorPayload.self)
     }
 
-    func primeAccount(id: String?) async throws -> BridgeActionPayload {
+    func warmUpAccount(id: String?) async throws -> BridgeActionPayload {
         var arguments = ["prime"]
         if let id = id {
             arguments.append(contentsOf: ["--account", id])

@@ -7,7 +7,7 @@ import { SessionService } from './SessionService.js'
 const DEFAULT_CHATGPT_BASE = 'https://chatgpt.com/backend-api/'
 const CHATGPT_USAGE_PATH = '/wham/usage'
 const GENERIC_USAGE_PATH = '/api/codex/usage'
-const REQUEST_TIMEOUT_MS = 15_000
+const HTTP_TIMEOUT_MS = 15_000
 
 export class UsageService {
   static buildEmptyUsageSnapshot(): UsageSnapshot {
@@ -43,7 +43,7 @@ export class UsageService {
 
   static async fetchUsageFromApi(tokens: AuthTokens, usageUrl: string): Promise<UsageApiResponse> {
     const controller = new AbortController()
-    const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
+    const timeout = setTimeout(() => controller.abort(), HTTP_TIMEOUT_MS)
 
     try {
       const headers: Record<string, string> = {
