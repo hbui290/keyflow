@@ -369,7 +369,7 @@ final class KeyFlowBridgeClient: @unchecked Sendable {
         let fileManager = FileManager.default
         let env = ProcessInfo.processInfo.environment
 
-        if let explicit = env["KEYFLOW_REPO_ROOT"] ?? env["KFL_REPO_ROOT"] ?? env["CSW_REPO_ROOT"] ?? env["CODEX_SWITCH_REPO_ROOT"], !explicit.isEmpty {
+        if let explicit = env["KEYFLOW_REPO_ROOT"] ?? env["KFL_REPO_ROOT"], !explicit.isEmpty {
             let url = URL(fileURLWithPath: explicit)
             if isRepoRoot(url) {
                 return url

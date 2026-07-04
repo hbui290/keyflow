@@ -23,7 +23,7 @@ export async function runDoctor(): Promise<DoctorReport> {
     checks.push({
       name: 'KeyFlow Storage',
       ok: true,
-      details: `${paths.switchHome}`,
+      details: `${paths.keyflowHome}`,
     })
   } catch (error: any) {
     checks.push({

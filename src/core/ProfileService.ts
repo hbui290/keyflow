@@ -7,10 +7,10 @@ import type { Account, AppState, AuthTokens, UsageSnapshot } from './types.js'
 import { SessionService } from './SessionService.js'
 import { UsageService } from './UsageService.js'
 
-const SWITCH_HOME = path.join(os.homedir(), '.keyflow')
-const STATE_PATH = path.join(SWITCH_HOME, 'state.json')
-const PROFILES_DIR = path.join(SWITCH_HOME, 'profiles')
-const BACKUPS_DIR = path.join(SWITCH_HOME, 'backups')
+const KEYFLOW_HOME = path.join(os.homedir(), '.keyflow')
+const STATE_PATH = path.join(KEYFLOW_HOME, 'state.json')
+const PROFILES_DIR = path.join(KEYFLOW_HOME, 'profiles')
+const BACKUPS_DIR = path.join(KEYFLOW_HOME, 'backups')
 const CODEX_HOME = path.join(os.homedir(), '.codex')
 const CODEX_AUTH_PATH = path.join(CODEX_HOME, 'auth.json')
 
@@ -20,7 +20,7 @@ export const PRIVATE_FILE_MODE = 0o600
 export class ProfileService {
   static getPaths() {
     return {
-      switchHome: SWITCH_HOME,
+      keyflowHome: KEYFLOW_HOME,
       statePath: STATE_PATH,
       profilesDir: PROFILES_DIR,
       backupsDir: BACKUPS_DIR,
@@ -54,14 +54,14 @@ export class ProfileService {
   }
 
   static async ensureSwitchDirs() {
-    await this.ensurePrivateDir(SWITCH_HOME)
+    await this.ensurePrivateDir(KEYFLOW_HOME)
     await this.ensurePrivateDir(PROFILES_DIR)
     await this.ensurePrivateDir(BACKUPS_DIR)
   }
 
   static async acquireLock(retryMs = 100, timeoutMs = 5000): Promise<void> {
     const start = Date.now()
-    const lockPath = path.join(SWITCH_HOME, 'state.lock')
+    const lockPath = path.join(KEYFLOW_HOME, 'state.lock')
     while (true) {
       try {
         const handle = await fs.open(lockPath, 'wx')
@@ -88,7 +88,7 @@ export class ProfileService {
   }
 
   static async releaseLock(): Promise<void> {
-    const lockPath = path.join(SWITCH_HOME, 'state.lock')
+    const lockPath = path.join(KEYFLOW_HOME, 'state.lock')
     try {
       await fs.unlink(lockPath)
     } catch {}

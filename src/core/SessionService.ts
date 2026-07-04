@@ -25,7 +25,7 @@ export class SessionService {
   }
 
   static resolveCodexExecutable(env: NodeJS.ProcessEnv = process.env): string {
-    const explicitPath = (env.KEYFLOW_CODEX_PATH || env.KFL_CODEX_PATH || env.CSW_CODEX_PATH || env.CODEX_SWITCH_CODEX_PATH)?.trim()
+    const explicitPath = (env.KEYFLOW_CODEX_PATH || env.KFL_CODEX_PATH)?.trim()
     if (explicitPath && this.isExecutable(explicitPath)) return explicitPath
 
     const pathValue = env.PATH ?? ''

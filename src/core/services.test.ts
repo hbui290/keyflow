@@ -146,7 +146,7 @@ describe('ProfileService & SessionService Unit Tests', () => {
       const codexAuthPath = path.join(codexHome, 'auth.json')
 
       ProfileService.getPaths = () => ({
-        switchHome: testDir,
+        keyflowHome: testDir,
         backupsDir: path.join(testDir, 'backups'),
         codexHome,
         codexAuthPath,
