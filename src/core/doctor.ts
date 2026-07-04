@@ -21,13 +21,13 @@ export async function runDoctor(): Promise<DoctorReport> {
   try {
     await ProfileService.ensureSwitchDirs()
     checks.push({
-      name: 'KeyFlow Storage',
+      name: 'KeyFlow Data Dir',
       ok: true,
       details: `${paths.keyflowHome}`,
     })
   } catch (error: any) {
     checks.push({
-      name: 'KeyFlow Storage',
+      name: 'KeyFlow Data Dir',
       ok: false,
       details: (error as Error).message,
     })
@@ -36,9 +36,9 @@ export async function runDoctor(): Promise<DoctorReport> {
   try {
     const state = await ProfileService.readState()
     checks.push({
-      name: 'Accounts Database',
+      name: 'Accounts Store',
       ok: true,
-      details: `${state.accounts.length} account(s) tracked`,
+      details: `${state.accounts.length} profile(s) configured`,
     })
 
     for (const account of state.accounts) {
@@ -57,7 +57,7 @@ export async function runDoctor(): Promise<DoctorReport> {
         checks.push({
           name: `Account: ${account.label}`,
           ok: true,
-          details: `${tokens.authMode ?? 'chatgpt'} session active`,
+          details: `${tokens.authMode ?? 'chatgpt'} connection is active`,
         })
       } catch (error: any) {
         checks.push({
@@ -69,7 +69,7 @@ export async function runDoctor(): Promise<DoctorReport> {
     }
   } catch (error: any) {
     checks.push({
-      name: 'Accounts Database',
+      name: 'Accounts Store',
       ok: false,
       details: (error as Error).message,
     })

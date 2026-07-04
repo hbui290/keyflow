@@ -364,10 +364,10 @@ final class KeyFlowAppModel: ObservableObject {
             if showBanner {
                 banner = BannerState(
                     kind: report.hasFailures ? .warning : .success,
-                    message: report.hasFailures ? "Diagnostics found issues." : "Diagnostics look healthy."
+                    message: report.hasFailures ? "Some system checks failed." : "All system checks are green."
                 )
             } else if report.hasFailures {
-                banner = BannerState(kind: .warning, message: "Diagnostics found issues.")
+                banner = BannerState(kind: .warning, message: "Some system checks failed.")
             } else {
                 clearNonSuccessBanner()
             }

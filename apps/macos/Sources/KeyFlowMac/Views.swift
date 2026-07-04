@@ -1156,7 +1156,7 @@ struct AddAccountSheet: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Add account")
                         .font(.title3.weight(.semibold))
-                    Text("Create a named Codex login profile.")
+                    Text("Add a named ChatGPT login profile.")
                         .font(.system(size: 12, weight: .medium))
                         .foregroundStyle(CodexVisual.quietText)
                 }
@@ -1557,7 +1557,7 @@ struct ManagerWindowView: View {
                     } else {
                         EmptyStateView(
                             title: "No account selected",
-                            detail: "Choose an account to inspect usage, switch, or remove it."
+                            detail: "Select an account to check details, switch profiles, or delete."
                         )
                         .padding(.top, 80)
                     }
@@ -1577,7 +1577,7 @@ struct ManagerWindowView: View {
                                     Button {
                                         Task { await model.loadDoctor() }
                                     } label: {
-                                        Label("Refresh Diagnostics", systemImage: "arrow.clockwise")
+                                        Label("Re-run Status Checks", systemImage: "arrow.clockwise")
                                     }
                                     .buttonStyle(.borderless)
                                     .disabled(model.hasBlockingOperation)
@@ -1623,9 +1623,7 @@ struct ManagerWindowView: View {
                                             )
                                     )
                                 } else {
-                                    Text("Diagnostics have not been loaded yet.")
-                                        .font(.caption)
-                                        .foregroundStyle(CodexVisual.quietText)
+                                    Text("Status checks are waiting to run.")
                                 }
                             }
                         }
